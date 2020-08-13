@@ -3,20 +3,30 @@
 # hook script to check the commit message format
 # example format --- "{type}({scope}): {subject}"
 
+BUILD=build
+CI=ci
+DOCO=doco
+RFTR=rftr
+STYLE=style
+TEST=test
+FEAT=feat
+FIX=fix
+PERF=perf
+
 INSTRUCTION=$"
 INSTRUCTION\n
-- type: \n
+- action: \n
 prefix represent kind of the change\n
-    available types: build|ci|doco|rftr|style|test|feat|fix|perf|param\n
-\t  - build: build system, package dependencies\n
-\t  - ci: continuous integration and deployment system\n
-\t  - doco: documentation\n
-\t  - rftr: code refactor\n
-\t  - style: code style change\n
-\t  - test: refactor existing test, new test (unit, integration)\n
-\t  - feat: new features\n
-\t  - fix: bug fix\n
-\t  - perf: performance improvement\n
+    available types: ${BUILD}|${CI}|${DOCO}|${RFTR}|${STYLE}|${TEST}|${FEAT}|${FIX}|${PERF}\n
+\t  - ${BUILD}: build system, package dependencies\n
+\t  - ${CI}: continuous integration and deployment system\n
+\t  - ${DOCO}: documentation\n
+\t  - ${RFTR}: code refactor\n
+\t  - ${STYLE}: code style change\n
+\t  - ${TEST}: refactor existing test, new test (unit, integration)\n
+\t  - ${FEAT}: new features\n
+\t  - ${FIX}: bug fix\n
+\t  - ${PERF}: performance improvement\n
 - scope: \n
 information represent context of the change\n
 this can be package name, script name\n
@@ -33,7 +43,7 @@ COMMIT_EXIT_CODE=$?
 # print instructions if the commit message doesn't follow the pattern
 test 0 = ${COMMIT_EXIT_CODE} ||
 {
-    echo >&2 "\nERROR: Please follow commit message format \"type(scope): subject\"\n";
+    echo >&2 "\nERROR: Please follow commit message format \"Action(scope): Subject\"\n";
 
     echo ${INSTRUCTION}
 
