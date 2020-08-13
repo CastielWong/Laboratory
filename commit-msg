@@ -1,0 +1,42 @@
+#!/bin/sh
+#
+# hook script to check the commit message format
+# example format --- "{type}({scope}): {subject}"
+
+INSTRUCTION=$"
+INSTRUCTION\n
+- type: \n
+prefix represent kind of the change\n
+    available types: build|ci|doco|rftr|style|test|feat|fix|perf|param\n
+\t  - build: build system, package dependencies\n
+\t  - ci: continuous integration and deployment system\n
+\t  - doco: documentation\n
+\t  - rftr: code refactor\n
+\t  - style: code style change\n
+\t  - test: refactor existing test, new test (unit, integration)\n
+\t  - feat: new features\n
+\t  - fix: bug fix\n
+\t  - perf: performance improvement\n
+- scope: \n
+information represent context of the change\n
+this can be package name, script name\n
+- subject: \n
+concise description of the actual changes as the commit message\n
+"
+
+# check if the commit message matches the pattern: {action}({scoope}): messages
+cat $1 | egrep -i '^(build|ci|doco|rftr|style|test|feat|fix|perf)\((.+)\)\: .+'
+
+# retrieve the exit code
+COMMIT_EXIT_CODE=$?
+
+# print instructions if the commit message doesn't follow the pattern
+test 0 = ${COMMIT_EXIT_CODE} ||
+{
+    echo >&2 "\nERROR: Please follow commit message format \"type(scope): subject\"\n";
+
+    echo ${INSTRUCTION}
+
+    # make sure the exit code is non-zero
+    exit 1
+}

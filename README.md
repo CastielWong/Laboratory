@@ -41,10 +41,14 @@ pyenv local {venv}
 pyenv deactivate
 ```
 
-To install pre-commit:
+Install pre-commit and regulate the format of commit message:
 
 ```sh
 pip install pre-commit
 # check all files with pre-commit
 pre-commit run --all-files
+
+# set up the commit message check
+cp commit-msg .git/hooks/commit-msg
+chmod +x .git/hooks/commit-msg
 ```
