@@ -10,7 +10,7 @@ git push -u origin master
 
 ## Setup
 
-It's a good practice to have [pre-commit](https://pre-commit.com/) in git repository for the purpose of code linting and formatting. Since most of the scripts involved would be in Python, to make the environment clean and easy to manage, [pyenv](https://github.com/pyenv/pyenv) is used to manage Python version and libraries. 
+It's a good practice to have [pre-commit](https://pre-commit.com/) in git repository for the purpose of code linting and formatting. Since most of the scripts involved would be in Python, to make the environment clean and easy to manage, [pyenv](https://github.com/pyenv/pyenv) is used to manage Python version and libraries.
 
 For Mac user, it's suggested to install [Homebrew](https://brew.sh/) to get "pyenv"
 
@@ -39,4 +39,12 @@ pyenv local {venv}
 
 # deactivate current virtual environment
 pyenv deactivate
+```
+
+To install pre-commit:
+
+```sh
+pip install pre-commit
+# check all files with pre-commit
+pre-commit run --all-files
 ```
