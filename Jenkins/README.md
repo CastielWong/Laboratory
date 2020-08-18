@@ -134,6 +134,7 @@ Plugins to install:
 - Ansible
 - AnsiColor
 - Role-based Authorization Strategy
+- Job DSL
 
 Configuration:
 
@@ -159,8 +160,15 @@ Use Gmail for the email notification.
 Note that Gmail restricts integration like Jenkins, so it's needed to set [Less secure app access](https://myaccount.google.com/lesssecureapps) feature off to ensure it works. 
 
 
+## DSL
+
+DSL: Domain-Specific Language
+
+To run DSL, config a job with "Process Job DSLs" in _Build_.
+
 
 ## Reference
 
 - https://www.digitalocean.com/community/questions/error-permission-denied-publickey-when-i-try-to-ssh
 - https://unix.stackexchange.com/questions/23291/how-to-ssh-to-remote-server-using-a-private-key
+- Jenkins Job DSL API: https://jenkinsci.github.io/job-dsl-plugin/
