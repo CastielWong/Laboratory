@@ -1,8 +1,4 @@
 
-Jenkins/jenkins_home
-Jenkins/centos7/remote*
-Jenkins/db_data/*
-
 # Created by https://www.toptal.com/developers/gitignore/api/macos,windows,visualstudiocode,jetbrains+all,java,python,virtualenv
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,windows,visualstudiocode,jetbrains+all,java,python,virtualenv
 
