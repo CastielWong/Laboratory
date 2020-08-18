@@ -8,7 +8,7 @@ pipeline {
     }
 
     stages {
-        stage("Build") { 
+        stage("Build") {
             steps {
                 sh "echo 'Current environment is $ENV'"
                 sh "echo 'Building...'"
@@ -18,12 +18,12 @@ pipeline {
                 """
             }
         }
-        stage("Test") { 
+        stage("Test") {
             steps {
                 echo "Testing..."
             }
         }
-        stage("Deploy") { 
+        stage("Deploy") {
             steps {
                 echo "Deploying..."
             }

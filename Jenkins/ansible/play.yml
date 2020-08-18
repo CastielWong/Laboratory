@@ -3,4 +3,3 @@
     # - debug:
     #   msg: "{{ MSG }}"
     - shell: echo "Demo ansible testing" > /tmp/ansible-file
-  

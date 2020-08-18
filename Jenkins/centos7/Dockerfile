@@ -9,7 +9,7 @@ RUN useradd ${user}
 
 RUN echo "1234" | passwd ${user} --stdin
 # # for centos:8, run command below instead
-# RUN echo "${user}:1234" | chpasswd 
+# RUN echo "${user}:1234" | chpasswd
 
 RUN mkdir /home/${user}/.ssh
 RUN chmod 700 /home/${user}/.ssh

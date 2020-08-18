@@ -36,13 +36,13 @@ Directoryies below are for volume mapping, Docker will create such directory aut
 - "jenkins_home": needed for Jenkins container to keep all of Jenkins environment and contents
 - "db_data": needed for the database container
 
-To start, run `ssh-keygen -f remote-key` to generate SSH key, which is for the use of secure connection between container Jenkins and remote server. 
+To start, run `ssh-keygen -f remote-key` to generate SSH key, which is for the use of secure connection between container Jenkins and remote server.
 Note that the generated public and private key would be hardcoded and mapped to:
 - "centos7/Dockerfile": remote server needs public key for authetication
 - "ansible/hosts": Ansible needs private key to access remote server
 
 ```sh
-# build up images 
+# build up images
 docker-compose build
 
 # start up containers
@@ -157,7 +157,7 @@ Use Gmail for the email notification.
     - Use SSL
     - SMTP Port: 465
 
-Note that Gmail restricts integration like Jenkins, so it's needed to set [Less secure app access](https://myaccount.google.com/lesssecureapps) feature off to ensure it works. 
+Note that Gmail restricts integration like Jenkins, so it's needed to set [Less secure app access](https://myaccount.google.com/lesssecureapps) feature off to ensure it works.
 
 
 ## DSL
