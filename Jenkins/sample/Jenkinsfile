@@ -1,0 +1,59 @@
+
+pipeline {
+    agent any
+
+    environment {
+        ENV = "development"
+//        CREDENCIAL = credentials("{credential}")
+    }
+
+    stages {
+        stage("Build") { 
+            steps {
+                sh "echo 'Current environment is $ENV'"
+                sh "echo 'Building...'"
+                sh """
+                    echo 'List files:'
+                    ls -al
+                """
+            }
+        }
+        stage("Test") { 
+            steps {
+                echo "Testing..."
+            }
+        }
+        stage("Deploy") { 
+            steps {
+                echo "Deploying..."
+            }
+        }
+
+//        stage("Timeout") {
+//            steps {
+//                retry(3) {
+//                    sh "command not work"
+//                }
+//
+//                timeout(time: 3, unit: "SECONDS") {
+//                    sh "sleep 1"
+//                }
+//            }
+//        }
+    }
+
+    post {
+        always {
+            echo "This would always get executed"
+        }
+        success {
+            echo "This only get executed when succeed"
+        }
+        failure {
+            echo "This only get executed when failed"
+        }
+        unstable {
+            echo "This only get executed when it's unstable"
+        }
+    }
+}
