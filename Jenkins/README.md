@@ -13,16 +13,10 @@ This is used to explore Jenkins stuff. Docker and Docker-Compose are used for th
 Below lists common and useful commands:
 
 ```sh
-# pull Jenkins image from Docker Hub
-docker pull jenkins/jenkins
-
 docker exec -it -u root jenkins bash
 
 # install sudo and vim for the container
 apt-get install sudo vim -y
-
-# check ip address for current host
-ifconfig | grep "inet " | grep -v 127.0.0.1
 
 # add a user to a group
 usermod -a -G {group} {user}
@@ -37,6 +31,15 @@ chown {user}:{group} {directory} -R
 ## Docker Compose
 
 To orchestrate contianers, Docker Compose is applied to handle the communication between containers.
+
+Directoryies below are for volume mapping, Docker will create such directory automatically if not existed yet:
+- "jenkins_home": needed for Jenkins container to keep all of Jenkins environment and contents
+- "db_data": needed for the database container
+
+To start, run `ssh-keygen -f remote-key` to generate SSH key, which is for the use of secure connection between container Jenkins and remote server. 
+Note that the generated public and private key would be hardcoded and mapped to:
+- "centos7/Dockerfile": remote server needs public key for authetication
+- "ansible/hosts": Ansible needs private key to access remote server
 
 ```sh
 # build up images 
@@ -53,14 +56,19 @@ docker logs -f {container_name}
 docker-compose down
 ```
 
+Run `ifconfig | grep "inet " | grep -v 127.0.0.1` to retrieve ip address for current host. Grap the initial password from  "jenkins_home/secrets/initialAdminPassword" then go to {ip:8080} to start the Jenkins.
+
+
 ### Container - Jenkins
+
 
 ```sh
 # connect to the remote host with password
-ssh remote_user@remote_host
+ssh {remote_user}@{remote_host}
 
 # connect to the remote host without password
-ssh -i {remote_key} remote_user@remote_host
+# note: make sure the user has permission to the key
+ssh -i {key_file} {remote_user}@{remote_host}
 
 # ---------------Ansible----------------
 # after config hosts for Ansible
@@ -104,8 +112,8 @@ DESC INFO;
 
 Plugins to install:
 
-- SSH plugin
-- Ansible plugin
+- SSH
+- Ansible
 - AnsiColor
 - Role-based Authorization Strategy
 

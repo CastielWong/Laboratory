@@ -1,4 +1,4 @@
 
-jenkins_home
+jenkins_home/
 centos7/remote*
-db_data/*
+db_data/
