@@ -1,0 +1,35 @@
+
+job("dsl_example") {
+
+    description("This is just a DSL sample job")
+
+    parameters {
+        stringParam("Planet", defaultValue = "Earth", description = "This is the world")
+        booleanParam("FLAG", true)
+        choiceParam("OPTION", ["Option 1 (default)", "Option 2", "Option 3"])
+    }
+
+    triggers {
+        cron("H 5 * * 7")
+    }
+
+//    scm {
+//        git("https://github.com/CastielWong/Laboratory", "master")
+//    }
+
+    steps {
+        wrappers {
+            colorizeOutput(colorMap = "xterm")
+        }
+
+        shell("""
+            echo 'First step'
+        """)
+        shell("echo 'Second step'")
+    }
+
+//    publishers {
+//        mailer("a@demo.com", true, true)
+//    }
+
+}

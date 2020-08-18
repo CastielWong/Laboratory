@@ -48,6 +48,9 @@ pip install pre-commit
 # check all files with pre-commit
 pre-commit run --all-files
 
+# set up pre-commit so that it would be triggered automatically whenever make an commit
+pre-commit install
+
 # set up the commit message check
 cp commit-msg .git/hooks/commit-msg
 chmod +x .git/hooks/commit-msg
