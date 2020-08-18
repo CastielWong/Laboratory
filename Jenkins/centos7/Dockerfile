@@ -2,7 +2,7 @@ FROM centos:7
 
 ENV user remote_user
 
-RUN yum -y install openssh-server
+RUN yum install -y openssh-server
 
 # set up user
 RUN useradd ${user}

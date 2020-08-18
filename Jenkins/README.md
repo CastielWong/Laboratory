@@ -61,6 +61,17 @@ Run `ifconfig | grep "inet " | grep -v 127.0.0.1` to retrieve ip address for cur
 
 ### Container - Jenkins
 
+For Ansible playbook, copy files needed for the container:
+
+```sh
+# copy the SSH key for remote connection
+docker cp centos7/remote-key jenkins:/tmp/ansible/
+# copy other files needed for the container
+docker cp ansible/play.yml jenkins:/tmp/ansible/
+docker cp ansible/hosts jenkins:/tmp/ansible/
+```
+
+Inside container:
 
 ```sh
 # connect to the remote host with password
@@ -93,6 +104,13 @@ A container is used to simulate a remote server:
 # connect to MySQL database
 mysql -u root -h db_host -p
 ```
+
+There could be issues for SSH communication between Jenkins and the remote server when configing via Jenkins UI, try:
+- Check if "/etc/ssh/sshd_config" is correctly setup
+- In "/etc/passwd", update "jenkins:x:1000:1000:..." to "jenkins:x:1000:0:..." to make user "jenkins" in root group
+
+Check links in Reference for more information.
+
 
 ### Container - Database
 
@@ -143,10 +161,6 @@ Note that Gmail restricts integration like Jenkins, so it's needed to set [Less 
 
 
 ## Reference
-
-There could be issues for SSH communication between Jenkins and the remote server when configing via Jenkins UI, try:
-- Check if "/etc/ssh/sshd_config" is correctly setup
-- In "/etc/passwd", update "jenkins:x:1000:1000:..." to "jenkins:x:1000:0:..." to make user "jenkins" in root group
 
 - https://www.digitalocean.com/community/questions/error-permission-denied-publickey-when-i-try-to-ssh
 - https://unix.stackexchange.com/questions/23291/how-to-ssh-to-remote-server-using-a-private-key
