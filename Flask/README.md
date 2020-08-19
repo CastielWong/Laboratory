@@ -12,11 +12,13 @@ pyenv local lab_flask
 A basic example of HTTP Verbs:
 
 | Verb | Meaning | Example |
-| GET | retrieve something | GET /item/1 |
-| POST | receive data, and use it | POST /item |
-| PUT | make sure something is there | PUT /item |
-| DELETE | remove something | DELETE /item/1 |
+| GET | read, retrieve something | GET /item/1 |
+| POST | create, receive data, and use it | POST /item |
+| PUT | update, make sure something is there | PUT /item |
+| DELETE | delete, remove something | DELETE /item/1 |
 
+[Postman](https://www.postman.com/postman/) is good for testing to check if the application is
+working properly. Remember to set _Headers_ to ("Content-Type", "application/json") for POST action.
 
 
 ## Reference
