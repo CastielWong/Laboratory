@@ -5,7 +5,7 @@ from flask import Flask, jsonify, request, render_template
 
 app = Flask(__name__)
 
-stores = [{"name": "First Store", "items": [{"name": "Item1", "price": 3.89}]}]
+stores = [{"name": "The First Store", "items": [{"name": "Item 1", "price": 3.89}]}]
 
 
 # GET /
