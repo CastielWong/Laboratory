@@ -21,6 +21,15 @@ A basic example of HTTP Verbs:
 working properly. Remember to set _Headers_ to ("Content-Type", "application/json") for POST action.
 
 
+## Authentication
+
+Run `pip install flask-JWT` to install Flask-JWT for JSON Web Token. Grasp JWT from "localhost:5000/auth"
+via POST with corresponding user and password, then get the access token to perform other action with
+header ("Authorization", "JWT {token}").
+
+
+
+
 ## Reference
 
 - REST APIs with Flask and Python: https://www.udemy.com/course/rest-api-flask-and-python/
