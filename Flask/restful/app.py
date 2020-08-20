@@ -3,16 +3,11 @@
 
 from datetime import timedelta
 
-from flask import Flask
-from flask_restful import Api
-from flask_jwt import JWT
+from flask import Flask, jsonify
+from flask_jwt_extended import JWTManager
 
 from restful import config
 from restful.db import db
-from restful.security import authenticate, identity
-from restful.resources.user import UserRegister, User
-from restful.resources.item import Item, ItemList
-from restful.resources.store import Store, StoreList
 
 app = Flask(__name__)
 app.secret_key = "secret_for_demo"
@@ -29,26 +24,76 @@ def create_tables():
 
 
 # customize JSON Web Token configuration
-app.config["JWT_AUTH_URL_RULE"] = "/login"  # default is "/auth"
 app.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=1800)  # default is 300s
 app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["JWT_BLACKLIST_ENABLED"] = True
+app.config["JWT_BLACKLIST_TOKEN_CHECKS"] = ["access", "refresh"]
 
 # note that the configuration needs to be done before creating JWT
-jwt = JWT(app, authenticate, identity)
+jwt = JWTManager(app)
 
 
-api = Api(app)
+@jwt.user_claims_loader
+def add_claims_to_jwt(identity):
+    # allow the first user only to be the admin
+    if identity == 1:
+        return {"is_admin": True}
 
-api.add_resource(UserRegister, "/register")
-api.add_resource(User, "/user/<int:user_id>")
-api.add_resource(Store, "/store/<string:name>")
-api.add_resource(StoreList, "/stores")
-api.add_resource(Item, "/item/<string:name>")
-api.add_resource(ItemList, "/items")
+    return {"is_admin": False}
 
 
-if __name__ == "__main__":
-    # initialize SQLAlchemy with current application
-    db.init_app(app)
+@jwt.token_in_blacklist_loader
+def check_if_token_in_blacklist(decrypted_token):
+    return decrypted_token["jti"] in config.BLACKLIST
 
-    app.run(port=5000, debug=True)
+
+@jwt.expired_token_loader
+def expired_token_callback():
+    return (
+        jsonify({"description": "The token has expired.", "error": "expired_token"}),
+        401,
+    )
+
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    # it's needed to keep the argument, since it's passed in by the caller internally
+    return (
+        jsonify(
+            {"description": "The token is invalid.", "error": f"invalid_token: {error}"}
+        ),
+        401,
+    )
+
+
+@jwt.unauthorized_loader
+def missing_token_callback(error):
+    return (
+        jsonify(
+            {"description": "The token is missing.", "error": f"missing_token: {error}"}
+        ),
+        401,
+    )
+
+
+@jwt.needs_fresh_token_loader
+def needs_fresh_token_callback():
+    return (
+        jsonify(
+            {
+                "description": "The token is needed to fresh.",
+                "error": "needs_fresh_token",
+            }
+        ),
+        401,
+    )
+
+
+@jwt.revoked_token_loader
+def revoked_token_callback():
+    return (
+        jsonify(
+            {"description": "The token has been revoked.", "error": "revoked_token"}
+        ),
+        401,
+    )
