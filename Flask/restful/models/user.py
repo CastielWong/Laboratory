@@ -1,48 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sqlite3
-
-from restful import config
+from restful.db import db
 
 
-class UserModel:
-    def __init__(self, id_, username, password):
-        # must set id for library werkzeug
-        self.id = id_
+class UserModel(db.Model):
+    __tablename__ = "Users"
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80))
+    password = db.Column(db.String(80))
+
+    def __init__(self, username, password):
         self.username = username
         self.password = password
 
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
     @classmethod
     def find_by_username(cls, username):
-        connection = sqlite3.connect(config.DATABASE)
-        cursor = connection.cursor()
-
-        query = "SELECT * FROM Users WHERE username=?"
-        result = cursor.execute(query, (username,))
-        row = result.fetchone()
-
-        user = None
-        if row:
-            user = cls(*row)
-
-        connection.close()
-
-        return user
+        # SELECT * FROM Users WHERE username=? LIMIT 1
+        return UserModel.query.filter_by(username=username).first()
 
     @classmethod
     def find_by_id(cls, id_):
-        connection = sqlite3.connect(config.DATABASE)
-        cursor = connection.cursor()
-
-        query = "SELECT * FROM Users WHERE id=?"
-        result = cursor.execute(query, (id_,))
-        row = result.fetchone()
-
-        user = None
-        if row:
-            user = cls(*row)
-
-        connection.close()
-
-        return user
+        return UserModel.query.filter_by(id=id_).first()
