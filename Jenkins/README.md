@@ -107,7 +107,7 @@ mysql -u root -h db_host -p
 
 There could be issues for SSH communication between Jenkins and the remote server when configing via Jenkins UI, try:
 - Check if "/etc/ssh/sshd_config" is correctly setup
-- In "/etc/passwd", update "jenkins:x:1000:1000:..." to "jenkins:x:1000:0:..." to make user "jenkins" in root group
+- In "/etc/passwd", update "jenkins:{group}:1000:1000:..." to "jenkins:{group}:1000:0:..." to make user "jenkins" in root group
 
 Check links in Reference for more information.
 
