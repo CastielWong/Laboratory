@@ -4,38 +4,34 @@
 from restful.db import db
 
 
-class ItemModel(db.Model):
-    __tablename__ = "Items"
+class StoreModel(db.Model):
+    __tablename__ = "Stores"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80))
-    price = db.Column(db.Float(precision=2))
 
-    # link StoreModel with FK
-    store_id = db.Column(db.Integer, db.ForeignKey("Stores.id"))
-    store = db.relationship("StoreModel")
+    # perform back reference, and avoid early joining by lazy loading
+    items = db.relationship("ItemModel", lazy="dynamic")
 
-    def __init__(self, name, price, store_id):
+    def __init__(self, name):
         self.name = name
-        self.price = price
-        self.store_id = store_id
 
     def json(self):
         return {
             "id": self.id,
             "name": self.name,
-            "price": self.price,
-            "store_id": self.store_id,
+            "items": [item.json() for item in self.items.all()],
         }
 
     @classmethod
     def find_by_name(cls, name):
         # SELECT * FROM Items WHERE name=? LIMIT 1
-        return ItemModel.query.filter_by(name=name).first()
+        return StoreModel.query.filter_by(name=name).first()
 
     @classmethod
     def find_all(cls):
-        return ItemModel.query.all()
+        # SELECT * FROM Items WHERE name=? LIMIT 1
+        return StoreModel.query.all()
 
     def save_to_db(self):
         db.session.add(self)

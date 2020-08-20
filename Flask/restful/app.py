@@ -10,8 +10,9 @@ from flask_jwt import JWT
 from restful import config
 from restful.db import db
 from restful.security import authenticate, identity
-from restful.resources.user import UserRegister
+from restful.resources.user import UserRegister, User
 from restful.resources.item import Item, ItemList
+from restful.resources.store import Store, StoreList
 
 app = Flask(__name__)
 app.secret_key = "secret_for_demo"
@@ -23,12 +24,14 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 @app.before_first_request
 def create_tables():
+    # note that SQLAlchemy would only create tables it can see here
     db.create_all()
 
 
 # customize JSON Web Token configuration
 app.config["JWT_AUTH_URL_RULE"] = "/login"  # default is "/auth"
 app.config["JWT_EXPIRATION_DELTA"] = timedelta(seconds=1800)  # default is 300s
+app.config["PROPAGATE_EXCEPTIONS"] = True
 
 # note that the configuration needs to be done before creating JWT
 jwt = JWT(app, authenticate, identity)
@@ -36,9 +39,12 @@ jwt = JWT(app, authenticate, identity)
 
 api = Api(app)
 
+api.add_resource(UserRegister, "/register")
+api.add_resource(User, "/user/<int:user_id>")
+api.add_resource(Store, "/store/<string:name>")
+api.add_resource(StoreList, "/stores")
 api.add_resource(Item, "/item/<string:name>")
 api.add_resource(ItemList, "/items")
-api.add_resource(UserRegister, "/register")
 
 
 if __name__ == "__main__":
