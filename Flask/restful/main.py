@@ -3,17 +3,17 @@
 
 from flask_restful import Api
 
-from restful.app import app
-from restful.db import db
-from restful.resources.user import (
+from app import app
+from db import db
+from resources.user import (
     UserRegister,
     User,
     UserLogin,
     UserLogout,
     TokenRefresh,
 )
-from restful.resources.item import Item, ItemList
-from restful.resources.store import Store, StoreList
+from resources.item import Item, ItemList
+from resources.store import Store, StoreList
 
 api = Api(app)
 
@@ -26,6 +26,7 @@ api.add_resource(Store, "/store/<string:name>")
 api.add_resource(StoreList, "/stores")
 api.add_resource(Item, "/item/<string:name>")
 api.add_resource(ItemList, "/items")
+
 
 if __name__ == "__main__":
     # initialize SQLAlchemy with current application

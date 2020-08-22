@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from restful.db import db
+from db import db
 
 
 class ItemModel(db.Model):
-    __tablename__ = "Items"
+    __tablename__ = "Item"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80))
     price = db.Column(db.Float(precision=2))
 
     # link StoreModel with FK
-    store_id = db.Column(db.Integer, db.ForeignKey("Stores.id"))
+    store_id = db.Column(db.Integer, db.ForeignKey("Store.id"))
     store = db.relationship("StoreModel")
 
     def __init__(self, name, price, store_id):

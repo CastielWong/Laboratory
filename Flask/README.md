@@ -43,9 +43,12 @@ RESTful API are developed, all API endpoints available are:
 | /store/<name> | POST | Authorization | | Create a store |
 | /store/<name> | DELETE | Authorization | | Delete a store |
 
+"http://127.00.1:5000" is the default URL.
+
 __Flask-JWT-Extended__ is applied to take care of the authentication.
 
-[Postman](https://www.postman.com/postman/) is a good tool for testing, which is used to check if the application is working properly.
+[Postman](https://www.postman.com/postman/) is a good tool for testing, which is used
+to check if the application is working properly.
 
 
 ## Reference

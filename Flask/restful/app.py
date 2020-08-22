@@ -6,13 +6,13 @@ from datetime import timedelta
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 
-from restful import config
-from restful.db import db
+import config
+from db import db
 
 app = Flask(__name__)
 app.secret_key = "secret_for_demo"
 
-app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{config.DB_NAME}"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{config.DB_FOLDER}/{config.DB_NAME}"
 # turn off Flask-SQLAlchemy tracker, but not the SQLAlchemy tracker
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 

@@ -10,7 +10,7 @@ from flask_jwt_extended import (
     fresh_jwt_required,
 )
 
-from restful.models.item import ItemModel
+from models.item import ItemModel
 
 
 class Item(Resource):

@@ -12,8 +12,8 @@ from flask_jwt_extended import (
 from flask_restful import Resource, reqparse
 from werkzeug.security import safe_str_cmp
 
-from restful import config
-from restful.models.user import UserModel
+import config
+from models.user import UserModel
 
 _user_parser = reqparse.RequestParser()
 _user_parser.add_argument("username", type=str, required=True, help="User's name")

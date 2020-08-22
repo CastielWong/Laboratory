@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from restful.db import db
+from db import db
 
 
 class UserModel(db.Model):
-    __tablename__ = "Users"
+    __tablename__ = "User"
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80))
