@@ -27,9 +27,10 @@ api.add_resource(StoreList, "/stores")
 api.add_resource(Item, "/item/<string:name>")
 api.add_resource(ItemList, "/items")
 
+# initialize SQLAlchemy with current application
+db.init_app(app)
+
 
 if __name__ == "__main__":
-    # initialize SQLAlchemy with current application
-    db.init_app(app)
 
     app.run(port=5000, debug=True)
