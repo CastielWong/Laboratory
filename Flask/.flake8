@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 88
+format = %(path)s - %(row)d:%(col)-6d  [%(code)s] %(text)s
+
+# check https://pycodestyle.pycqa.org/en/latest/intro.html for error code list
+# it's not a bug that we aren't using all of hacking, ignore:
+# E121: continuation line under-indented for hanging indent
+ignore = E121
