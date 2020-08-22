@@ -4,7 +4,7 @@ services:
     container_name: flask_app
     image: lab-flask
     build:
-      context: .
+      context: $PWD
     ports:
       - "5000:5000"
     environment:

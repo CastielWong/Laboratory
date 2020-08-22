@@ -1,4 +1,8 @@
 
+- [REST](#rest)
+- [Reference](#reference)
+
+
 This is used to explore Flask stuff.
 
 To create a separate python environment for the exploration, run bash scripts below:
@@ -55,3 +59,4 @@ to check if the application is working properly.
 
 - REST APIs with Flask and Python: https://www.udemy.com/course/rest-api-flask-and-python/
 - General structure of the project: https://arac.tecladocode.com/1_structure_of_api/1_7_resources_user.html#userlogout
+- Getting Started with Alpine: http://containertutorials.com/alpine/get_started.html
