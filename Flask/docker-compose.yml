@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   web:
     container_name: flask_app
@@ -8,6 +9,6 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - DB_URI=sqlite:////database/data.sqlite
+      DB_URI: sqlite:////database/data.sqlite
     volumes:
       - $PWD/restful/database:/database

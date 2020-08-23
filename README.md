@@ -55,3 +55,7 @@ pre-commit install
 cp commit-msg .git/hooks/commit-msg
 chmod +x .git/hooks/commit-msg
 ```
+
+
+## Reference
+- Compose file version 3 reference: https://docs.docker.com/compose/compose-file
