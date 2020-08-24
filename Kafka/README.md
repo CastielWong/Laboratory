@@ -148,3 +148,5 @@ kafka-consumer-groups --bootstrap-server 127.0.0.1:9092 --describe --group {grou
 ## Reference
 - Udemy - Apache Kafka: https://www.udemy.com/course/apache-kafka/
 - Kafka Stack Docker-Compose: https://github.com/simplesteph/kafka-stack-docker-compose
+- Kafka for Beginners: https://github.com/simplesteph/kafka-beginners-course
+- Kafka Confluent Hub: https://www.confluent.io/hub/
