@@ -1,4 +1,12 @@
 
+- [Concept](#concept)
+- [Configuratino](#configuration)
+- [CLI](#cli)
+    - [Topic](#topic)
+    - [Producer](#producer)
+    - [Consumer](#consumer)
+- [Reference](#reference)
+
 This repo is for Kafka learning.
 
 First of all, run `brew install kafka` install Kafka and Zookeeper via Homebrew locally.
@@ -88,6 +96,53 @@ If it's to run Kafka locally, go to Kafka directory and config property in both 
 After configuration, run:
 - `zookeeper-server-start config/zookeeper.properties` to start up Zookeeper
 - `zookeeper-server-start config/server.properties` to start Kafka
+
+
+## CLI
+
+### Topic
+
+Since `kafka-topics --zookeeper 127.0.0.1:2181` is deprecated, it's suggested to use `kafka-topics --bootstrap-server 127.0.0.1:9092` instead.
+
+Common commands:
+```sh
+# list topics
+kafka-topics --bootstrap-server 127.0.0.1:9092 --list
+
+# create a topic
+kafka-topics --bootstrap-server 127.0.0.1:9092 --topic {topic} --create --partition {m} --replication-factor {n}
+
+# describe a topic
+kafka-topics --bootstrap-server 127.0.0.1:9092 --topic {topic} --describe
+```
+
+### Producer
+
+```sh
+# start to produce message
+kafka-console-producer --broker-list 127.0.0.1:9092 --topic {topic}
+
+# produce message with key
+kafka-console-producer --broker-list 127.0.0.1:9092 --topic {topic} --property parse.key=true --property key.separtor={separtor}
+```
+
+### Consumer
+
+```sh
+# start to consume message
+kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic {topic}
+
+# consume message from the begining with key
+kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic {topic} --from-beginning --property print.key=true --property key.separator={separtor}
+
+# mutliple consumers consume message in the same group
+kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic {topic} --group {group}
+
+# list existing consumer groups
+kafka-consumer-groups --bootstrap-server 127.0.0.1:9092 --list
+# describe a consumer group
+kafka-consumer-groups --bootstrap-server 127.0.0.1:9092 --describe --group {group}
+```
 
 
 ## Reference
