@@ -75,6 +75,21 @@ There are some guarantees Kafka admits:
 - as long as the number of partitions remains constant for a topic(no new partitions), the same key will always go to the same partition
 
 
+## Configuration
+
+### Docker
+To run Kafka via Docker, simply run `docker-compose -f zk-single-kafka-single.yml up` to start both Kafka and Zookeeper.
+
+### Native
+If it's to run Kafka locally, go to Kafka directory and config property in both Kafka and Zookeeper is recommended:
+- "config/zookeeper.properties": `dataDir=/{dir}`
+- "config/server.properties": `log.dirs=/{dir}`
+
+After configuration, run:
+- `zookeeper-server-start config/zookeeper.properties` to start up Zookeeper
+- `zookeeper-server-start config/server.properties` to start Kafka
+
+
 ## Reference
 - Udemy - Apache Kafka: https://www.udemy.com/course/apache-kafka/
 - Kafka Stack Docker-Compose: https://github.com/simplesteph/kafka-stack-docker-compose
