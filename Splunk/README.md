@@ -5,7 +5,7 @@ Set password in "standalone-*.yml", then run `docker-compose -f standalone-{mode
 
 Access Splunk via "127.0.0.1:8000" in browser. User name is "admin", while password is the one you specify.
 
-
+For experiments, its suggested to create Splunk containers via "standalone-uf.yml" then add "demo_data.csv" as the source.
 
 
 ## Concept
@@ -58,7 +58,8 @@ Note that forwarding data to a Splunk indexer / search head won't work unless th
 
 ## Search
 
-The search box follows pattern like: `{search term} {command} | ...`。 For example, `sourcetype=WinEventLog:Security EventCode=4625 user=* | stats count(EventCode) by user _time | table _time user count(EventCode) | sort -_time`
+The search box follows pattern like: `{search term} {command} | ...`. For example, `host=demo_data domain=* usr=* type=fail* OR lock* | table usr domain type _time | sort type -_time`.
+
 
 Basic search terms:
 - wildcard: *
@@ -75,6 +76,33 @@ Basic search commands:
 - `dedup`
 - `sort`
 - `table`
+
+
+## Time
+
+- `_time` is a Splunk-generated defaul field that represents time
+- timestamps are usually added automatically based on the event raw data
+- if time and date are not included in the event raw data, Splunk would attempt to "guess" at a timestamp
+- Splunk will set the timestamp to the system time as a last resort
+
+Use `eval time=strftime(_time, "{format}")` to convert time into the format wanted. Below is the conversion format:
+
+| Time Variable | Description |
+| --- | --- |
+| %H | hour (24 hour clock)  |
+| %I | hour (12 hour clock) |
+| %M | minute |
+| %S | second |
+| %p | am/pm |
+| %A | full day name |
+| %d | day of month |
+| %e | day of month without leading 0 |
+| %B | full month name |
+| %b | abbreviated month name |
+| %m | month in number |
+| %Y | year in four digits |
+| %y | year in two digits |
+
 
 
 ## Reference
