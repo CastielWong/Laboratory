@@ -3,12 +3,14 @@ SPL: Search Processing Language
 
 Set password in "standalone-*.yml", then run `docker-compose -f standalone-{mode}.yml up` to start up a container for Splunk.
 
-Access Splunk via "127.0.0.1:8000" in browser. User name is "admin", while password is the one you specify.
+Access Splunk via "127.0.0.1:8000" in browser. Default user name is "admin", while password is the one you specify.
 
 For experiments, its suggested to create Splunk containers via "standalone-uf.yml" then add "demo_data.csv" as the source.
 
 
 ## Concept
+
+### Basic
 
 There are four phases for Splunk data pipeline:
 1. Input: any data souces (monitored, fowarded, etc)
@@ -25,6 +27,7 @@ There are four phases for Splunk data pipeline:
 
 Index:
 - a repository for Splunk data
+- built-in indexes, "main", "_internal"
 - Splunk transforms incoming data into events, and stores it in indexes
 
 Event:
@@ -53,7 +56,42 @@ Forwarder:
     - does much of the "heavy lifting" at the source, which can parse and index data
     - can be configured at the source, and through a deployment server
 
+To explore more data via universal forwarder, get into the universal forwarder container then run `sudo ./{SPLUNK_FORWARDER_HOME}/bin/splunk add monitor {folder}` to add logs wanted for monitor.
+
+
 Note that forwarding data to a Splunk indexer / search head won't work unless the indexer / search head is configured to receive the data.
+
+__Deloyment Server__ is a configuration management tool, which can be replaced by other tools like Chef, while __Deployer__ is a component that manages Search Head clusters specifically.
+
+### Advanced
+
+Deployment Server:
+- Allows you to manage groups of Splunk Enterprise instances from a central location
+- Identifies clients and subscribes them to server classes
+- A server class defines a group of Splunk deployment apps and adds them to it’s member criteria
+- Deplyment apps are located in {SPLUNK_HOME}/etc/deployment-apps/
+
+Configuration:
+- Configuration files are located in {SPLUNK_HOME}/etc/system/
+- Each app has its own set of configuration files in their local, for example, {SPLUNK_HOME}/etc/apps/{app}/
+- Configuration files in the default/ directories come with Splunk and have default settings
+- Specific changes/configurations should be made in the local/ directory
+- When Splunk starts, configuration files are merged into a single runtime model
+- The resulting runtime model is the union of all files if there are no duplicate stanzas
+- The setting with the highest precedence is used when there are conflicts, the configuration precedence follows:
+    - system/local/
+    - app/local/
+    - app/default/
+    - system/default/
+
+Important configuration files:
+
+| File | Purpose |
+| --- | --- |
+| Inputs.conf | Defines data inputs |
+| Outputs.conf | Defines forwarding behavior |
+| Props.conf | Indexing property configurations, custom source type rules, and more |
+| Limits.conf | Defines various limits for search commands |
 
 
 ## Search
@@ -78,7 +116,7 @@ Basic search commands:
 - `table`
 
 
-## Time
+### Time
 
 - `_time` is a Splunk-generated defaul field that represents time
 - timestamps are usually added automatically based on the event raw data
