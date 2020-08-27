@@ -1,0 +1,39 @@
+version: "3.6"
+
+networks:
+  splunknet:
+    driver: bridge
+    attachable: true
+
+services:
+  universal_forwarder:
+    networks:
+      splunknet:
+        aliases:
+          - url_uf
+    image: splunk/universalforwarder:8.0-debian
+    hostname: host_uf
+    container_name: universal_forwarder
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_STANDALONE_URL: url_standalone
+      SPLUNK_ADD: udp 1514,monitor /var/log/*
+      SPLUNK_PASSWORD: 12345678
+    ports:
+      - 8090:8089
+
+  standalone:
+    networks:
+      splunknet:
+        aliases:
+          - url_standalone
+    image: splunk/splunk:8.0-debian
+    hostname: host_standalone
+    container_name: standalone
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_STANDALONE_URL: url_standalone
+      SPLUNK_PASSWORD: 12345678
+    ports:
+      - 8000:8000
+      - 8089:8089

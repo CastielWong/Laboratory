@@ -1,0 +1,12 @@
+version: "3.6"
+
+services:
+  standalone_hec:
+    image: splunk/splunk:8.0-debian
+    container_name: standalone_hec
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_HEC_TOKEN: abcd1234
+      SPLUNK_PASSWORD: 12345678
+    ports:
+      - 8000:8000
