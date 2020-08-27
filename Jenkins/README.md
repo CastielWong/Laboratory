@@ -10,6 +10,8 @@
 
 This is used to explore Jenkins stuff. Docker and Docker-Compose are used for the exploration.
 
+Jenkins is a free and open source automation server. It helps automate the parts of software development related to building, testing, and deploying, facilitating continuous integration and continuous delivery.
+
 Below lists common and useful commands:
 
 ```sh
@@ -169,6 +171,7 @@ To run DSL, config a job with "Process Job DSLs" in _Build_.
 
 ## Reference
 
+- Jenkins(software): https://en.wikipedia.org/wiki/Jenkins_(software)
 - Become a DevOps Jenkins Master: https://www.udemy.com/course/jenkins-from-zero-to-hero/
 - Jenkins Job DSL API: https://jenkinsci.github.io/job-dsl-plugin/
 - Pipeline: https://www.jenkins.io/doc/book/pipeline/

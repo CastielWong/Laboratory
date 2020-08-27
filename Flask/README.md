@@ -5,6 +5,8 @@
 
 This is used to explore Flask stuff.
 
+Flask is a lightweight WSGI web application framework. It is designed to make getting started quick and easy, with the ability to scale up to complex applications.
+
 To create a separate python environment for the exploration, run bash scripts below:
 
 ```sh
@@ -57,6 +59,7 @@ to check if the application is working properly.
 
 ## Reference
 
+- Flask Website: https://palletsprojects.com/p/flask/
 - REST APIs with Flask and Python: https://www.udemy.com/course/rest-api-flask-and-python/
 - General structure of the project: https://arac.tecladocode.com/1_structure_of_api/1_7_resources_user.html#userlogout
 - Getting Started with Alpine: http://containertutorials.com/alpine/get_started.html

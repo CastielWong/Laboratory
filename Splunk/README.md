@@ -6,6 +6,15 @@
     - [Time](#time)
 - [Reference](#reference)
 
+This repo is for Splunk learning.
+
+Splunk is a data to everything platform, which can be used to:
+- investigate
+- alert
+- build dashboards
+- build reports
+
+Splunk is an IT operations tool that consumes machine-data in real time.
 
 Set password in "standalone-*.yml", then run `docker-compose -f standalone-{mode}.yml up` to start up a container for Splunk.
 
@@ -164,5 +173,6 @@ Use `eval {time}=strftime(_time, "{format}")` to convert time into the format wa
 
 ## Reference
 
-- Splunker Training:  https://www.udemy.com/course/splunker/
+- Splunker Training: https://www.udemy.com/course/splunker/
 - Docker Splunk: https://github.com/splunk/docker-splunk
+- Operational Intelligence: https://www.splunk.com/en_us/resources/operational-intelligence.html

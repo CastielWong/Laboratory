@@ -7,7 +7,13 @@
     - [Consumer](#consumer)
 - [Reference](#reference)
 
-This repo is for Kafka learning.
+This repo is for Apache Kafka learning.
+
+Kafka combines three key capabilities for event streaming end-to-end with a single battle-tested solution:
+- To publish (write) and subscribe to (read) streams of events, including continuous import/export of your data from other systems
+- To store streams of events durably and reliably for as long as wanted
+- To process streams of events as they occur or retrospectively
+
 
 First of all, run `brew install kafka` install Kafka and Zookeeper via Homebrew locally.
 
@@ -147,7 +153,10 @@ kafka-consumer-groups --bootstrap-server 127.0.0.1:9092 --describe --group {grou
 
 ## Reference
 
+- Introduction of Apache Kafka: https://kafka.apache.org/intro
+- What is Apache Kafka: https://www.youtube.com/watch?v=06iRM1Ghr1k
 - Apache Kafka: https://www.udemy.com/course/apache-kafka/
 - Kafka Stack Docker-Compose: https://github.com/simplesteph/kafka-stack-docker-compose
 - Kafka for Beginners: https://github.com/simplesteph/kafka-beginners-course
 - Kafka Confluent Hub: https://www.confluent.io/hub/
+- Apache Kafka Explained: https://www.youtube.com/watch?v=JalUUBKdcA0
