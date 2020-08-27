@@ -1,5 +1,11 @@
 
-SPL: Search Processing Language
+- [Concept](#concept)
+    - [Basic](#basic)
+    - [Advanced](#advanced)
+- [SPL](#spl)
+    - [Time](#time)
+- [Reference](#reference)
+
 
 Set password in "standalone-*.yml", then run `docker-compose -f standalone-{mode}.yml up` to start up a container for Splunk.
 
@@ -33,7 +39,7 @@ Index:
 Event:
 - a single row of data
 - data is specified by fields (key-value pairs)
-- Splunk adds default fields to all events (Timestamp, Host, Source, Sourcetype)
+- Splunk adds default fields to all events (__Timestamp__, __Host__, __Source__, __Sourcetype__)
 
 Splunk stores index data in buckets:
 - Hot:      $SPLUNK_HOME/var/lib/splunk/defaultdb/db/*
@@ -43,25 +49,31 @@ Splunk stores index data in buckets:
 - Thawed:   $SPLUNK_HOME/var/lib/splunk/defaultdb/thaweddb/*
 
 App:
-- an app is a collection of Splunk configuration files
+- an app is a collection of configuration files to extend the functionality of Splunk
 - an add-on is a subset of an app
 - add-ons specify data collection, but do not have GUIs since they are part of the larger app
 
 Forwarder:
 - Universal Forwarder
     - installed at the local machine, can be configured using a deployment server
-    - default forwarding port: 9997
 - Heavy Forwarder
     - a complete installation of Splunk software, but with a forwarder license applied
     - does much of the "heavy lifting" at the source, which can parse and index data
     - can be configured at the source, and through a deployment server
+- Default ports:
+    - forwarding: 9997
+    - management: 8089
+- Some syslog devices do not require Splunk forwarders, syslog data is generally received on port 514
 
-To explore more data via universal forwarder, get into the universal forwarder container then run `sudo ./{SPLUNK_FORWARDER_HOME}/bin/splunk add monitor {folder}` to add logs wanted for monitor.
-
+To explore more data via universal forwarder, get into the universal forwarder container then run `sudo ./{SPLUNK_FORWARDER_HOME}/bin/splunk add monitor -auth admin:{password} {folder}` to add logs wanted for monitor.
 
 Note that forwarding data to a Splunk indexer / search head won't work unless the indexer / search head is configured to receive the data.
 
 __Deloyment Server__ is a configuration management tool, which can be replaced by other tools like Chef, while __Deployer__ is a component that manages Search Head clusters specifically.
+
+Other:
+- Indices are "buckets" where Splunk data is stored on disk
+- Splunk detects fields as key-value pairs
 
 ### Advanced
 
@@ -83,6 +95,11 @@ Configuration:
     - app/local/
     - app/default/
     - system/default/
+- Strcuture of configuration files:
+    ```yml
+    [stanza]
+    attibute=value
+    ```
 
 Important configuration files:
 
@@ -94,7 +111,9 @@ Important configuration files:
 | Limits.conf | Defines various limits for search commands |
 
 
-## Search
+## SPL
+
+SPL is the abbreviation of __Search Processing Language__.
 
 The search box follows pattern like: `{search term} {command} | ...`. For example, `host=demo_data domain=* usr=* type=fail* OR lock* | table usr domain type _time | sort type -_time`.
 
@@ -123,26 +142,27 @@ Basic search commands:
 - if time and date are not included in the event raw data, Splunk would attempt to "guess" at a timestamp
 - Splunk will set the timestamp to the system time as a last resort
 
-Use `eval time=strftime(_time, "{format}")` to convert time into the format wanted. Below is the conversion format:
+Use `eval {time}=strftime(_time, "{format}")` to convert time into the format wanted. Below is the conversion format:
 
-| Time Variable | Description |
-| --- | --- |
-| %H | hour (24 hour clock)  |
-| %I | hour (12 hour clock) |
-| %M | minute |
-| %S | second |
-| %p | am/pm |
-| %A | full day name |
-| %d | day of month |
-| %e | day of month without leading 0 |
-| %B | full month name |
-| %b | abbreviated month name |
-| %m | month in number |
-| %Y | year in four digits |
-| %y | year in two digits |
+| Time Variable | Description | Example |
+| --- | --- | --- |
+| %H | hour (24 hour clock)  | 23 |
+| %I | hour (12 hour clock) | 11 |
+| %M | minute | 35 |
+| %S | second | 42 |
+| %p | am/pm | am |
+| %A | full day name | Thursday |
+| %d | day of month | 06 |
+| %e | day of month without leading 0 | 6 |
+| %B | full month name | February |
+| %b | abbreviated month name | Feb |
+| %m | month in number | 2 |
+| %Y | year in four digits | 2020 |
+| %y | year in two digits | 20 |
 
 
 
 ## Reference
 
+- Splunker Training:  https://www.udemy.com/course/splunker/
 - Docker Splunk: https://github.com/splunk/docker-splunk
