@@ -5,6 +5,13 @@ Terraform is a tool for building, changing, and versioning infrastructure safely
 
 Ansible, Chef, Puppet, Saltstsck have a focus on automating the installation and configuration of software, they are used in keeping the machines in compliance, in a certain state. Terraform can automate provisioning of the infrastructure itself. However, though it provides configuration manager on an infrastructure level, Terraform is not fit to do that on the software on machines. Tool like Ansible is better than Terraform when it comes to automate the machine itself. So it's good to use Ansible to install software after the infrastucture is provisioned by Terraform.
 
+To provision AWS services via demo codes provided, create a user on AWS and store the credential in a file like "terraform.tfvars":
+
+```
+AWS_ACCESS_KEY = "xxx"
+AWS_SECRET_KEY = "xxx"
+AWS_REGION = "xxx"
+```
 
 
 Common Commands:
