@@ -9,6 +9,8 @@ resource "aws_instance" "demo-tf-vpc" {
 
   # the VPC subnet
   subnet_id = aws_subnet.demo-public-1.id
+  # specify private IP explicitly
+  private_ip = "10.0.1.30"
 
   # the security group
   vpc_security_group_ids = [aws_security_group.demo-allow-ssh.id]
