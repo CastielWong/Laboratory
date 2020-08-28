@@ -82,6 +82,25 @@ Types:
 
 To keep credential secure, it's highly recommended to have a file ending with ".tfvars" and have it in gitignore. Normally, Terraform would check ".tfvars" file to retrieve actual values, then parse them into any ".tf" file needed.
 
+### Datasource
+
+- For certain providers, Terraform provides datasources
+- Datasources provides with dynamic information
+    - a lot of data is available by AWS in a structured format using AWS API
+    - Terraform exposes this information using data sources
+
+
+
+## State
+
+- Terraform keeps the remote state of the infrastructure
+- Terraform stores it in a file called __terraform.tfstate__
+- there is also a backup of previous state in __terraform.tfstate.backup__
+- when `terraform apply` is ran, a new __terraform.tfstate__ and backup is written
+- the state can be saved remote by using the backend functionality
+- the default is a local backend
+- using a remote store for the state will ensure that the team always has the latest version of the state
+
 
 
 ## Reference
