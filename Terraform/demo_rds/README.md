@@ -4,7 +4,7 @@ Since the RDS is created inside a private subset, so it's needed to get into the
 Connect to the instance, then run:
 
 ```sh
-sudo apt-get install sql-client
+sudo apt-get install -y mysql-client
 
 mysql -h {rds_url} -u {user} -p"{password}"
 ```

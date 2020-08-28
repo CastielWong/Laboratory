@@ -3,5 +3,5 @@ output "instance" {
 }
 
 output "rds" {
-  value = aws_db_instance.demo-mariadb.endpoint
+  value = aws_db_instance.demo-mysql.endpoint
 }

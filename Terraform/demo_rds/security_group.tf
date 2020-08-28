@@ -22,10 +22,10 @@ resource "aws_security_group" "demo-allow-ssh" {
   }
 }
 
-resource "aws_security_group" "demo-allow-mariadb" {
+resource "aws_security_group" "demo-allow-rds" {
   vpc_id      = aws_vpc.demo-main.id
-  name        = "allow-mariadb"
-  description = "security group that allows mariadb"
+  name        = "allow-rds"
+  description = "security group that allows RDS"
 
   ingress {
     from_port       = 3306
@@ -44,6 +44,6 @@ resource "aws_security_group" "demo-allow-mariadb" {
   }
 
   tags = {
-    Name = "demo-allow-mariadb"
+    Name = "demo-allow-rds"
   }
 }
