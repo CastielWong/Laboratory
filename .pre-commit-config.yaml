@@ -10,7 +10,6 @@ repos:
     - id: check-case-conflict
     - id: check-docstring-first
     - id: check-json
-    - id: pretty-format-json
     - id: check-yaml
     - id: check-merge-conflict
     - id: detect-private-key

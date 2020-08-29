@@ -2,3 +2,7 @@
 terraform.tfvars
 demo_tf_key*
 *.txt
+
+demo.tf
+demo.log
+demo.json
