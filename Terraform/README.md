@@ -96,6 +96,41 @@ To keep credential secure, it's highly recommended to have a file ending with ".
     - a lot of data is available by AWS in a structured format using AWS API
     - Terraform exposes this information using data sources
 
+### Interpolation
+
+There are multiple types of interpolation:
+- variable: `var.<variable>`
+- resource: `<service>.<name>.<attribute>`
+- data source: `data.<template>.<name>.rendered`
+- module: `module.<service>.<output`
+- meta: `terraform.<field>`
+- count: `count.<field>`
+- path: `path.<type>`
+
+### Built-in Function
+
+Table below display common used built-in functions:
+
+| Function | Description | Example |
+| --- | --- | --- |
+| `basename(<path>)` | get the filename (last element) of a path | `basename("/var/demo.txt"` -> "demo.txt" |
+| `coalesce(<str1>, <str2>, ...)` | get the first non-empty element | `coalesce("", "", "hi")` -> "hi" |
+| `element(<list>, <index>)` | get a signle element from a list at the given index | `element(module.vpc.public_subnets, count.index)` |
+| `format(<format>, <variable>, ...)` | format a string | `format("server-%03d`, count.index + 1) -> "server-001" |
+| `index(<list>, <element>)` | find the index of a given element in a list |  |
+| `join(<delim>, <list>)` | joins a list together with a delimiter | `join(",", var.AMIS` -> "ami-123,ami-456" |
+| `list(<item1>, <item2>, ...)` | create a new list | `list("a", "b", "c")` |
+| `lower(<string>` | get lower case of the string | `lower("DEMO")` -> "demo" |
+| `upper(<string>` | get upper case of the string | `upper("demo")` -> "DEMO" |
+| `map(<key>, <value>, ...)` | create a map | `map("k1", "v1", "k2", "v2")` -> {"k1"="v1", "k2"="v2"} |
+| `merge(<map1>, <map2>, ...)` | merge maps | `merge(map("k1", "v1"), map("k2", "v2"))` -> {"k1"="v1", "k2"="v2"} |
+| `lookup(<map>, <key>, [<default>])` | look up on a map | `lookup(map("k", "v"), "a", "not found")` -> "not found" |
+| `replace(<string>, <search>, <replace>` | replace substring | `replace("aba", "a", "b")` -> "aaa" |
+| `split(<delim>, <string>)` | split a string into a list | `split(",", "a, b, c, d")` -> ["a", "b", "c", "d"] |
+| `substre(<string>, <offset>, <length>)` | extract substring from a string | `substr("abcde", -3, 3)` -> "cde" |
+| `timestamp()` | return RFC 3339 timestamp | `timestamp()` -> "2020-08-29T 10:03:23Z" |
+| `uuid()` | return a UUID string in RFC 4122 v4 format | |
+| `values(<map>)` | retrieve values of a map | `values(map("k1", "v1", "k2", "v2"))` -> ["v1", "v2"] |
 
 
 ## State
@@ -117,3 +152,4 @@ To keep credential secure, it's highly recommended to have a file ending with ".
 - Terrafrom demo codes: https://github.com/wardviaene/terraform-course
 - Amazon EC2 AMI Locator: https://cloud-images.ubuntu.com/locator/ec2/
 - AWS Provider in Terraform: https://www.terraform.io/docs/providers/aws/
+- Interpolation Syntax: https://www.terraform.io/docs/configuration-0-11/interpolation.html
