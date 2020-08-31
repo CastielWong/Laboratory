@@ -153,3 +153,4 @@ Table below display common used built-in functions:
 - Amazon EC2 AMI Locator: https://cloud-images.ubuntu.com/locator/ec2/
 - AWS Provider in Terraform: https://www.terraform.io/docs/providers/aws/
 - Interpolation Syntax: https://www.terraform.io/docs/configuration-0-11/interpolation.html
+- Terraform AWS modules: https://github.com/terraform-aws-modules

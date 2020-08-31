@@ -33,6 +33,6 @@ resource "aws_volume_attachment" "demo-ebs-volume-attachment" {
   device_name  = var.INSTANCE_DEVICE_NAME
   volume_id    = aws_ebs_volume.demo-ebs-volume.id
   instance_id  = aws_instance.demo-template.id
-  # skip destroy to avoid issues with terraform destroy
-  skip_destroy = true
+  # do not skip destroy unless files in EBS are needed
+  skip_destroy = false
 }
