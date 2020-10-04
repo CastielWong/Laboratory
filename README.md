@@ -10,6 +10,8 @@ git push -u origin master
 
 ## Setup
 
+### Pre-commit
+
 It's a good practice to have [pre-commit](https://pre-commit.com/) in git repository for the purpose of code linting and formatting. Since most of the scripts involved would be in Python, to make the environment clean and easy to manage, [pyenv](https://github.com/pyenv/pyenv) is used to manage Python version and libraries.
 
 For Mac user, it's suggested to install [Homebrew](https://brew.sh/) to get "pyenv"
@@ -54,6 +56,26 @@ pre-commit install
 # set up the commit message check
 cp commit-msg .git/hooks/commit-msg
 chmod +x .git/hooks/commit-msg
+```
+
+### Submodule
+
+Sometimes it's better to reference codes for exploration, so submodule is a good solution for that purpose.
+
+To add an extrenal git repo, run:
+`git submodule add {repo} {directory}`
+
+To update submodules, run:
+`git submodule update --init`
+
+To remove an added module, follows:
+```sh
+# unregister the submodule with its path
+git submodule deinit -f -- {module_path}
+# remove meta data related to the submodule
+rm -rf .git/modules/{module_path}
+# remove the module from project
+git rm -f {module_path}
 ```
 
 
