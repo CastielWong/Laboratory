@@ -21,20 +21,20 @@ app = Flask("pyProm")
 
 
 @app.route("/", methods=["GET", "POST"])
-def hi():
+def home():
     if request.method == "GET":
         return "OK", 200, None
 
     return "Bad Request", 400, None
 
 
-counter = prom.Counter("python_my_counter", "This is my counter")
-gauge = prom.Gauge("python_my_gauge", "This is my gauge")
-histogram = prom.Histogram("python_my_histogram", "This is my histogram")
-summary = prom.Summary("python_my_summary", "This is my summary")
+counter = prom.Counter("showing_counter", "This is the counter")
+gauge = prom.Gauge("showing_gauge", "This is the gauge")
+histogram = prom.Histogram("showing_histogram", "This is the histogram")
+summary = prom.Summary("showing_summary", "This is the summary")
 
 
-def thr():
+def generating():
     while True:
         counter.inc(random.random())
         gauge.set(random.random() * 15 - 5)
@@ -45,7 +45,7 @@ def thr():
         time.sleep(1)
 
 
-Thread(target=thr).start()
+Thread(target=generating).start()
 
 monitor(app, port=8080)
 app.run(host="0.0.0.0", port=80)
