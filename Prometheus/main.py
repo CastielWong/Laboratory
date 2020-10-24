@@ -9,10 +9,13 @@ from flask import Flask, request
 from flask_prometheus import monitor
 import prometheus_client as prom
 
-req_summary = prom.Summary("python_my_req_example", "Time spent processing a request")
+
+generator_summary = prom.Summary(
+    "python_metrics_generator", "Metrics Generator in Python"
+)
 
 
-@req_summary.time()
+@generator_summary.time()
 def process_request(t):
     time.sleep(t)
 
@@ -23,7 +26,7 @@ app = Flask("pyProm")
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "GET":
-        return "OK", 200, None
+        return "Connected", 200, None
 
     return "Bad Request", 400, None
 
@@ -33,6 +36,10 @@ gauge = prom.Gauge("showing_gauge", "This is the gauge")
 histogram = prom.Histogram("showing_histogram", "This is the histogram")
 summary = prom.Summary("showing_summary", "This is the summary")
 
+gauge_with_label = prom.Gauge(
+    "showing_gauge_label", "This is the gauge with labels", ["tagging", "version"]
+)
+
 
 def generating():
     while True:
@@ -40,6 +47,11 @@ def generating():
         gauge.set(random.random() * 15 - 5)
         histogram.observe(random.random() * 10)
         summary.observe(random.random() * 10)
+
+        gauge_with_label.labels(tagging="A", version="0.1.2",).set(random.randint(0, 5))
+        gauge_with_label.labels(tagging="A", version="0.0.2",).set(random.randint(0, 3))
+        gauge_with_label.labels(tagging="B", version="0.0.1",).set(random.randint(0, 1))
+
         process_request(random.random() * 5)
 
         time.sleep(1)
