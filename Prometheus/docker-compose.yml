@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  metrics_generator:
+    container_name: metrics-metric_generator
+    image: lab-prometheus-metrics-generator
+    build:
+      context: $PWD
+    ports:
+    - 8080:8080
+    - 80:80
+
+  client:
+    container_name: lab-prometheus
+    image: prom/prometheus:v2.22.0
+    volumes:
+    - $PWD/config/:/etc/prometheus
+    ports:
+    - 9090:9090
