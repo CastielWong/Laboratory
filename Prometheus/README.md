@@ -13,6 +13,8 @@ This project is used to explore how Prometheus is collecting metrics.
 To supply Prometheus server with metrics, a metric generator is needed. The _Dockerfile_ is used to create the Metrics Generator image, which is implemented in Python with Flask. Scripts below is to create the image, and then run the corresponding container.
 
 ```sh
+cd Prometheus/
+
 # build up image to generate metrics
 docker build -t lab-prometheus-metrics-generator -f Dockerfile .
 
