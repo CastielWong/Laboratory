@@ -3,6 +3,8 @@
 # hook script to check the commit message format
 # example format --- "{type}({scope}): {subject}"
 
+MERGE=merge # reserved for git flow default message
+
 BUILD=build
 CI=ci
 DOCO=doco
@@ -34,8 +36,12 @@ this can be package name, script name\n
 concise description of the actual changes as the commit message\n
 "
 
-# check if the commit message matches the pattern: {action}({scoope}): messages
-cat $1 | egrep -i '^(build|ci|doco|rftr|style|test|feat|fix|perf)\((.+)\)\: .+'
+# set up pattern: {action}({scoope}): {message}
+PATTERN_GENERAL="(${BUILD}|${CI}|${DOCO}|${RFTR}|${STYLE}|${TEST}|${FEAT}|${FIX}|${PERF})\((.+)\)\: .+"
+PATTERN_MERGE="merge branch '.+' into .+"
+
+# check if the commit message matches the pattern
+cat $1 | egrep -i "^(${PATTERN_GENERAL}|${PATTERN_MERGE})"
 
 # retrieve the exit code
 COMMIT_EXIT_CODE=$?

@@ -24,7 +24,7 @@ git push -u origin master
 
 Common commands for tagging:
 - `git tag`: check existing tags
-- `git tag -a {tag} -m "{tag message}" {commit}`: create an annotated tag for the specified commit with tagging message
+- `git tag -a lastest-{section} -m "{tag message}" {commit}`: create an annotated tag for the specified commit with tagging message
 - `git tag -d {tag}`: delete a tag
 - `git push origin --tags`: synchronize all tags at the remote repo
 - `git push origin --delete {tag}`: delete a tag at remote side
