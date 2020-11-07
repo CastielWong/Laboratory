@@ -3,7 +3,9 @@ version: "3"
 services:
   jupyter:
     container_name: lab_jupyter
-    image: jupyter/base-notebook:python-3.8.6
+    image: jupyter/all-spark-notebook:95ccda3619d0
+    environment:
+      JUPYTER_ENABLE_LAB: "yes"   # enable the new UI
     ports:
       - 8888:8888
     volumes:

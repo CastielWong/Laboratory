@@ -12,3 +12,12 @@ Core stacks available are:
 - [Data Science Notebook](https://hub.docker.com/r/jupyter/datascience-notebook/tags/)
 - [PySpark Notebook](https://hub.docker.com/r/jupyter/pyspark-notebook/tags/)
 - [All Spark Notebook](https://hub.docker.com/r/jupyter/all-spark-notebook/tags/)
+
+
+## Running
+
+Run `docker-compose up -d` to start the Jupyter Notebook in detached mode.
+
+Then run `docker-compose logs | sed -n '/token=/p' | head -1 | cut -d '=' -f 2` to extract the generated token out.
+
+With the token retrieved, access "http://localhost:8888/" to start the notebook.
