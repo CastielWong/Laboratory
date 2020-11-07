@@ -1,6 +1,28 @@
 
 This repo is for general SQL stuff.
 
+## Statements
+
+- Data Retrieval
+    - `SELECT`
+- Transacition Control
+    - `COMMIT`
+    - `ROLLBACK`
+    - `SAVEPOINT`
+- DDL: Data Definition Language
+    - `CREATE`
+    - `ALTER`
+    - `DROP`
+    - `RENAME`
+- DML: Data Manipulation Language
+    - `INSERT`
+    - `UPDATE`
+    - `DELETE`
+- DCL: Data Control Language
+    - `GRANT`
+    - `REVOKE`
+
+
 ## DBeaver
 
 [DBeaver](https://dbeaver.io/) is a good tool as a database studio.
@@ -11,7 +33,7 @@ The configuration is:
 
 - Host: localhost / 127.0.0.1
 - Post: 1521
-- Database: XE (depends on which edition used, Service Name)
+- Database: XE (depends on which edition is used, Service Name)
 - Default Database: ORCL
 
 ### MySQL
