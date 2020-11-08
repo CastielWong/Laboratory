@@ -18,6 +18,11 @@ Core stacks available are:
 
 Run `docker-compose up -d` to start the Jupyter Notebook in detached mode.
 
-Then run `docker-compose logs | sed -n '/token=/p' | head -1 | cut -d '=' -f 2` to extract the generated token out.
+By default, token is set, access "http://localhost:8888/?token=demo" to use Jupyter directly.
 
-With the token retrieved, access "http://localhost:8888/" to start the notebook.
+If the token is not set and random token is preferred, then run `docker-compose logs | sed -n '/token=/p' | head -1 | cut -d '=' -f 2` to extract the generated token out. With the token retrieved, access "http://localhost:8888/" to start the notebook.
+
+
+## Reference
+
+- Jupyter password and Docker: https://stackoverflow.com/questions/48875436/jupyter-password-and-docker
