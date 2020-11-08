@@ -3,13 +3,14 @@
     - [Tagging](#tagging)
     - [GitFlow](#gitflow)
 - [Setup](#setup)
+    - [Pyenv](#pyenv)
     - [Pre-commit](#pre-commit)
 - [Docker](#docker)
 - [Submodule](#submodule)
 - [Reference](#reference)
 
 
-This is repo for experiments of any greenfield technologies or some quick catch-ups.
+This repo is for experiments of any greenfield technologies or some quick catch-ups.
 
 ## Git
 
@@ -38,11 +39,11 @@ Gitflow is a good practice used to develop and maintain the git workflow:
 
 ## Setup
 
-### Pre-commit
+### Pyenv
 
-It's a good practice to have [pre-commit](https://pre-commit.com/) in git repository for the purpose of code linting and formatting. Since most of the scripts involved would be in Python, to make the environment clean and easy to manage, [pyenv](https://github.com/pyenv/pyenv) is used to manage Python version and libraries.
+Since most of the scripts involved would be in Python, to make the environment clean and easy to manage, [pyenv](https://github.com/pyenv/pyenv) is used to manage Python version and libraries.
 
-For Mac user, it's suggested to install [Homebrew](https://brew.sh/) to get "pyenv"
+For Mac user, it's suggested to install [Homebrew](https://brew.sh/) to get "pyenv":
 
 ```sh
 # update Homebrew
@@ -52,7 +53,7 @@ brew install pyenv
 brew list
 ```
 
-Then follow steps below to activate "pyenv" and setup "pre-commit":
+Then apply `pyenv` to create and use the virtual environment. Below is thos commonly used commands:
 
 ```sh
 # install python with specified version, run `pyenv install --list` to check what version is available
@@ -70,6 +71,11 @@ pyenv local {venv}
 # deactivate current virtual environment
 pyenv deactivate
 ```
+
+### Pre-commit
+
+It's a good practice to have [pre-commit](https://pre-commit.com/) in git repository for the purpose of code linting and formatting.
+Then follow steps below to activate "pyenv" and setup "pre-commit":
 
 Install pre-commit and regulate the format of commit message:
 

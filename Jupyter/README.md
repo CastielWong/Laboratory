@@ -1,4 +1,9 @@
 
+- [Running](#running)
+- [Virtual Environment](#virtual-environment)
+- [Reference](#reference)
+
+
 This section is used to easily and quickly provision a Jupyter local environment.
 
 Based on requirements, select the proper version of Jupyter needed from https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html.
@@ -27,25 +32,22 @@ If the token is not set and random token is preferred, then run `docker-compose 
 
 The way to manage virtual environment via `virtualenv` in Jupyter is a bit different.
 
-Firstly, use `virtualenv` to create the virtual environment:
-
-```sh
-pip install virtualenv
-
-virtualenv {venv}
-```
-
-After `virtualenv` has created the virtual environment, there would be a folder called "{venv}" under current directory.
+Firstly, run `python -m venv {venv}` to create the virtual environment. After the virtual environment is created, there would be a folder called "{venv}" under current directory.
 
 You can access to the virtual environment in terminal, yet extra efforts need to be done in order to set it as one of the Jupyter Notebook kernal.
 
 ```sh
-# make sure the virtual environment has been used
+# install and update packing packages
+pip install --upgrade pip wheel
+
+# activate virtual environment
 source {venv}/bin/activate
 
 # install necessary package "ipykernel"
 pip install ipykernel
 # install current virtual environment with a name
+# make sure the virtual environment is activated
+# otherwise it wouldn't be recognize as a kernel
 python -m ipykernel install --name={customized_venv}
 ```
 
@@ -53,9 +55,10 @@ Then the new kernel "{customized_venv}" should be ready to use by any Jupyter No
 
 Note that if "ipykernel" is accidentally uninstalled in the virtual environment, such virtual environment would not take effect in the notebook no more.
 
-Whenever the virtual environment is deleted, make sure its corresponding kernel is removed. Otherwise, the orphan kernal would still be listed.
+Whenever the virtual environment is deleted, make sure its corresponding kernel is removed. Otherwise, the orphan kernal would still be listed. By default, the kernel list would be in "/usr/local/share/jupyter/kernels/".
 
-By default, the kernel list would be in "/usr/local/share/jupyter/kernels/".
+Or run `jupyter kernelspec uninstall {customized_venv}` to uninstall the unneeded kernel.
+Run `jupyter kernelspec list` to confirm all listed kernel are expected.
 
 
 
