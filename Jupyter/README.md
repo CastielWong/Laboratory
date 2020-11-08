@@ -1,4 +1,9 @@
 
+- [Running](#running)
+- [Virtual Environment](#virtual-environment)
+- [Reference](#reference)
+
+
 This section is used to easily and quickly provision a Jupyter local environment.
 
 Based on requirements, select the proper version of Jupyter needed from https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html.
@@ -53,9 +58,10 @@ Then the new kernel "{customized_venv}" should be ready to use by any Jupyter No
 
 Note that if "ipykernel" is accidentally uninstalled in the virtual environment, such virtual environment would not take effect in the notebook no more.
 
-Whenever the virtual environment is deleted, make sure its corresponding kernel is removed. Otherwise, the orphan kernal would still be listed.
+Whenever the virtual environment is deleted, make sure its corresponding kernel is removed. Otherwise, the orphan kernal would still be listed. By default, the kernel list would be in "/usr/local/share/jupyter/kernels/".
 
-By default, the kernel list would be in "/usr/local/share/jupyter/kernels/".
+Or run `jupyter kernelspec uninstall {customized_venv}` to uninstall the unneeded kernel.
+Run `jupyter kernelspec list` to confirm all listed kernel are expected.
 
 
 
