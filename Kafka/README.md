@@ -1,10 +1,12 @@
 
 - [Concept](#concept)
-- [Configuratino](#configuration)
+- [Configuration](#configuration)
+  - [Docker](#docker)
+  - [Native](#native)
 - [CLI](#cli)
-    - [Topic](#topic)
-    - [Producer](#producer)
-    - [Consumer](#consumer)
+  - [Topic](#topic)
+  - [Producer](#producer)
+  - [Consumer](#consumer)
 - [Reference](#reference)
 
 This repo is for Apache Kafka learning.
@@ -92,9 +94,11 @@ There are some guarantees Kafka admits:
 ## Configuration
 
 ### Docker
+
 To run Kafka via Docker, simply run `docker-compose -f zk-single-kafka-single.yml up` to start both Kafka and Zookeeper.
 
 ### Native
+
 If it's to run Kafka locally, go to Kafka directory and config property in both Kafka and Zookeeper is recommended:
 - "config/zookeeper.properties": `dataDir=/{dir}`
 - "config/server.properties": `log.dirs=/{dir}`
@@ -116,10 +120,13 @@ Common commands:
 kafka-topics --bootstrap-server 127.0.0.1:9092 --list
 
 # create a topic
-kafka-topics --bootstrap-server 127.0.0.1:9092 --topic {topic} --create --partition {m} --replication-factor {n}
+kafka-topics --bootstrap-server 127.0.0.1:9092 --topic {topic} --create --partitions {m} --replication-factor {n}
 
 # describe a topic
 kafka-topics --bootstrap-server 127.0.0.1:9092 --topic {topic} --describe
+
+# delete a topic
+kafka-topics --bootstrap-server 127.0.0.1:9092 --topic {topic} --delete
 ```
 
 ### Producer
