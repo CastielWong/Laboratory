@@ -13,7 +13,7 @@ docker run \
     -e MYSQL_ROOT_PASSWORD=db_mysql \
     -p 3306:3306 \
     -v ${PWD}/data:/volume_docker \
-    -d mysql:5.7
+    -d mysql:5.7.32
 
 # when the container is already existed and running
 docker exec -it lab_db_mysql bash
