@@ -1,10 +1,10 @@
 
 - [Git](#git)
-    - [Tagging](#tagging)
-    - [GitFlow](#gitflow)
+  - [Tagging](#tagging)
+  - [GitFlow](#gitflow)
 - [Setup](#setup)
-    - [Pyenv](#pyenv)
-    - [Pre-commit](#pre-commit)
+  - [pyenv](#pyenv)
+  - [pre-commit](#pre-commit)
 - [Docker](#docker)
 - [Submodule](#submodule)
 - [Reference](#reference)
@@ -39,7 +39,7 @@ Gitflow is a good practice used to develop and maintain the git workflow:
 
 ## Setup
 
-### Pyenv
+### pyenv
 
 Since most of the scripts involved would be in Python, to make the environment clean and easy to manage, [pyenv](https://github.com/pyenv/pyenv) is used to manage Python version and libraries.
 
@@ -49,11 +49,36 @@ For Mac user, it's suggested to install [Homebrew](https://brew.sh/) to get "pye
 # update Homebrew
 brew update
 brew install pyenv
+# install the needed library for pyenv
+brew install pyenv-virtualenv
+
 # verify pyenv has been installed
 brew list
 ```
 
-Then apply `pyenv` to create and use the virtual environment. Below is thos commonly used commands:
+For Linux user, follow steps below for the installation:
+
+```sh
+# install pyenv (https://github.com/pyenv/pyenv#installation)
+git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+
+# install pyenv-virtualenv (https://github.com/pyenv/pyenv-virtualenv#installing-as-a-pyenv-plugin)
+git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
+
+echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
+```
+
+Note, if encountering warnings like "MIssing the GNU readline lib" or "Missing the SQLite3 lib", fix them by running:
+```sh
+sudo yum install readline-devel
+sudo yum install sqlite-devel
+```
+
+Then apply `pyenv` to create and use the virtual environment. Below is those commonly used commands:
 
 ```sh
 # install python with specified version, run `pyenv install --list` to check what version is available
@@ -72,7 +97,7 @@ pyenv local {venv}
 pyenv deactivate
 ```
 
-### Pre-commit
+### pre-commit
 
 It's a good practice to have [pre-commit](https://pre-commit.com/) in git repository for the purpose of code linting and formatting.
 Then follow steps below to activate "pyenv" and setup "pre-commit":
