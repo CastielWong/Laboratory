@@ -39,9 +39,10 @@ concise description of the actual changes as the commit message\n
 # set up pattern: {action}({scoope}): {message}
 PATTERN_GENERAL="(${BUILD}|${CI}|${DOCO}|${RFTR}|${STYLE}|${TEST}|${FEAT}|${FIX}|${PERF})\((.+)\)\: .+"
 PATTERN_MERGE="merge branch '.+' into .+"
+PATTERN_TEMP="temp commit"
 
 # check if the commit message matches the pattern
-cat $1 | egrep -i "^(${PATTERN_GENERAL}|${PATTERN_MERGE})"
+cat $1 | egrep -i "^(${PATTERN_GENERAL}|${PATTERN_MERGE}|${PATTERN_TEMP})"
 
 # retrieve the exit code
 COMMIT_EXIT_CODE=$?
