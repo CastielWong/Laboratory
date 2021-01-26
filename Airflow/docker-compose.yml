@@ -1,0 +1,43 @@
+version: "3.3"
+
+services:
+  postgres:
+    container_name: airflow_postgres
+    image: postgres:13-alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./volume/postgres-scripts:/docker-scripts
+    environment:
+      - POSTGRES_DB=airflow
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+    networks:
+      airflow_default:
+        ipv4_address: 172.18.0.2
+
+  webserver:
+    container_name: airflow_webserver
+    image: lab-airflow:demo
+    build:
+      context: $PWD
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - airflow_default
+    command: webserver
+    volumes:
+      - ./volume/dags:/usr/local/airflow/dags
+      - ./volume/operators:/opt/airflow/plugins/operators
+
+networks:
+  airflow_default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
