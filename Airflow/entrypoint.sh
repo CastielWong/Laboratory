@@ -4,7 +4,7 @@ export AIRFLOW_HOME=/opt/airflow
 
 export AIRFLOW_USERNAME="demo"
 export AIRFLOW_PASSWORD="demo"
-export AIRFLOW_SMTP_MAIL_FROM="demo@airflow.org"
+export AIRFLOW_SMTP_MAIL_FROM="airflow@example.com"
 
 
 # perform corresponding action by checking the first parameter passed to the script

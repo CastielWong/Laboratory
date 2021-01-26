@@ -33,7 +33,7 @@
 [core]
 # The folder where your airflow pipelines live, most likely a
 # subfolder in a code repository. This path must be absolute.
-dags_folder = {AIRFLOW_HOME}/dags
+dags_folder = <% .Env.AIRFLOW_HOME %>/dags
 
 # Hostname by providing a path to a callable, which will resolve the hostname.
 # The format is "package.function".
@@ -58,7 +58,7 @@ executor = SequentialExecutor
 # The SqlAlchemy connection string to the metadata database.
 # SqlAlchemy supports many different database engine, more information
 # their website
-sql_alchemy_conn = sqlite:///{AIRFLOW_HOME}/airflow.db
+sql_alchemy_conn = postgresql+psycopg2://<% .Env.POSTGRES_USERNAME %>:<% .Env.POSTGRES_PASSWORD %>@<% .Env.POSTGRES_HOST %>:<% .Env.POSTGRES_PORT %>/<% .Env.POSTGRES_DB %>
 
 # The encoding for the databases
 sql_engine_encoding = utf-8
@@ -135,7 +135,7 @@ load_examples = True
 load_default_connections = True
 
 # Path to the folder containing Airflow plugins
-plugins_folder = {AIRFLOW_HOME}/plugins
+plugins_folder = <% .Env.AIRFLOW_HOME %>/plugins
 
 # Should tasks be executed via forking of the parent process ("False",
 # the speedier option) or by spawning a new python process ("True" slow,
@@ -143,7 +143,7 @@ plugins_folder = {AIRFLOW_HOME}/plugins
 execute_tasks_new_python_interpreter = False
 
 # Secret key to save connection passwords in the db
-fernet_key = {FERNET_KEY}
+fernet_key = <% .Env.FERNET_KEY %>
 
 # Whether to disable pickling dags
 donot_pickle = True
@@ -240,7 +240,7 @@ max_db_retries = 3
 [logging]
 # The folder where airflow should store its log files
 # This path must be absolute
-base_log_folder = {AIRFLOW_HOME}/logs
+base_log_folder = <% .Env.AIRFLOW_HOME %>/logs
 
 # Airflow can store logs remotely in AWS S3, Google Cloud Storage or Elastic Search.
 # Set this to True if you want to enable remote logging.
@@ -302,7 +302,7 @@ log_filename_template = {{{{ ti.dag_id }}}}/{{{{ ti.task_id }}}}/{{{{ ts }}}}/{{
 log_processor_filename_template = {{{{ filename }}}}.log
 
 # full path of dag_processor_manager logfile
-dag_processor_manager_log_location = {AIRFLOW_HOME}/logs/dag_processor_manager/dag_processor_manager.log
+dag_processor_manager_log_location = <% .Env.AIRFLOW_HOME %>/logs/dag_processor_manager/dag_processor_manager.log
 
 # Name of handler to read task instance logs.
 # Defaults to use ``task`` handler.
@@ -500,7 +500,7 @@ reload_on_plugin_change = False
 
 # Secret key used to run your flask app
 # It should be as random as possible
-secret_key = {SECRET_KEY}
+secret_key = <% .Env.SECRET_KEY %>
 
 # Number of workers to run the Gunicorn web server
 workers = 4
@@ -651,7 +651,7 @@ smtp_ssl = False
 # Example: smtp_password = airflow
 # smtp_password =
 smtp_port = 25
-smtp_mail_from = airflow@example.com
+smtp_mail_from = <% .Env.AIRFLOW_SMTP_MAIL_FROM %>
 smtp_timeout = 30
 smtp_retry_limit = 5
 
@@ -730,7 +730,7 @@ broker_url = redis://redis:6379/0
 # This status is used by the scheduler to update the state of the task
 # The use of a database is highly recommended
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-result-backend-settings
-result_backend = db+postgresql://postgres:airflow@postgres/airflow
+result_backend = db+postgresql://<% .Env.POSTGRES_USERNAME %>:<% .Env.POSTGRES_PASSWORD %>@<% .Env.POSTGRES_HOST %>:<% .Env.POSTGRES_PORT %>/<% .Env.POSTGRES_DB %>
 
 # Celery Flower is a sweet UI for Celery. Airflow has a shortcut to start
 # it ``airflow celery flower``. This defines the IP that Celery Flower runs on
@@ -859,7 +859,7 @@ scheduler_health_check_threshold = 30
 
 # How often (in seconds) should the scheduler check for orphaned tasks and SchedulerJobs
 orphaned_tasks_check_interval = 300.0
-child_process_log_directory = {AIRFLOW_HOME}/logs/scheduler
+child_process_log_directory = <% .Env.AIRFLOW_HOME %>/logs/scheduler
 
 # Local task jobs periodically heartbeat to the DB. If the job has
 # not heartbeat in this many seconds, the scheduler will mark the
