@@ -32,8 +32,20 @@ services:
       - airflow_default
     command: webserver
     volumes:
-      - ./volume/dags:/usr/local/airflow/dags
       - ./volume/operators:/opt/airflow/plugins/operators
+
+  scheduler:
+    container_name: airflow_scheduler
+    image: lab-airflow:demo
+    depends_on:
+      # wait for image created in webserver
+      - webserver
+    restart: always
+    networks:
+      - airflow_default
+    command: scheduler
+    volumes:
+      - ./volume/dags:/opt/airflow/dags
 
 networks:
   airflow_default:

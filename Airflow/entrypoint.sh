@@ -16,4 +16,8 @@ if [ "$1" = "webserver" ]; then
     --role Admin --email ${AIRFLOW_SMTP_MAIL_FROM}
 
     exec airflow "$@"
+elif [ "$1" = "scheduler" ]; then
+    # wait for the database to be initialized
+    sleep 8
+    exec airflow "$@"
 fi
