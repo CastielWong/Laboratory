@@ -17,6 +17,16 @@ services:
       airflow_default:
         ipv4_address: 172.18.0.2
 
+  redis:
+    container_name: airflow_redis
+    image: redis:alpine3.12
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      airflow_default:
+        ipv4_address: 172.18.0.3
+
   webserver:
     container_name: airflow_webserver
     image: lab-airflow:demo
@@ -44,6 +54,21 @@ services:
     networks:
       - airflow_default
     command: scheduler
+    volumes:
+      - ./volume/dags:/opt/airflow/dags
+
+  worker:
+    container_name: airflow_worker
+    image: lab-airflow:demo
+    depends_on:
+      - webserver
+      - redis
+    restart: always
+    ports:
+      - "8793:8793"
+    networks:
+      - airflow_default
+    command: worker
     volumes:
       - ./volume/dags:/opt/airflow/dags
 

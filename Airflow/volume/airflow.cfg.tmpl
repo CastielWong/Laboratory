@@ -53,7 +53,7 @@ default_timezone = utc
 # ``SequentialExecutor``, ``LocalExecutor``, ``CeleryExecutor``, ``DaskExecutor``,
 # ``KubernetesExecutor``, ``CeleryKubernetesExecutor`` or the
 # full import path to the class when using a custom executor.
-executor = SequentialExecutor
+executor = CeleryExecutor
 
 # The SqlAlchemy connection string to the metadata database.
 # SqlAlchemy supports many different database engine, more information
@@ -143,7 +143,7 @@ plugins_folder = <% .Env.AIRFLOW_HOME %>/plugins
 execute_tasks_new_python_interpreter = False
 
 # Secret key to save connection passwords in the db
-fernet_key = {{ FERNET_KEY }}
+fernet_key = <% .Env.FERNET_KEY %>
 
 # Whether to disable pickling dags
 donot_pickle = True
@@ -500,7 +500,7 @@ reload_on_plugin_change = False
 
 # Secret key used to run your flask app
 # It should be as random as possible
-secret_key = {{ SECRET_KEY }}
+secret_key = <% .Env.SECRET_KEY %>
 
 # Number of workers to run the Gunicorn web server
 workers = 4
@@ -722,7 +722,7 @@ worker_umask = 0o077
 
 # The Celery broker URL. Celery supports RabbitMQ, Redis and experimentally
 # a sqlalchemy database. Refer to the Celery documentation for more information.
-broker_url = redis://redis:6379/0
+broker_url = redis://<% .Env.REDIS_HOST %>:<% .Env.REDIS_PORT %>/1
 
 # The Celery result_backend. When a job finishes, it needs to update the
 # metadata of the job. Therefore it will post a message on a message bus,

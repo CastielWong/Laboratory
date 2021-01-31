@@ -20,4 +20,8 @@ elif [ "$1" = "scheduler" ]; then
     # wait for the database to be initialized
     sleep 8
     exec airflow "$@"
+elif [ "$1" = "worker" ]; then
+    # wait for the database to be initialized
+    sleep 8
+    exec airflow celery "$@"
 fi
