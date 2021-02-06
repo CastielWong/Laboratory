@@ -3,6 +3,8 @@
   - [Docker-compose](#docker-compose)
   - [Common Command](#common-command)
 - [Local](#local)
+  - [Singleton](#singleton)
+  - [Structure](#structure)
 - [Reference](#reference)
 
 
@@ -40,7 +42,34 @@ docker rm demo_af
 
 ## Local
 
-To explore and run a task locally in a container,:
+Note that the time to scan the DAGs directory is set by `dag_dir_list_interval` in "${AIRFLOW_HOME}/airflow.cfg", for whose default is 300 seconds.
+
+Below lists common commands:
+```sh
+# test if a task is running as expected
+airflow tasks test {dag_name} {task_name} {yyyy}-{mm}-{dd}
+
+# remember to toggle example_bash_operator on
+airflow run example_bash_operator runme_0 2015-01-01
+
+# delete a dag
+airflow delete_dag {dag_id}
+```
+
+### Singleton
+
+Run `docker-compose -f dc_singleton.yml up --build -d` to explore the simple usage of Airflow.
+
+Access to the container via `docker exec -it airflow_singleton bash` then set webserver and scheduler running as background processes:
+```sh
+airflow webserver > /dev/null 2>&1 &
+
+airflow scheduler > /dev/null 2>&1 &
+```
+
+### Structure
+
+To explore and run a task locally in a container:
 ```sh
 # initialize the database
 airflow db init
@@ -56,12 +85,6 @@ airflow users create \
 --username demo --password demo \
 --firstname Airflow --lastname Local \
 --role Admin --email demo@airflow.org
-
-# remember to toggle example_bash_operator on
-airflow run example_bash_operator runme_0 2015-01-01
-
-# delete a dag
-airflow delete_dag {dag_id}
 ```
 
 

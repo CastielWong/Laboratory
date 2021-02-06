@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from datetime import timedelta
 
-from airflow import DAG
+from airflow.models import DAG
 from airflow.operators.bash import BashOperator
 
 logging.basicConfig(level=logging.INFO)

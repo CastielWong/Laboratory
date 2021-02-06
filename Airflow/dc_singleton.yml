@@ -1,0 +1,14 @@
+version: "3.3"
+
+services:
+  airflow:
+    container_name: airflow_singleton
+    image: lab-airflow:singleton
+    build:
+      context: $PWD
+      dockerfile: Dockerfiles/singleton
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./volume/dags:/root/airflow/dags
