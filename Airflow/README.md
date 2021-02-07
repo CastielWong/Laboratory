@@ -63,8 +63,8 @@ Run `docker-compose -f dc_sequential.yml up --build -d` to explore the simple us
 
 After the DAG "demo_pipeline" finished, check if data has been loaded in SQLite through`sqlite3 /root/airflow/airflow.db`.
 
-Common SQLite commands:
-```
+Common commands for SQLite:
+```bash
 .help
 
 .databases
@@ -72,6 +72,14 @@ Common SQLite commands:
 
 .quit
 ```
+
+Common commands for PostgreSQL:
+```bash
+docker exec -it airflow_postgres psql -U postgres
+
+\dt
+```
+
 
 ### Structure
 

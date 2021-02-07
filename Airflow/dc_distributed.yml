@@ -4,33 +4,56 @@ services:
   postgres:
     container_name: airflow_postgres
     image: postgres:13-alpine
+    restart: always
     environment:
       - POSTGRES_PASSWORD=airflow
     ports:
       - "5432:5432"
     networks:
-      airflow_parallel:
-        ipv4_address: 172.19.0.2
+      airflow_distributed:
+        ipv4_address: 172.20.0.2
+
+  redis:
+    container_name: airflow_redis
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      airflow_distributed:
+        ipv4_address: 172.20.0.3
 
   airflow:
-    container_name: airflow_parallel
-    image: lab-airflow:parallel
+    container_name: airflow_distributed
+    image: lab-airflow:distributed
     build:
       context: $PWD
       dockerfile: Dockerfiles/singleton
       args:
-        - ENTRYPOINT=volume/scripts/parallel.sh
+        - ENTRYPOINT=volume/scripts/distributed.sh
     restart: always
     ports:
       - "8080:8080"
     networks:
-      - airflow_parallel
+      - airflow_distributed
     volumes:
       - ./volume/dags:/root/airflow/dags
 
+  flower:
+    container_name: airflow_flower
+    image: lab-airflow:distributed
+    depends_on:
+      - airflow
+    restart: always
+    command: airflow celery flower
+    ports:
+      - "5555:5555"
+    networks:
+      - airflow_distributed
+
 networks:
-  airflow_parallel:
+  airflow_distributed:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.19.0.0/16
+        - subnet: 172.20.0.0/16
