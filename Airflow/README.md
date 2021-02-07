@@ -67,6 +67,18 @@ airflow webserver > /dev/null 2>&1 &
 airflow scheduler > /dev/null 2>&1 &
 ```
 
+After the DAG "demo_pipeline" finished, check if data has been loaded in SQLite through`sqlite3 /root/airflow/airflow.db`.
+
+Common SQLite commands:
+```
+.help
+
+.databases
+.tables
+
+.quit
+```
+
 ### Structure
 
 To explore and run a task locally in a container:

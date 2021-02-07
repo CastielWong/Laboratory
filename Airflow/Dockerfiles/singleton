@@ -19,6 +19,7 @@ CMD ["/usr/sbin/init"]
 
 
 # customization
+ENV AIRFLOW_HOME=/root/airflow
 ENV PYTHON_3_VERSION_MAJOR=3.8
 
 ARG PYTHON_3_VERSION_FULL=3.8.6
@@ -52,12 +53,19 @@ RUN python${PYTHON_3_VERSION_MAJOR} -m pip install --upgrade \
 # curtomize the bash prompt
 RUN echo 'export PS1="[\t \u@\h \w]\$ "'  >> /root/.bashrc
 
-
 WORKDIR /root
+
 
 # install Airflow
 RUN pip install apache-airflow~=2.0.0
 # set up Airflow
 RUN airflow db init
+
+# customize Airflow default settings
 # set up default user
 RUN airflow users create -u demo -p demo -f John -l Doe -r Admin -e admin@airflow.com
+
+# set the dag refresh interval to 20 seconds
+RUN sed -i 's/dag_dir_list_interval = 300/dag_dir_list_interval = 20/g' /root/airflow/airflow.cfg
+
+RUN source /root/scripts/import.sh

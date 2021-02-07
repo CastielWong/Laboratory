@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 default_args = {
     "depends_on_past": False,
-    "owner": "demo_user",
+    "owner": "demo",
     "retries": 2,
     "retry_delay": timedelta(minutes=1),
     "execution_timeout": timedelta(minutes=10),

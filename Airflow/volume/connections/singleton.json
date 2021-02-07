@@ -1,0 +1,14 @@
+[
+  {
+    "id": "db_sqlite",
+    "type": "Sqlite",
+    "description": "This connection is for SQLite DB.",
+    "host": "/root/airflow/airflow.db"
+  },
+  {
+    "id": "user_api",
+    "type": "HTTP",
+    "description": "This connection is to access a website to generate names randomly.",
+    "host": "https://randomuser.me/"
+  }
+]
