@@ -58,7 +58,7 @@ airflow delete_dag {dag_id}
 
 ### Singleton
 
-Run `docker-compose -f dc_singleton.yml up --build -d` to explore the simple usage of Airflow.
+Run `docker-compose -f dc_sequential.yml up --build -d` to explore the simple usage of Airflow.
 
 
 After the DAG "demo_pipeline" finished, check if data has been loaded in SQLite through`sqlite3 /root/airflow/airflow.db`.
