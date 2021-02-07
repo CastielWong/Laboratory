@@ -1,0 +1,37 @@
+version: "3.3"
+
+services:
+  postgres:
+    container_name: airflow_postgres
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_PASSWORD=airflow
+    ports:
+      - "5432:5432"
+    networks:
+      airflow_local:
+        ipv4_address: 172.19.0.2
+
+  airflow:
+    container_name: airflow_parallel
+    image: lab-airflow:parallel
+    build:
+      context: $PWD
+      dockerfile: Dockerfiles/singleton
+      args:
+        - ENTRYPOINT=volume/scripts/parallel.sh
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - airflow_local
+    volumes:
+      - ./volume/dags:/root/airflow/dags
+      - ./volume/connections/sequential.json:/root/airflow/connections.json
+
+networks:
+  airflow_local:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16

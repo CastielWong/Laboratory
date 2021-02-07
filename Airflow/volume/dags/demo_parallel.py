@@ -20,7 +20,7 @@ default_args = {
 }
 
 dag = DAG(
-    dag_id="demo_dag",
+    dag_id="demo_pipeline_parallel",
     description="This is a DAG for simple demo",
     catchup=False,
     max_active_runs=1,
@@ -28,6 +28,17 @@ dag = DAG(
     default_args=default_args,
 )
 
-task_a = BashOperator(dag=dag, task_id="task_a", bash_command="echo 123")
+task_1 = BashOperator(
+    dag=dag, task_id="task_1", bash_command="sleep 2; echo This is Task 1"
+)
+task_2 = BashOperator(
+    dag=dag, task_id="task_2", bash_command="sleep 2; echo This is Task 2"
+)
+task_3 = BashOperator(
+    dag=dag, task_id="task_3", bash_command="sleep 2; echo This is Task 3"
+)
+task_4 = BashOperator(
+    dag=dag, task_id="task_4", bash_command="sleep 2; echo This is Task 4"
+)
 
-task_b = BashOperator(dag=dag, task_id="task_b", bash_command="echo 456")
+task_1 >> [task_2, task_3] >> task_4

@@ -3,7 +3,7 @@ version: "3.3"
 services:
   airflow:
     container_name: airflow_sequential
-    image: lab-airflow:singleton
+    image: lab-airflow:sequential
     build:
       context: $PWD
       dockerfile: Dockerfiles/singleton

@@ -22,8 +22,6 @@ CMD ["/usr/sbin/init"]
 ENV AIRFLOW_HOME=/root/airflow
 ENV PYTHON_3_VERSION_MAJOR=3.8
 
-# entrypoint script is passed from docker-compose
-ARG ENTRYPOINT
 ARG PYTHON_3_VERSION_FULL=3.8.6
 
 # install common tools
@@ -70,6 +68,8 @@ RUN airflow users create -u demo -p demo -f John -l Doe -r Admin -e admin@airflo
 # set the dag refresh interval to 20 seconds
 RUN sed -i 's/dag_dir_list_interval = 300/dag_dir_list_interval = 20/g' /root/airflow/airflow.cfg
 
+# entrypoint script is passed from docker-compose
+ARG ENTRYPOINT
 ADD ${ENTRYPOINT} entrypoint.sh
 RUN chmod 0755 entrypoint.sh
 
