@@ -68,4 +68,7 @@ RUN airflow users create -u demo -p demo -f John -l Doe -r Admin -e admin@airflo
 # set the dag refresh interval to 20 seconds
 RUN sed -i 's/dag_dir_list_interval = 300/dag_dir_list_interval = 20/g' /root/airflow/airflow.cfg
 
-RUN source /root/scripts/import.sh
+ADD volume/scripts/entrypoint.sh entrypoint.sh
+RUN chmod 0755 entrypoint.sh
+
+ENTRYPOINT ["/root/entrypoint.sh"]

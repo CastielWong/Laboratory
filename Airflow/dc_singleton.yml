@@ -13,4 +13,3 @@ services:
     volumes:
       - ./volume/dags:/root/airflow/dags
       - ./volume/connections/:/root/airflow/connections
-      - ./volume/scripts:/root/scripts

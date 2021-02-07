@@ -42,3 +42,6 @@ if [ -d ${connections} ]; then
     done
 
 fi
+
+# monitor for commands to keep container running
+exec "$@"
