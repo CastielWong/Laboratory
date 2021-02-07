@@ -18,6 +18,11 @@ from pandas import json_normalize
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+_PATH_DB = "/root/airflow/airflow.db"
+_TABLE_NAME = "random_user"
+_API_NAME = "user_generation_api"
+_PATH_DATA_TEMP = "/tmp/processed_user.csv"
+
 default_args = {
     "depends_on_past": False,
     "owner": "demo",
@@ -40,13 +45,13 @@ def _process_user(ti: TaskInstance) -> None:
             "country": user["location"]["country"],
         }
     )
-    processed_user.to_csv("/tmp/processed_user.csv", index=False, header=False)
+    processed_user.to_csv(_PATH_DATA_TEMP, index=False, header=False)
     return
 
 
 dag = DAG(
-    dag_id="demo_pipeline",
-    description="This is a DAG for demo",
+    dag_id="demo_pipeline_sequential",
+    description="This is a DAG to demo sequential pipeline",
     catchup=False,
     max_active_runs=1,
     schedule_interval=timedelta(days=1),
@@ -57,8 +62,8 @@ create_table = SqliteOperator(
     dag=dag,
     task_id="create_table",
     sqlite_conn_id="db_sqlite",
-    sql="""
-        CREATE TABLE IF NOT EXISTS demo (
+    sql=f"""
+        CREATE TABLE IF NOT EXISTS {_TABLE_NAME} (
             name TEXT NOT NULL,
             country TEXt NOT NULL
         );
@@ -66,13 +71,13 @@ create_table = SqliteOperator(
 )
 
 check_api_available = HttpSensor(
-    dag=dag, task_id="check_api_available", http_conn_id="user_api", endpoint="api/",
+    dag=dag, task_id="check_api_available", http_conn_id=_API_NAME, endpoint="api/",
 )
 
 extract_user = SimpleHttpOperator(
     dag=dag,
     task_id="extract_user",
-    http_conn_id="user_api",
+    http_conn_id=_API_NAME,
     endpoint="api/",
     method="GET",
     response_filter=lambda response: json.loads(response.text),
@@ -86,9 +91,9 @@ process_user = PythonOperator(
 store_user = BashOperator(
     dag=dag,
     task_id="store_user",
-    bash_command="""
-    echo -e '.separator ',' \n.import /tmp/processed_user.csv demo' \
-    | sqlite3 /root/airflow/airflow.db
+    bash_command=f"""
+    echo -e '.separator ',' \n.import {_PATH_DATA_TEMP} {_TABLE_NAME}' \
+    | sqlite3 {_PATH_DB}
     """,
 )
 

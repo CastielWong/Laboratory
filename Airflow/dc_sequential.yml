@@ -2,14 +2,16 @@ version: "3.3"
 
 services:
   airflow:
-    container_name: airflow_singleton
+    container_name: airflow_sequential
     image: lab-airflow:singleton
     build:
       context: $PWD
       dockerfile: Dockerfiles/singleton
+      args:
+        - ENTRYPOINT=volume/scripts/sequential.sh
     restart: always
     ports:
       - "8080:8080"
     volumes:
       - ./volume/dags:/root/airflow/dags
-      - ./volume/connections/:/root/airflow/connections
+      - ./volume/connections/sequential.json:/root/airflow/connections.json

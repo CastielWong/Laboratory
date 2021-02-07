@@ -6,9 +6,9 @@
     "host": "/root/airflow/airflow.db"
   },
   {
-    "id": "user_api",
+    "id": "user_generation_api",
     "type": "HTTP",
-    "description": "This connection is to access a website to generate names randomly.",
+    "description": "This connection is used to access a website which helps to generate names randomly.",
     "host": "https://randomuser.me/"
   }
 ]

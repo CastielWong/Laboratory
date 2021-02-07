@@ -4,20 +4,20 @@
 # the version used is 1.5
 dnf install jq -y
 
-connections=${AIRFLOW_HOME}/connections
+export CONNECTIONS="${AIRFLOW_HOME}/connections.json"
 
 # import connections
-if [ -d ${connections} ]; then
+if [ -d ${AIRFLOW_HOME} ]; then
     af_conn_add="airflow connections add"
 
-    num_of_conns=$(cat ${connections}/singleton.json | jq '. | length')
+    num_of_conns=$(cat ${CONNECTIONS} | jq '. | length')
     echo "Amount of connections: ${num_of_conns}"
 
     index=0
     while (( $index < $num_of_conns ))
     do
         # pass the index into jq syntax
-        json_conn=$(cat ${connections}/singleton.json | jq '.[$i]' --argjson i ${index})
+        json_conn=$(cat ${CONNECTIONS} | jq '.[$i]' --argjson i ${index})
 
         args=" $(echo ${json_conn} | jq '.id')"
 
@@ -42,6 +42,10 @@ if [ -d ${connections} ]; then
     done
 
 fi
+
+# start up webserver and at the background
+airflow webserver > /dev/null 2>&1 &
+airflow scheduler > /dev/null 2>&1 &
 
 # monitor for commands to keep container running
 exec "$@"

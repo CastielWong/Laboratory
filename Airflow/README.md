@@ -60,12 +60,6 @@ airflow delete_dag {dag_id}
 
 Run `docker-compose -f dc_singleton.yml up --build -d` to explore the simple usage of Airflow.
 
-Access to the container via `docker exec -it airflow_singleton bash` then set webserver and scheduler running as background processes:
-```sh
-airflow webserver > /dev/null 2>&1 &
-
-airflow scheduler > /dev/null 2>&1 &
-```
 
 After the DAG "demo_pipeline" finished, check if data has been loaded in SQLite through`sqlite3 /root/airflow/airflow.db`.
 

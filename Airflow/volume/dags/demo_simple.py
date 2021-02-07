@@ -21,7 +21,7 @@ default_args = {
 
 dag = DAG(
     dag_id="demo_dag",
-    description="This is a DAG for demo",
+    description="This is a DAG for simple demo",
     catchup=False,
     max_active_runs=1,
     schedule_interval=timedelta(days=1),
