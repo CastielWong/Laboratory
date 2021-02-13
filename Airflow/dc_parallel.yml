@@ -27,6 +27,7 @@ services:
       - airflow_parallel
     volumes:
       - ./volume/dags:/root/airflow/dags
+      - ./volume/connections/parallel.json:/root/airflow/connections.json
 
 networks:
   airflow_parallel:
