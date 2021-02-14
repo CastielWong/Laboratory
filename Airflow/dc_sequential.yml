@@ -15,3 +15,4 @@ services:
     volumes:
       - ./volume/dags:/root/airflow/dags
       - ./volume/connections/sequential.json:/root/airflow/connections.json
+      - ./volume/variables/sequential.json:/root/airflow/variables.json

@@ -6,6 +6,7 @@ from datetime import datetime
 from datetime import timedelta
 
 from airflow.models import DAG
+from airflow.models import Variable
 from airflow.models.taskinstance import TaskInstance
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
@@ -58,6 +59,16 @@ dag = DAG(
     default_args=default_args,
 )
 
+
+start = Variable.get("start")
+end = Variable.get("end")
+
+start_point = BashOperator(
+    dag=dag, task_id="start_point", bash_command=f"echo '{start}'"
+)
+end_point = BashOperator(dag=dag, task_id="end_point", bash_command=f"echo '{end}'")
+
+
 create_table = SqliteOperator(
     dag=dag,
     task_id="create_table",
@@ -97,4 +108,13 @@ store_user = BashOperator(
     """,
 )
 
-create_table >> check_api_available >> extract_user >> process_user >> store_user
+
+(
+    start_point
+    >> create_table
+    >> check_api_available
+    >> extract_user
+    >> process_user
+    >> store_user
+    >> end_point
+)

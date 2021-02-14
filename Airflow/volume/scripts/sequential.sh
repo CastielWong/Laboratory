@@ -4,7 +4,11 @@
 # the version used is 1.5
 dnf install jq -y
 
+export VARIABLES="${AIRFLOW_HOME}/variables.json"
 export CONNECTIONS="${AIRFLOW_HOME}/connections.json"
+
+# import variables
+airflow variables import ${VARIABLES}
 
 # import connections
 if [ -d ${AIRFLOW_HOME} ]; then
