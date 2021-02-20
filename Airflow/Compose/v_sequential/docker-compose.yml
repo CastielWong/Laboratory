@@ -5,14 +5,14 @@ services:
     container_name: airflow_sequential
     image: lab-airflow:sequential
     build:
-      context: $PWD
+      context: ../
       dockerfile: Dockerfiles/singleton
       args:
-        - ENTRYPOINT=volume/scripts/sequential.sh
+        - ENTRYPOINT=v_sequential/entrypoint.sh
     restart: always
     ports:
       - "8080:8080"
     volumes:
       - ./volume/dags:/root/airflow/dags
-      - ./volume/connections/sequential.json:/root/airflow/connections.json
-      - ./volume/variables/sequential.json:/root/airflow/variables.json
+      - ./volume/connections.json:/root/airflow/connections.json
+      - ./volume/variables.json:/root/airflow/variables.json

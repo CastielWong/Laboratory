@@ -13,7 +13,7 @@ dnf install jq -y
 sed -i \
 's/sqlite:\/\/\/\/root\/airflow\/airflow.db/postgresql+psycopg2:\/\/postgres:airflow@172.19.0.2\/postgres/g' \
 /root/airflow/airflow.cfg
-# replace executor
+# replace executor to make it parallel
 sed -i 's/= SequentialExecutor/= LocalExecutor/g' /root/airflow/airflow.cfg
 
 # reinitialize Airflow database

@@ -43,7 +43,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERS
 
 # dockerize utilizes "{{:}}" for template variables by default, the same applied for default "airflow.cfg"
 # switch to "<%:%>" in the config template for the purpose of distinction
-COPY volume/${TEMPLATE_AIRFLOW_CONFIG} ${AIRFLOW_HOME}/${TEMPLATE_AIRFLOW_CONFIG}
+COPY templates/${TEMPLATE_AIRFLOW_CONFIG} ${AIRFLOW_HOME}/${TEMPLATE_AIRFLOW_CONFIG}
 # apply dockerize to render the template
 RUN dockerize -delims "<%:%>" -template ${AIRFLOW_HOME}/${TEMPLATE_AIRFLOW_CONFIG}:${AIRFLOW_HOME}/airflow.cfg
 RUN rm ${AIRFLOW_HOME}/${TEMPLATE_AIRFLOW_CONFIG}

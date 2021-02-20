@@ -5,6 +5,7 @@
 - [Local](#local)
   - [Singleton](#singleton)
   - [Structure](#structure)
+- [TODO](#todo)
 - [Reference](#reference)
 
 
@@ -100,6 +101,11 @@ airflow users create \
 --firstname Airflow --lastname Local \
 --role Admin --email demo@airflow.org
 ```
+
+
+## TODO
+- Make each version works as expected
+- Distributed: Extract parameters out
 
 
 ## Reference
