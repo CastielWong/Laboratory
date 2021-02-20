@@ -38,6 +38,7 @@ services:
       - airflow_distributed
     volumes:
       - ./volume/dags:/root/airflow/dags
+      - ./volume/variables/sequential.json:/root/airflow/variables.json
 
   flower:
     container_name: airflow_flower

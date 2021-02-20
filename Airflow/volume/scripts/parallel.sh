@@ -22,8 +22,11 @@ airflow db init
 # set up default user
 airflow users create -u demo -p demo -f John -l Doe -r Admin -e admin@airflow.com
 
-
+export VARIABLES="${AIRFLOW_HOME}/variables.json"
 export CONNECTIONS="${AIRFLOW_HOME}/connections.json"
+
+# import variables
+airflow variables import ${VARIABLES}
 
 # import connections
 if [ -d ${AIRFLOW_HOME} ]; then

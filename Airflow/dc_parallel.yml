@@ -4,6 +4,7 @@ services:
   postgres:
     container_name: airflow_postgres
     image: postgres:13-alpine
+    restart: always
     environment:
       - POSTGRES_PASSWORD=airflow
     ports:
@@ -28,6 +29,7 @@ services:
     volumes:
       - ./volume/dags:/root/airflow/dags
       - ./volume/connections/parallel.json:/root/airflow/connections.json
+      - ./volume/variables/sequential.json:/root/airflow/variables.json
 
 networks:
   airflow_parallel:
