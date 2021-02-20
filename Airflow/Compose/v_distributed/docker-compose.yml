@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.5"
 
 services:
   postgres:
@@ -7,21 +7,23 @@ services:
     restart: always
     environment:
       - POSTGRES_PASSWORD=airflow
-    ports:
-      - "5432:5432"
     networks:
       airflow_distributed:
         ipv4_address: 172.20.0.2
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./volume/init_postgres.sql:/docker-entrypoint-initdb.d/init.sql
 
   redis:
     container_name: airflow_redis
     image: redis:alpine
     restart: always
-    ports:
-      - "6379:6379"
     networks:
       airflow_distributed:
         ipv4_address: 172.20.0.3
+    ports:
+      - "6379:6379"
 
   airflow:
     container_name: airflow_distributed
@@ -32,10 +34,10 @@ services:
       args:
         - ENTRYPOINT=v_distributed/entrypoint.sh
     restart: always
-    ports:
-      - "8080:8080"
     networks:
       - airflow_distributed
+    ports:
+      - "8080:8080"
     volumes:
       - ./volume/dags:/root/airflow/dags
       - ./volume/variables.json:/root/airflow/variables.json
@@ -47,13 +49,16 @@ services:
       - airflow
     restart: always
     command: airflow celery flower
-    ports:
-      - "5555:5555"
     networks:
       - airflow_distributed
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./volume/dags:/root/airflow/dags
 
 networks:
   airflow_distributed:
+    name: airflow_distributed
     driver: bridge
     ipam:
       config:

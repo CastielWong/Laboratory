@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.5"
 
 services:
   airflow:
@@ -10,9 +10,19 @@ services:
       args:
         - ENTRYPOINT=v_sequential/entrypoint.sh
     restart: always
+    networks:
+      - airflow_sequential
     ports:
       - "8080:8080"
     volumes:
       - ./volume/dags:/root/airflow/dags
       - ./volume/connections.json:/root/airflow/connections.json
       - ./volume/variables.json:/root/airflow/variables.json
+
+networks:
+  airflow_sequential:
+    name: airflow_sequential
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16

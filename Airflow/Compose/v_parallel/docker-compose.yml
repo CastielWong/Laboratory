@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.5"
 
 services:
   postgres:
@@ -7,11 +7,11 @@ services:
     restart: always
     environment:
       - POSTGRES_PASSWORD=airflow
-    ports:
-      - "5432:5432"
     networks:
       airflow_parallel:
         ipv4_address: 172.19.0.2
+    ports:
+      - "5432:5432"
 
   airflow:
     container_name: airflow_parallel
@@ -22,10 +22,10 @@ services:
       args:
         - ENTRYPOINT=v_parallel/entrypoint.sh
     restart: always
-    ports:
-      - "8080:8080"
     networks:
       - airflow_parallel
+    ports:
+      - "8080:8080"
     volumes:
       - ./volume/dags:/root/airflow/dags
       - ./volume/connections.json:/root/airflow/connections.json
@@ -33,6 +33,7 @@ services:
 
 networks:
   airflow_parallel:
+    name: airflow_parallel
     driver: bridge
     ipam:
       config:

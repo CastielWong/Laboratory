@@ -4,28 +4,28 @@ services:
   postgres:
     container_name: airflow_postgres
     image: postgres:13-alpine
-    restart: always
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./volume/postgres-scripts:/docker-scripts
     environment:
       - POSTGRES_DB=airflow
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
+    restart: always
     networks:
       airflow_default:
         ipv4_address: 172.18.0.2
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./volume/postgres-scripts:/docker-scripts
 
   redis:
     container_name: airflow_redis
     image: redis:alpine3.12
     restart: always
-    ports:
-      - "6379:6379"
     networks:
       airflow_default:
         ipv4_address: 172.18.0.3
+    ports:
+      - "6379:6379"
 
   webserver:
     container_name: airflow_webserver
@@ -36,10 +36,10 @@ services:
     depends_on:
       - postgres
     restart: always
-    ports:
-      - "8080:8080"
     networks:
       - airflow_default
+    ports:
+      - "8080:8080"
     command: webserver
     volumes:
       - ./volume/operators:/opt/airflow/plugins/operators
@@ -64,10 +64,10 @@ services:
       - webserver
       - redis
     restart: always
-    ports:
-      - "8793:8793"
     networks:
       - airflow_default
+    ports:
+      - "8793:8793"
     command: worker
     volumes:
       - ./volume/dags:/opt/airflow/dags
