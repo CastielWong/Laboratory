@@ -26,7 +26,7 @@ ARG PYTHON_3_VERSION_FULL=3.8.6
 
 # install common tools
 RUN yum install -y \
-    make wget \
+    sudo make wget \
     vim
 
 # install python3
@@ -58,19 +58,20 @@ WORKDIR /root
 
 # install Airflow
 RUN pip install apache-airflow~=2.0.0
+
 # set up Airflow
 RUN airflow db init
-
-# customize Airflow default settings
-# set up default user
-RUN airflow users create -u demo -p demo -f John -l Doe -r Admin -e admin@airflow.com
 
 # set the dag refresh interval to 20 seconds
 RUN sed -i 's/dag_dir_list_interval = 300/dag_dir_list_interval = 20/g' /root/airflow/airflow.cfg
 
-# entrypoint script is passed from docker-compose
-ARG ENTRYPOINT
-ADD ${ENTRYPOINT} entrypoint.sh
-RUN chmod 0755 entrypoint.sh
+# # # customize Airflow default settings
+# # # set up default user
+# # RUN airflow users create -u demo -p demo -f John -l Doe -r Admin -e admin@airflow.com
 
-ENTRYPOINT ["/root/entrypoint.sh"]
+# # entrypoint script is passed from docker-compose
+# ARG ENTRYPOINT
+# ADD ${ENTRYPOINT} /root/entrypoint.sh
+# RUN chmod 0755 entrypoint.sh
+
+# ENTRYPOINT ["/root/entrypoint.sh"]

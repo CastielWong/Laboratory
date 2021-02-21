@@ -31,14 +31,16 @@ services:
     build:
       context: ../
       dockerfile: Dockerfiles/singleton
-      args:
-        - ENTRYPOINT=v_distributed/entrypoint.sh
-    restart: always
+      # args:
+      #   - ENTRYPOINT=v_distributed/entrypoint.sh
+    # restart: always
+    command: bash /root/entrypoint.sh
     networks:
       - airflow_distributed
     ports:
       - "8080:8080"
     volumes:
+      - ./webserver.sh:/root/entrypoint.sh
       - ./volume/dags:/root/airflow/dags
       - ./volume/variables.json:/root/airflow/variables.json
 
@@ -48,12 +50,27 @@ services:
     depends_on:
       - airflow
     restart: always
-    command: airflow celery flower
+    command: bash /root/entrypoint.sh
     networks:
       - airflow_distributed
     ports:
       - "5555:5555"
     volumes:
+      - ./flower.sh:/root/entrypoint.sh
+
+  worker:
+    container_name: airflow_worker
+    image: lab-airflow:distributed
+    depends_on:
+      - airflow
+    restart: always
+    command: bash /root/entrypoint.sh
+    networks:
+      - airflow_distributed
+    ports:
+      - "8793:8793"
+    volumes:
+      - ./worker.sh:/root/entrypoint.sh
       - ./volume/dags:/root/airflow/dags
 
 networks:

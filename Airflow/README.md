@@ -78,6 +78,9 @@ Common commands for PostgreSQL:
 ```bash
 docker exec -it airflow_postgres psql -U postgres
 
+# list database
+\l
+# list tables
 \dt
 ```
 
