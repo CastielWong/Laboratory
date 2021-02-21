@@ -25,15 +25,15 @@ services:
     ports:
       - "6379:6379"
 
-  airflow:
+  webserver:
     container_name: airflow_distributed
-    image: lab-airflow:distributed
+    image: lab-airflow:base
     build:
       context: ../
-      dockerfile: Dockerfiles/singleton
+      dockerfile: Dockerfiles/base
       # args:
       #   - ENTRYPOINT=v_distributed/entrypoint.sh
-    # restart: always
+    restart: always
     command: bash /root/entrypoint.sh
     networks:
       - airflow_distributed
@@ -41,14 +41,26 @@ services:
       - "8080:8080"
     volumes:
       - ./webserver.sh:/root/entrypoint.sh
+
+  scheduler:
+    container_name: airflow_scheduler
+    image: lab-airflow:base
+    depends_on:
+      - webserver
+    restart: always
+    command: bash /root/entrypoint.sh
+    networks:
+      - airflow_distributed
+    volumes:
+      - ./scheduler.sh:/root/entrypoint.sh
       - ./volume/dags:/root/airflow/dags
       - ./volume/variables.json:/root/airflow/variables.json
 
   flower:
     container_name: airflow_flower
-    image: lab-airflow:distributed
+    image: lab-airflow:base
     depends_on:
-      - airflow
+      - webserver
     restart: always
     command: bash /root/entrypoint.sh
     networks:
@@ -60,9 +72,9 @@ services:
 
   worker:
     container_name: airflow_worker
-    image: lab-airflow:distributed
+    image: lab-airflow:base
     depends_on:
-      - airflow
+      - webserver
     restart: always
     command: bash /root/entrypoint.sh
     networks:

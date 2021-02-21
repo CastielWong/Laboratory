@@ -15,18 +15,18 @@ services:
 
   airflow:
     container_name: airflow_parallel
-    image: lab-airflow:parallel
+    image: lab-airflow:base
     build:
       context: ../
-      dockerfile: Dockerfiles/singleton
-      args:
-        - ENTRYPOINT=v_parallel/entrypoint.sh
+      dockerfile: Dockerfiles/base
     restart: always
+    command: bash /root/entrypoint.sh
     networks:
       - airflow_parallel
     ports:
       - "8080:8080"
     volumes:
+      - ./entrypoint.sh:/root/entrypoint.sh
       - ./volume/dags:/root/airflow/dags
       - ./volume/connections.json:/root/airflow/connections.json
       - ./volume/variables.json:/root/airflow/variables.json

@@ -17,19 +17,8 @@ sed -i \
 's/= db+postgresql:\/\/postgres:airflow@postgres\/airflow/db+postgresql:\/\/postgres:airflow@172.20.0.2:5432\/airflow/g' \
 /root/airflow/airflow.cfg
 
-# reinitialize Airflow database
-airflow db init
 
-# set up default user
-airflow users create -u demo -p demo -f John -l Doe -r Admin -e admin@airflow.com
+airflow scheduler
 
-# waiting for metadata table to be initialized
-sleep 2
-
-export VARIABLES="${AIRFLOW_HOME}/variables.json"
-
-# import variables
-airflow variables import ${VARIABLES}
-
-# start up webserver
-airflow webserver
+# monitor for commands to keep container running
+exec "$@"

@@ -65,9 +65,9 @@ RUN airflow db init
 # set the dag refresh interval to 20 seconds
 RUN sed -i 's/dag_dir_list_interval = 300/dag_dir_list_interval = 20/g' /root/airflow/airflow.cfg
 
-# # # customize Airflow default settings
-# # # set up default user
-# # RUN airflow users create -u demo -p demo -f John -l Doe -r Admin -e admin@airflow.com
+# customize Airflow default settings
+# set up default user
+RUN airflow users create -u demo -p demo -f John -l Doe -r Admin -e admin@airflow.com
 
 # # entrypoint script is passed from docker-compose
 # ARG ENTRYPOINT

@@ -47,9 +47,9 @@ if [ -d ${AIRFLOW_HOME} ]; then
 
 fi
 
-# start up webserver and at the background
-airflow webserver > /dev/null 2>&1 &
+# start up scheudler at the background
 airflow scheduler > /dev/null 2>&1 &
+airflow webserver
 
 # monitor for commands to keep container running
 exec "$@"
