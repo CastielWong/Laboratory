@@ -25,12 +25,14 @@ services:
   postgres:
     container_name: postgres
     image: postgres:13-alpine
-    volumes:
-      - meta_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=FoolishPassword
       - POSTGRES_USER=druid
       - POSTGRES_DB=druid
+    networks:
+      - druid
+    volumes:
+      - meta_data:/var/lib/postgresql/data
 
   # Need 3.5 or later for container nodes
   zookeeper:
@@ -38,85 +40,94 @@ services:
     image: zookeeper:3.5
     environment:
       - ZOO_MY_ID=1
+    networks:
+      - druid
 
   coordinator:
-    image: apache/druid:0.20.0
     container_name: coordinator
+    image: apache/druid:0.20.0
+    env_file:
+      - environment
+    command:
+      - coordinator
+    networks:
+      - druid
+    ports:
+      - "8081:8081"
     volumes:
       - storage_data:/opt/data
       - coordinator_var:/opt/druid/var
     depends_on:
-      - zookeeper
       - postgres
-    ports:
-      - "8081:8081"
-    command:
-      - coordinator
-    env_file:
-      - environment
+      - zookeeper
 
   broker:
-    image: apache/druid:0.20.0
     container_name: broker
+    image: apache/druid:0.20.0
+    env_file:
+      - environment
+    command:
+      - broker
+    networks:
+      - druid
+    ports:
+      - "8082:8082"
     volumes:
       - broker_var:/opt/druid/var
     depends_on:
-      - zookeeper
-      - postgres
       - coordinator
-    ports:
-      - "8082:8082"
-    command:
-      - broker
-    env_file:
-      - environment
 
   historical:
-    image: apache/druid:0.20.0
     container_name: historical
+    image: apache/druid:0.20.0
+    env_file:
+      - environment
+    command:
+      - historical
+    networks:
+      - druid
+    ports:
+      - "8083:8083"
     volumes:
       - storage_data:/opt/data
       - historical_var:/opt/druid/var
     depends_on:
-      - zookeeper
-      - postgres
       - coordinator
-    ports:
-      - "8083:8083"
-    command:
-      - historical
-    env_file:
-      - environment
 
   middlemanager:
-    image: apache/druid:0.20.0
     container_name: middlemanager
+    image: apache/druid:0.20.0
+    env_file:
+      - environment
+    command:
+      - middleManager
+    networks:
+      - druid
+    ports:
+      - "8091:8091"
     volumes:
       - storage_data:/opt/data
       - middle_var:/opt/druid/var
     depends_on:
-      - zookeeper
-      - postgres
       - coordinator
-    ports:
-      - "8091:8091"
-    command:
-      - middleManager
-    env_file:
-      - environment
 
   router:
-    image: apache/druid:0.20.0
     container_name: router
-    volumes:
-      - router_var:/opt/druid/var
-    depends_on:
-      - zookeeper
-      - postgres
-      - coordinator
-    ports:
-      - "8888:8888"
-    command:
-      - router
+    image: apache/druid:0.20.0
     env_file:
       - environment
+    command:
+      - router
+    volumes:
+      - router_var:/opt/druid/var
+    networks:
+      - druid
+    ports:
+      - "8888:8888"
+    depends_on:
+      - coordinator
+
+networks:
+  druid:
+    name: lab_druid
+    driver: bridge
