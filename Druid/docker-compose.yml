@@ -1,38 +1,32 @@
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
-version: "2.2"
+version: "3.5"
 
 volumes:
-  metadata_data: {}
-  middle_var: {}
-  historical_var: {}
-  broker_var: {}
-  coordinator_var: {}
-  router_var: {}
-
+  meta_data:
+    name: lab_druid_metadata
+  middle_var:
+    name: lab_druid_middle
+  historical_var:
+    name: lab_druid_historical
+  broker_var:
+    name: lab_druid_broker
+  coordinator_var:
+    name: lab_druid_coordinator
+  router_var:
+    name: lab_druid_router
+  storage_data:
+    name: lab_druid_storage
+    driver: local
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "$PWD/storage"
 
 services:
   postgres:
     container_name: postgres
-    image: postgres:latest
+    image: postgres:13-alpine
     volumes:
-      - metadata_data:/var/lib/postgresql/data
+      - meta_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=FoolishPassword
       - POSTGRES_USER=druid
@@ -46,10 +40,10 @@ services:
       - ZOO_MY_ID=1
 
   coordinator:
-    image: apache/druid:0.22.0
+    image: apache/druid:0.20.0
     container_name: coordinator
     volumes:
-      - ./storage:/opt/data
+      - storage_data:/opt/data
       - coordinator_var:/opt/druid/var
     depends_on:
       - zookeeper
@@ -62,7 +56,7 @@ services:
       - environment
 
   broker:
-    image: apache/druid:0.22.0
+    image: apache/druid:0.20.0
     container_name: broker
     volumes:
       - broker_var:/opt/druid/var
@@ -78,10 +72,10 @@ services:
       - environment
 
   historical:
-    image: apache/druid:0.22.0
+    image: apache/druid:0.20.0
     container_name: historical
     volumes:
-      - ./storage:/opt/data
+      - storage_data:/opt/data
       - historical_var:/opt/druid/var
     depends_on:
       - zookeeper
@@ -95,10 +89,10 @@ services:
       - environment
 
   middlemanager:
-    image: apache/druid:0.22.0
+    image: apache/druid:0.20.0
     container_name: middlemanager
     volumes:
-      - ./storage:/opt/data
+      - storage_data:/opt/data
       - middle_var:/opt/druid/var
     depends_on:
       - zookeeper
@@ -112,7 +106,7 @@ services:
       - environment
 
   router:
-    image: apache/druid:0.22.0
+    image: apache/druid:0.20.0
     container_name: router
     volumes:
       - router_var:/opt/druid/var
