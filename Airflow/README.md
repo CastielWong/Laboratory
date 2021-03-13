@@ -9,6 +9,9 @@
 - [Reference](#reference)
 
 
+To better maintain the DAG, "Sub DAG" and "Task Group" are two ways for it. However, "Sub DAG" is not recommended for the reasons of its complexity and possible cause of deadlock.
+
+
 ## Docker
 
 ### Docker-compose

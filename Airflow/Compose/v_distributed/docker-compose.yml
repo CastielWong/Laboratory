@@ -70,8 +70,8 @@ services:
     volumes:
       - ./flower.sh:/root/entrypoint.sh
 
-  worker:
-    container_name: airflow_worker
+  worker_1:
+    container_name: airflow_worker_1
     image: lab-airflow:base
     depends_on:
       - webserver
@@ -79,8 +79,19 @@ services:
     command: bash /root/entrypoint.sh
     networks:
       - airflow_distributed
-    ports:
-      - "8793:8793"
+    volumes:
+      - ./worker.sh:/root/entrypoint.sh
+      - ./volume/dags:/root/airflow/dags
+
+  worker_2:
+    container_name: airflow_worker_2
+    image: lab-airflow:base
+    depends_on:
+      - webserver
+    restart: always
+    command: bash /root/entrypoint.sh
+    networks:
+      - airflow_distributed
     volumes:
       - ./worker.sh:/root/entrypoint.sh
       - ./volume/dags:/root/airflow/dags
