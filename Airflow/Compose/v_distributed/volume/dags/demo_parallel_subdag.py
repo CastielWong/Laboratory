@@ -6,9 +6,14 @@ from datetime import timedelta
 
 from airflow.models import DAG
 from airflow.operators.bash import BashOperator
+from airflow.operators.subdag import SubDagOperator
+
+from subdags import sample_subdag
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+DAG_ID = "demo_pipeline_parallel_subdag"
 
 default_args = {
     "depends_on_past": False,
@@ -19,26 +24,26 @@ default_args = {
     "start_date": datetime(2021, 1, 1),
 }
 
-dag = DAG(
-    dag_id="demo_pipeline_parallel_subdag",
+
+with DAG(
+    dag_id=DAG_ID,
     description="This is a DAG for simple demo",
     catchup=False,
     max_active_runs=1,
     schedule_interval=timedelta(days=1),
     default_args=default_args,
-)
+) as dag:
+    task_1 = BashOperator(
+        dag=dag, task_id="task_1", bash_command="sleep 2; echo This is Task 1"
+    )
 
-task_1 = BashOperator(
-    dag=dag, task_id="task_1", bash_command="sleep 2; echo This is Task 1"
-)
-task_2 = BashOperator(
-    dag=dag, task_id="task_2", bash_command="sleep 2; echo This is Task 2"
-)
-task_3 = BashOperator(
-    dag=dag, task_id="task_3", bash_command="sleep 2; echo This is Task 3"
-)
-task_4 = BashOperator(
-    dag=dag, task_id="task_4", bash_command="sleep 2; echo This is Task 4"
-)
+    processing = SubDagOperator(
+        task_id="processing_tasks",
+        subdag=sample_subdag.main(DAG_ID, "processing_tasks", default_args),
+    )
 
-task_1 >> [task_2, task_3] >> task_4
+    task_4 = BashOperator(
+        dag=dag, task_id="task_4", bash_command="sleep 2; echo This is Task 4"
+    )
+
+    task_1 >> processing >> task_4
