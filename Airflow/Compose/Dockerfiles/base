@@ -19,9 +19,9 @@ CMD ["/usr/sbin/init"]
 
 
 # customization
+ENV AIRFLOW_VERSION=2.0.0
 ENV AIRFLOW_HOME=/root/airflow
 ENV PYTHON_3_VERSION_MAJOR=3.8
-
 ARG PYTHON_3_VERSION_FULL=3.8.6
 
 # install common tools
@@ -57,7 +57,7 @@ WORKDIR /root
 
 
 # install Airflow
-RUN pip install apache-airflow~=2.0.0
+RUN pip install apache-airflow==${AIRFLOW_VERSION}
 
 # set up Airflow
 RUN airflow db init
@@ -65,9 +65,13 @@ RUN airflow db init
 # set the dag refresh interval to 20 seconds
 RUN sed -i 's/dag_dir_list_interval = 300/dag_dir_list_interval = 20/g' /root/airflow/airflow.cfg
 
+
 # customize Airflow default settings
+ARG AIRFLOW_USER='demo'
+ARG AIRFLOW_PASSWORD='demo'
+
 # set up default user
-RUN airflow users create -u demo -p demo -f John -l Doe -r Admin -e admin@airflow.com
+RUN airflow users create -u ${AIRFLOW_USER} -p ${AIRFLOW_PASSWORD} -f John -l Doe -r Admin -e admin@airflow.com
 
 # # entrypoint script is passed from docker-compose
 # ARG ENTRYPOINT
