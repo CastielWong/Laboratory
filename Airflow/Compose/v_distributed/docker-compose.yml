@@ -41,6 +41,9 @@ services:
       - "8080:8080"
     volumes:
       - ./webserver.sh:/root/entrypoint.sh
+    depends_on:
+      - postgres
+      - redis
 
   scheduler:
     container_name: airflow_scheduler

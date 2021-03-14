@@ -51,7 +51,7 @@ default_args = {
     "depends_on_past": False,
     "owner": "demo",
     "retries": 2,
-    "retry_delay": timedelta(minutes=1),
+    "retry_delay": timedelta(seconds=3),
     "execution_timeout": timedelta(minutes=10),
     "start_date": datetime(2021, 1, 1),
 }
@@ -86,7 +86,33 @@ with DAG(
         task_id="check_top_quarter", python_callable=_check_top_quarter
     )
 
+    task_5 = BashOperator(dag=dag, task_id="task_5", bash_command="exit 1")
+
+    complete_all_branch = BashOperator(
+        dag=dag,
+        task_id="complete_all_branch",
+        bash_command="exit 0",
+        trigger_rule="none_skipped",
+    )
+
+    detect_success = BashOperator(
+        dag=dag,
+        task_id="detect_success",
+        bash_command="exit 0",
+        trigger_rule="one_success",
+    )
+
+    detect_failed = BashOperator(
+        dag=dag,
+        task_id="detect_failed",
+        bash_command="exit 0",
+        trigger_rule="one_failed",
+    )
+
     top_quarter = DummyOperator(task_id="top_quarter")
     normal = DummyOperator(task_id="normal")
 
-    task_1 >> processing >> check_top_quarter >> [top_quarter, normal]
+    task_1 >> processing >> check_top_quarter
+    check_top_quarter >> [top_quarter, normal] >> complete_all_branch
+    [complete_all_branch, task_5] >> detect_success
+    [complete_all_branch, task_5] >> detect_failed
