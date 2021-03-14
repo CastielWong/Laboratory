@@ -2,9 +2,9 @@ version: "3.5"
 
 services:
   postgres:
+    restart: always
     container_name: airflow_postgres
     image: postgres:13-alpine
-    restart: always
     environment:
       - POSTGRES_PASSWORD=airflow
     networks:
@@ -14,12 +14,12 @@ services:
       - "5432:5432"
 
   airflow:
+    restart: always
     container_name: airflow_parallel
     image: lab-airflow:base
     build:
       context: ../
       dockerfile: Dockerfiles/base
-    restart: always
     command: bash /root/entrypoint.sh
     networks:
       - airflow_parallel
@@ -30,6 +30,8 @@ services:
       - ./volume/dags:/root/airflow/dags
       - ./volume/connections.json:/root/airflow/connections.json
       - ./volume/variables.json:/root/airflow/variables.json
+    depends_on:
+      - postgres
 
 networks:
   airflow_parallel:

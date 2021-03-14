@@ -1,39 +1,40 @@
 
-- [Docker](#docker)
+- [Quick Start](#quick-start)
+- [Concept](#concept)
+- [Common Command](#common-command)
   - [Docker-compose](#docker-compose)
-  - [Common Command](#common-command)
-- [Local](#local)
-  - [Singleton](#singleton)
-  - [Structure](#structure)
-- [TODO](#todo)
+  - [Docker](#docker)
+  - [Airflow](#airflow)
+  - [SQLite](#sqlite)
+  - [PostgreSQL](#postgresql)
+- [Mode](#mode)
+  - [Sequential](#sequential)
+  - [Parallel](#parallel)
+  - [Distributed](#distributed)
 - [Reference](#reference)
 
 
-To better maintain the DAG, "Sub DAG" and "Task Group" are two ways for it. However, "Sub DAG" is not recommended for the reasons of its complexity and possible cause of deadlock.
-
-
-## Docker
-
-### Docker-compose
-
+## Quick Start
 1. Start up Airflow via `docker-compose up -d`
 1. Go to "localhost:8080" for the UI
 1. Find the username and password in "entrypoint.sh"
 
-### Common Command
 
-Common commands when debugging with `docker-compose`:
+## Concept
+To better maintain the DAG, "Sub DAG" and "Task Group" are two ways for it. However, "Sub DAG" is not recommended for the reasons of its complexity and possible cause of deadlock.
 
+
+## Common Command
+Below is the common commands used for checking or debugging.
+
+### Docker-compose
 ```sh
 # build images first then compose containers
 docker-compose up --build -d
-
-# investigate the postgres DB
-docker exec -it airflow_postgres psql -U airflow
+docker-compose -f {file.yml} down
 ```
 
-Common commands when debugging with `docker`:
-
+### Docker
 ```sh
 # create the customized Airflow image locally
 docker build -t lab-airflow:demo -f Dockerfile .
@@ -41,56 +42,12 @@ docker build -t lab-airflow:demo -f Dockerfile .
 docker run --name demo_af -it lab-airflow:demo bash
 # remove the container
 docker rm demo_af
+
+# investigate the postgres DB
+docker exec -it airflow_postgres psql -U airflow
 ```
 
-
-## Local
-
-Note that the time to scan the DAGs directory is set by `dag_dir_list_interval` in "${AIRFLOW_HOME}/airflow.cfg", for whose default is 300 seconds.
-
-Below lists common commands:
-```sh
-# test if a task is running as expected
-airflow tasks test {dag_name} {task_name} {yyyy}-{mm}-{dd}
-
-# remember to toggle example_bash_operator on
-airflow run example_bash_operator runme_0 2015-01-01
-
-# delete a dag
-airflow delete_dag {dag_id}
-```
-
-### Singleton
-
-Run `docker-compose -f dc_sequential.yml up --build -d` to explore the simple usage of Airflow.
-
-
-After the DAG "demo_pipeline" finished, check if data has been loaded in SQLite through`sqlite3 /root/airflow/airflow.db`.
-
-Common commands for SQLite:
-```bash
-.help
-
-.databases
-.tables
-
-.quit
-```
-
-Common commands for PostgreSQL:
-```bash
-docker exec -it airflow_postgres psql -U postgres
-
-# list database
-\l
-# list tables
-\dt
-```
-
-
-### Structure
-
-To explore and run a task locally in a container:
+### Airflow
 ```sh
 # initialize the database
 airflow db init
@@ -108,12 +65,78 @@ airflow users create \
 --role Admin --email demo@airflow.org
 ```
 
+### SQLite
+```bash
+sqlite3 airflow/airflow.db
 
-## TODO
-- Make each version works as expected
-- Distributed: Extract parameters out
+.help
+
+.databases
+.tables
+
+.quit
+```
+
+### PostgreSQL
+```bash
+docker exec -it airflow_postgres psql -U postgres
+
+# list database
+\l
+# list tables
+\dt
+```
+
+
+## Mode
+This repo sets up everything for Airflow to run locally. Three different modes have been developed for exploration:
+- v_sequential:
+  - run with "SequentialExecutor"
+  - use sqlite as database
+  - the simplest mode, all component works as a whole in singleton
+- v_parallel:
+  - run with "LocalExecutor" to support parallel running
+  - utilize postgres for database
+  - have database a separate module
+- v_distributed:
+  - run with "CeleryExecutor"
+  - separate components out to individual modules
+  - the most complicated and decoupled model, with two worker instances
+
+Run `docker-compose up -d` under corresponding directory to explore how Airflow works.
+
+Note that the time to scan the DAGs directory is set by `dag_dir_list_interval` in "${AIRFLOW_HOME}/airflow.cfg", for whose default is 300 seconds.
+
+Below lists common commands:
+```sh
+# test if a task is running as expected
+airflow tasks test {dag_name} {task_name} {yyyy}-{mm}-{dd}
+
+# remember to toggle example_bash_operator on
+airflow run example_bash_operator runme_0 2015-01-01
+
+# delete a dag
+airflow delete_dag {dag_id}
+```
+
+### Sequential
+After the DAG "demo_pipeline_sequential" is finished, check if table "random_user" was created and data has been loaded in SQLite. SQLite database should be able to access through `sqlite3 /root/airflow/airflow.db`.
+
+### Parallel
+Run DAG "demo_pipeline_parallel" to see if everything is working alright. Then check the Gantt chart for the DAG run after finished to verify tasks were able to work parallely.
+
+Apply the "entrypoint.sh" script to replace the executor, then import connections and variables in. The script would launch scheduler and webserver together to set Airflow up and running.
+
+The container would exit automatically if both of the scheduler and webserver are set to be run at the background.
+
+### Distributed
+Run DAG "demo_branch" to see if everything is working alright.
+
+Since components are run in individual containers, different component are launched by different command.
+
+Access "localhost:5555" to check the workload for different workers.
 
 
 ## Reference
-- docker-airflow: https://github.com/puckel/docker-airflow
 - Airflow Tutorial: https://airflow-tutorial.readthedocs.io/en/latest/about.html
+- Default official docker-compose file: https://airflow.apache.org/docs/apache-airflow/stable/docker-compose.yaml

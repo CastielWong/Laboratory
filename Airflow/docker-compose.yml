@@ -1,14 +1,14 @@
-version: "3.3"
+version: "3.5"
 
 services:
   postgres:
+    restart: always
     container_name: airflow_postgres
     image: postgres:13-alpine
     environment:
       - POSTGRES_DB=airflow
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
-    restart: always
     networks:
       airflow_default:
         ipv4_address: 172.18.0.2
@@ -18,9 +18,9 @@ services:
       - ./volume/postgres-scripts:/docker-scripts
 
   redis:
-    container_name: airflow_redis
-    image: redis:alpine3.12
     restart: always
+    container_name: airflow_redis
+    image: redis:6.2.1-alpine3.13
     networks:
       airflow_default:
         ipv4_address: 172.18.0.3
@@ -28,52 +28,53 @@ services:
       - "6379:6379"
 
   webserver:
+    restart: always
     container_name: airflow_webserver
     image: lab-airflow:demo
     build:
       context: $PWD
       dockerfile: Dockerfile
-    depends_on:
-      - postgres
-    restart: always
+    command: webserver
     networks:
       - airflow_default
     ports:
       - "8080:8080"
-    command: webserver
     volumes:
       - ./volume/operators:/opt/airflow/plugins/operators
+    depends_on:
+      - postgres
 
   scheduler:
+    restart: always
     container_name: airflow_scheduler
     image: lab-airflow:demo
+    command: scheduler
+    networks:
+      - airflow_default
+    volumes:
+      - ./volume/dags:/opt/airflow/dags
     depends_on:
       # wait for image created in webserver
       - webserver
-    restart: always
-    networks:
-      - airflow_default
-    command: scheduler
-    volumes:
-      - ./volume/dags:/opt/airflow/dags
 
   worker:
+    restart: always
     container_name: airflow_worker
     image: lab-airflow:demo
-    depends_on:
-      - webserver
-      - redis
-    restart: always
+    command: worker
     networks:
       - airflow_default
     ports:
       - "8793:8793"
-    command: worker
     volumes:
       - ./volume/dags:/opt/airflow/dags
+    depends_on:
+      - webserver
+      - redis
 
 networks:
   airflow_default:
+    name: airflow_default
     driver: bridge
     ipam:
       config:

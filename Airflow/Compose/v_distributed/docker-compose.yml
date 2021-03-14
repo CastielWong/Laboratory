@@ -2,9 +2,9 @@ version: "3.5"
 
 services:
   postgres:
+    restart: always
     container_name: airflow_postgres
     image: postgres:13-alpine
-    restart: always
     environment:
       - POSTGRES_PASSWORD=airflow
     networks:
@@ -16,9 +16,9 @@ services:
       - ./volume/init_postgres.sql:/docker-entrypoint-initdb.d/init.sql
 
   redis:
-    container_name: airflow_redis
-    image: redis:alpine
     restart: always
+    container_name: airflow_redis
+    image: redis:6.2.1-alpine3.13
     networks:
       airflow_distributed:
         ipv4_address: 172.20.0.3
@@ -26,6 +26,7 @@ services:
       - "6379:6379"
 
   webserver:
+    restart: always
     container_name: airflow_distributed
     image: lab-airflow:base
     build:
@@ -33,71 +34,75 @@ services:
       dockerfile: Dockerfiles/base
       # args:
       #   - ENTRYPOINT=v_distributed/entrypoint.sh
-    restart: always
     command: bash /root/entrypoint.sh
     networks:
       - airflow_distributed
     ports:
       - "8080:8080"
     volumes:
+      - ./init.sh:/root/init.sh
       - ./webserver.sh:/root/entrypoint.sh
     depends_on:
       - postgres
       - redis
 
   scheduler:
+    restart: always
     container_name: airflow_scheduler
     image: lab-airflow:base
-    depends_on:
-      - webserver
-    restart: always
     command: bash /root/entrypoint.sh
     networks:
       - airflow_distributed
     volumes:
+      - ./init.sh:/root/init.sh
       - ./scheduler.sh:/root/entrypoint.sh
       - ./volume/dags:/root/airflow/dags
       - ./volume/variables.json:/root/airflow/variables.json
-
-  flower:
-    container_name: airflow_flower
-    image: lab-airflow:base
     depends_on:
       - webserver
+
+  flower:
     restart: always
+    container_name: airflow_flower
+    image: lab-airflow:base
     command: bash /root/entrypoint.sh
     networks:
       - airflow_distributed
     ports:
       - "5555:5555"
     volumes:
+      - ./init.sh:/root/init.sh
       - ./flower.sh:/root/entrypoint.sh
+    depends_on:
+      - webserver
 
   worker_1:
+    restart: always
     container_name: airflow_worker_1
     image: lab-airflow:base
-    depends_on:
-      - webserver
-    restart: always
     command: bash /root/entrypoint.sh
     networks:
       - airflow_distributed
     volumes:
+      - ./init.sh:/root/init.sh
       - ./worker.sh:/root/entrypoint.sh
       - ./volume/dags:/root/airflow/dags
+    depends_on:
+      - webserver
 
   worker_2:
+    restart: always
     container_name: airflow_worker_2
     image: lab-airflow:base
-    depends_on:
-      - webserver
-    restart: always
     command: bash /root/entrypoint.sh
     networks:
       - airflow_distributed
     volumes:
+      - ./init.sh:/root/init.sh
       - ./worker.sh:/root/entrypoint.sh
       - ./volume/dags:/root/airflow/dags
+    depends_on:
+      - webserver
 
 networks:
   airflow_distributed:

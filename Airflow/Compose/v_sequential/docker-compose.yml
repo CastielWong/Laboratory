@@ -2,12 +2,12 @@ version: "3.5"
 
 services:
   airflow:
+    restart: always
     container_name: airflow_sequential
     image: lab-airflow:base
     build:
       context: ../
       dockerfile: Dockerfiles/base
-    restart: always
     command: bash /root/entrypoint.sh
     networks:
       - airflow_sequential
