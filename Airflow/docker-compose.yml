@@ -43,6 +43,7 @@ services:
       - ./volume/operators:/opt/airflow/plugins/operators
     depends_on:
       - postgres
+      - redis
 
   scheduler:
     restart: always
@@ -55,6 +56,20 @@ services:
       - ./volume/dags:/opt/airflow/dags
     depends_on:
       # wait for image created in webserver
+      - webserver
+
+  flower:
+    # restart: always
+    container_name: airflow_flower
+    image: lab-airflow:demo
+    command: flower
+    networks:
+      - airflow_default
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./volume/dags:/opt/airflow/dags
+    depends_on:
       - webserver
 
   worker:
@@ -70,7 +85,6 @@ services:
       - ./volume/dags:/opt/airflow/dags
     depends_on:
       - webserver
-      - redis
 
 networks:
   airflow_default:

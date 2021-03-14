@@ -20,7 +20,7 @@ default_args = {
 }
 
 dag = DAG(
-    dag_id="demo_dag",
+    dag_id="demo_simple",
     description="This is a DAG for simple demo",
     catchup=False,
     max_active_runs=1,

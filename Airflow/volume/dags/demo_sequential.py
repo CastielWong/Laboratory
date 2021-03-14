@@ -60,8 +60,8 @@ dag = DAG(
 )
 
 
-start = Variable.get("start")
-end = Variable.get("end")
+start = Variable.get(key="start", default_var="starting point")
+end = Variable.get(key="end", default_var="ending point")
 
 start_point = BashOperator(
     dag=dag, task_id="start_point", bash_command=f"echo '{start}'"

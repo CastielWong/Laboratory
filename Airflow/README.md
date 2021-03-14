@@ -14,6 +14,8 @@
 - [Reference](#reference)
 
 
+This repo sets up everything for Airflow to run locally.
+
 ## Quick Start
 1. Start up Airflow via `docker-compose up -d`
 1. Go to "localhost:8080" for the UI
@@ -89,7 +91,7 @@ docker exec -it airflow_postgres psql -U postgres
 
 
 ## Mode
-This repo sets up everything for Airflow to run locally. Three different modes have been developed for exploration:
+Three different modes have been developed for exploration under directory "Compose", for whose images are all developed based on a plain Linux image other than an official Airflow one:
 - v_sequential:
   - run with "SequentialExecutor"
   - use sqlite as database
@@ -103,7 +105,7 @@ This repo sets up everything for Airflow to run locally. Three different modes h
   - separate components out to individual modules
   - the most complicated and decoupled model, with two worker instances
 
-Run `docker-compose up -d` under corresponding directory to explore how Airflow works.
+To explore how Airflow works, make sure run `docker-compose up -d` under the corresponding directory. Otherwise, docker-compose may not be able to find the correct volume to map.
 
 Note that the time to scan the DAGs directory is set by `dag_dir_list_interval` in "${AIRFLOW_HOME}/airflow.cfg", for whose default is 300 seconds.
 
@@ -120,7 +122,7 @@ airflow delete_dag {dag_id}
 ```
 
 ### Sequential
-After the DAG "demo_pipeline_sequential" is finished, check if table "random_user" was created and data has been loaded in SQLite. SQLite database should be able to access through `sqlite3 /root/airflow/airflow.db`.
+After the DAG "demo_pipeline_sequential" is finished, check if table "random_user" was created and data has been loaded in SQLite. SQLite database should be able to access through `sqlite3 /root/airflow/airflow.db`, then run `SELECT * FROM random_user;` to verify.
 
 ### Parallel
 Run DAG "demo_pipeline_parallel" to see if everything is working alright. Then check the Gantt chart for the DAG run after finished to verify tasks were able to work parallely.

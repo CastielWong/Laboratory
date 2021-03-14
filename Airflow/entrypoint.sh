@@ -15,13 +15,17 @@ if [ "$1" = "webserver" ]; then
     --firstname Airflow --lastname Local \
     --role Admin --email ${AIRFLOW_SMTP_MAIL_FROM}
 
-    exec airflow "$@"
+    exec airflow webserver
 elif [ "$1" = "scheduler" ]; then
     # wait for the database to be initialized
     sleep 8
-    exec airflow "$@"
+    exec airflow scheduler
+elif [ "$1" = "flower" ]; then
+    # wait for the database to be initialized
+    sleep 8
+    exec airflow celery flower
 elif [ "$1" = "worker" ]; then
     # wait for the database to be initialized
     sleep 8
-    exec airflow celery "$@"
+    exec airflow celery worker
 fi

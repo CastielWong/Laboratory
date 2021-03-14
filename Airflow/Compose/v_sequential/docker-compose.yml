@@ -15,9 +15,9 @@ services:
       - "8080:8080"
     volumes:
       - ./entrypoint.sh:/root/entrypoint.sh
-      - ./volume/dags:/root/airflow/dags
-      - ./volume/connections.json:/root/airflow/connections.json
-      - ./volume/variables.json:/root/airflow/variables.json
+      - ../resources/conn_sequential.json:/root/airflow/connections.json
+      - ../resources/variables.json:/root/airflow/variables.json
+      - ../../volume/dags:/root/airflow/dags
 
 networks:
   airflow_sequential:

@@ -27,9 +27,9 @@ services:
       - "8080:8080"
     volumes:
       - ./entrypoint.sh:/root/entrypoint.sh
-      - ./volume/dags:/root/airflow/dags
-      - ./volume/connections.json:/root/airflow/connections.json
-      - ./volume/variables.json:/root/airflow/variables.json
+      - ../resources/variables.json:/root/airflow/variables.json
+      - ../resources/conn_parallel.json:/root/airflow/connections.json
+      - ../../volume/dags:/root/airflow/dags
     depends_on:
       - postgres
 

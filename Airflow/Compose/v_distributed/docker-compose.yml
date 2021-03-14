@@ -1,5 +1,19 @@
 version: "3.5"
 
+x-airflow-worker:
+  &airflow-worker
+  restart: always
+  image: lab-airflow:base
+  command: bash /root/entrypoint.sh
+  networks:
+    - airflow_distributed
+  volumes:
+    - ./init.sh:/root/init.sh
+    - ./worker.sh:/root/entrypoint.sh
+    - ../../volume/dags:/root/airflow/dags
+  depends_on:
+    - webserver
+
 services:
   postgres:
     restart: always
@@ -13,7 +27,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./volume/init_postgres.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init_postgres.sql:/docker-entrypoint-initdb.d/init.sql
 
   redis:
     restart: always
@@ -41,6 +55,7 @@ services:
       - "8080:8080"
     volumes:
       - ./init.sh:/root/init.sh
+      - ../resources/variables.json:/root/airflow/variables.json
       - ./webserver.sh:/root/entrypoint.sh
     depends_on:
       - postgres
@@ -56,8 +71,8 @@ services:
     volumes:
       - ./init.sh:/root/init.sh
       - ./scheduler.sh:/root/entrypoint.sh
-      - ./volume/dags:/root/airflow/dags
-      - ./volume/variables.json:/root/airflow/variables.json
+      - ../resources/variables.json:/root/airflow/variables.json
+      - ../../volume/dags:/root/airflow/dags
     depends_on:
       - webserver
 
@@ -77,32 +92,12 @@ services:
       - webserver
 
   worker_1:
-    restart: always
+    <<: *airflow-worker
     container_name: airflow_worker_1
-    image: lab-airflow:base
-    command: bash /root/entrypoint.sh
-    networks:
-      - airflow_distributed
-    volumes:
-      - ./init.sh:/root/init.sh
-      - ./worker.sh:/root/entrypoint.sh
-      - ./volume/dags:/root/airflow/dags
-    depends_on:
-      - webserver
 
   worker_2:
-    restart: always
+    <<: *airflow-worker
     container_name: airflow_worker_2
-    image: lab-airflow:base
-    command: bash /root/entrypoint.sh
-    networks:
-      - airflow_distributed
-    volumes:
-      - ./init.sh:/root/init.sh
-      - ./worker.sh:/root/entrypoint.sh
-      - ./volume/dags:/root/airflow/dags
-    depends_on:
-      - webserver
 
 networks:
   airflow_distributed:
