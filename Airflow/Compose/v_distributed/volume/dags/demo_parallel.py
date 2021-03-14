@@ -21,7 +21,7 @@ default_args = {
 
 dag = DAG(
     dag_id="demo_pipeline_parallel",
-    description="This is a DAG for simple demo",
+    description="This is a DAG for simple demo in pipeline",
     catchup=False,
     max_active_runs=1,
     schedule_interval=timedelta(days=1),

@@ -22,7 +22,7 @@ default_args = {
 
 with DAG(
     dag_id="demo_pipeline_parallel_task_group",
-    description="This is a DAG for simple demo",
+    description="This is a DAG demo for how to use Task Group",
     catchup=False,
     max_active_runs=1,
     schedule_interval=timedelta(days=1),

@@ -27,7 +27,7 @@ default_args = {
 
 with DAG(
     dag_id=DAG_ID,
-    description="This is a DAG for simple demo",
+    description="This is a DAG demo for how to use sub DAG",
     catchup=False,
     max_active_runs=1,
     schedule_interval=timedelta(days=1),
