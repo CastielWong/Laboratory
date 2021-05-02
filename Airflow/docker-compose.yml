@@ -1,5 +1,17 @@
 version: "3.5"
 
+x-airflow-worker:
+  &airflow-worker
+  restart: always
+  image: lab-airflow:demo
+  command: worker
+  networks:
+    - airflow_demo
+  volumes:
+    - ./volume/dags:/opt/airflow/dags
+  depends_on:
+    - webserver
+
 services:
   postgres:
     restart: always
@@ -10,7 +22,7 @@ services:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
     networks:
-      airflow_default:
+      airflow_demo:
         ipv4_address: 172.18.0.2
     ports:
       - "5432:5432"
@@ -22,7 +34,7 @@ services:
     container_name: airflow_redis
     image: redis:6.2.1-alpine3.13
     networks:
-      airflow_default:
+      airflow_demo:
         ipv4_address: 172.18.0.3
     ports:
       - "6379:6379"
@@ -36,7 +48,7 @@ services:
       dockerfile: Dockerfile
     command: webserver
     networks:
-      - airflow_default
+      - airflow_demo
     ports:
       - "8080:8080"
     volumes:
@@ -51,7 +63,7 @@ services:
     image: lab-airflow:demo
     command: scheduler
     networks:
-      - airflow_default
+      - airflow_demo
     volumes:
       - ./volume/dags:/opt/airflow/dags
     depends_on:
@@ -59,12 +71,12 @@ services:
       - webserver
 
   flower:
-    # restart: always
+    restart: always
     container_name: airflow_flower
     image: lab-airflow:demo
     command: flower
     networks:
-      - airflow_default
+      - airflow_demo
     ports:
       - "5555:5555"
     volumes:
@@ -72,23 +84,31 @@ services:
     depends_on:
       - webserver
 
-  worker:
-    restart: always
-    container_name: airflow_worker
-    image: lab-airflow:demo
-    command: worker
-    networks:
-      - airflow_default
-    ports:
-      - "8793:8793"
-    volumes:
-      - ./volume/dags:/opt/airflow/dags
-    depends_on:
-      - webserver
+  # worker:
+  #   restart: always
+  #   container_name: airflow_worker
+  #   image: lab-airflow:demo
+  #   command: worker
+  #   networks:
+  #     - airflow_demo
+  #   ports:
+  #     - "8793:8793"
+  #   volumes:
+  #     - ./volume/dags:/opt/airflow/dags
+  #   depends_on:
+  #     - webserver
+
+  worker_1:
+    <<: *airflow-worker
+    container_name: airflow_worker_1
+
+  worker_2:
+    <<: *airflow-worker
+    container_name: airflow_worker_2
 
 networks:
-  airflow_default:
-    name: airflow_default
+  airflow_demo:
+    name: airflow_demo
     driver: bridge
     ipam:
       config:

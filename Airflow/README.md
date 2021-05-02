@@ -142,7 +142,6 @@ Since components are run in individual containers, different component are launc
 
 Access "localhost:5555" to check the workload for different workers.
 
-
 ## DAG
 There are sample dags prepared for exploration:
 - "demo_branch":
