@@ -18,7 +18,7 @@ services:
     container_name: airflow_parallel
     image: lab-airflow:base
     build:
-      context: ../
+      context: ../../
       dockerfile: Dockerfiles/base
     command: bash /root/entrypoint.sh
     networks:

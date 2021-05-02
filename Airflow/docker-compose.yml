@@ -45,7 +45,7 @@ services:
     image: lab-airflow:demo
     build:
       context: $PWD
-      dockerfile: Dockerfile
+      dockerfile: Dockerfiles/demo
     command: webserver
     networks:
       - airflow_demo
