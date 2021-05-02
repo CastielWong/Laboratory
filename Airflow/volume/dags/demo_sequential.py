@@ -35,6 +35,11 @@ default_args = {
 
 
 def _process_user(ti: TaskInstance) -> None:
+    """Process user from JSON and save as csv.
+
+    Args:
+        ti: the task instance
+    """
     users = ti.xcom_pull(task_ids=["extract_user"])
     if not len(users) or "results" not in users[0]:
         raise ValueError("User is empty")

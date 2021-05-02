@@ -11,6 +11,7 @@
   - [Sequential](#sequential)
   - [Parallel](#parallel)
   - [Distributed](#distributed)
+- [DAG](#dag)
 - [Reference](#reference)
 
 
@@ -141,6 +142,31 @@ Since components are run in individual containers, different component are launc
 
 Access "localhost:5555" to check the workload for different workers.
 
+
+## DAG
+There are sample dags prepared for exploration:
+- "demo_branch":
+  - check how the branch Operator and Task Group works
+  - note that the tasks after the branch operator must match to the names brancing
+- "demo_parallel_subdag":
+  - verify if two tasks in a subdag can be ran parallely
+  - note that the subdag is very resource-consuming
+- "demo_parallel_task_group":
+  - verify if two tasks in a Task Group can be ran parallely
+  - tasks in Task Group are running much faster than those in subdag
+- "demo_parallel":
+  - verify if two tasks can be ran parallely
+- "demo_sequential":
+  - demonstrate a typical sequential pipeline
+  - it would only work under Sequential mode, for the reason it uses sqlite
+  - Variable and Connection are applied
+  - get value from API then process to sqlite
+- "demo_simple":
+  - simply two unrelated tasks
+- "demo_xcom":
+  - explore how the xcom helps to pass values between tasks
+  - only two values are passed via xcom
+  - check "XComs" under "Admin" ti see those passed values
 
 ## Reference
 - Airflow Tutorial: https://airflow-tutorial.readthedocs.io/en/latest/about.html

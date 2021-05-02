@@ -6,37 +6,16 @@ from datetime import timedelta
 from random import randint
 
 from airflow.models import DAG
+from airflow.models import TaskInstance
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup
 
 
-def _return_in_default() -> int:
-    value = randint(1, 1000)
-    print(f"Value returned: {value}")
-    return value
-
-
-def _return_via_ti(ti) -> None:
-    value = randint(1, 1000)
-    ti.xcom_push(key="customized_key", value=value)
-    print(f"Value pushed to xcom: {value}")
-    return
-
-
-def _pick_out_smallest(ti) -> None:
-    values = ti.xcom_pull(
-        key="customized_key",
-        task_ids=["processing_tasks.task_3", "processing_tasks.task_4"],
-    )
-    print(f"Values acquired from xcom are: {values}")
-    print(f"The smallest value is {min(values)}")
-
-    return
-
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+_KEY = "customized_key"
 
 default_args = {
     "depends_on_past": False,
@@ -46,6 +25,50 @@ default_args = {
     "execution_timeout": timedelta(minutes=10),
     "start_date": datetime(2021, 1, 1),
 }
+
+
+def _return_in_default() -> int:
+    """Generate random values between 1 and 1_000, inclusive.
+
+    Returns:
+        Value in random, [1, 1000]
+    """
+    value = randint(1, 1_000)
+    print(f"Value returned: {value}")
+    return value
+
+
+def _return_via_ti(ti: TaskInstance) -> None:
+    """Pass the value generated randomly to xcom via specified key.
+
+    Args:
+        ti: the task instance
+    """
+    value = randint(1, 1_000)
+    ti.xcom_push(key=_KEY, value=value)
+    print(f"Value pushed to xcom: {value}")
+    return
+
+
+def _pick_out_smaller(ti: TaskInstance) -> int:
+    """Retrieve value via the specified key.
+
+    Args:
+        ti: the task instance
+
+    Returns:
+        The smaller value
+    """
+    values = ti.xcom_pull(
+        key=_KEY, task_ids=["processing_tasks.task_3", "processing_tasks.task_4"],
+    )
+    print(f"Values acquired from xcom are: {values}")
+
+    result = min(values)
+    print(f"The smaller value is {result}")
+
+    return result
+
 
 with DAG(
     dag_id="demo_xcom",
@@ -74,7 +97,7 @@ with DAG(
         )
 
     task_5 = PythonOperator(
-        dag=dag, task_id="task_5", python_callable=_pick_out_smallest
+        dag=dag, task_id="task_5", python_callable=_pick_out_smaller
     )
 
     task_1 >> processing >> task_5
