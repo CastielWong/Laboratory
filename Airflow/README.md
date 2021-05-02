@@ -30,9 +30,12 @@ To better maintain the DAG, "Sub DAG" and "Task Group" are two ways for it. Howe
 Below is the common commands used for checking or debugging.
 
 ### Docker-compose
+Change to the directory with corresponding "docker-compose.yml", then:
+
 ```sh
 # build images first then compose containers
 docker-compose up --build -d
+# pull down running containers
 docker-compose -f {file.yml} down
 ```
 
