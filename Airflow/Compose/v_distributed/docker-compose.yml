@@ -1,0 +1,108 @@
+version: "3.5"
+
+x-airflow-worker:
+  &airflow-worker
+  restart: always
+  image: lab-airflow:base
+  command: bash /root/entrypoint.sh
+  networks:
+    - airflow_distributed
+  volumes:
+    - ./init.sh:/root/init.sh
+    - ./worker.sh:/root/entrypoint.sh
+    - ../../volume/dags:/root/airflow/dags
+  depends_on:
+    - webserver
+
+services:
+  postgres:
+    restart: always
+    container_name: airflow_postgres
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_PASSWORD=airflow
+    networks:
+      airflow_distributed:
+        ipv4_address: 172.20.0.2
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init_postgres.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    restart: always
+    container_name: airflow_redis
+    image: redis:6.2.1-alpine3.13
+    networks:
+      airflow_distributed:
+        ipv4_address: 172.20.0.3
+    ports:
+      - "6379:6379"
+
+  webserver:
+    restart: always
+    container_name: airflow_distributed
+    image: lab-airflow:base
+    build:
+      context: ../../
+      dockerfile: Dockerfiles/base
+      # args:
+      #   - ENTRYPOINT=v_distributed/entrypoint.sh
+    command: bash /root/entrypoint.sh
+    networks:
+      - airflow_distributed
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./init.sh:/root/init.sh
+      - ../resources/variables.json:/root/airflow/variables.json
+      - ./webserver.sh:/root/entrypoint.sh
+    depends_on:
+      - postgres
+      - redis
+
+  scheduler:
+    restart: always
+    container_name: airflow_scheduler
+    image: lab-airflow:base
+    command: bash /root/entrypoint.sh
+    networks:
+      - airflow_distributed
+    volumes:
+      - ./init.sh:/root/init.sh
+      - ./scheduler.sh:/root/entrypoint.sh
+      - ../resources/variables.json:/root/airflow/variables.json
+      - ../../volume/dags:/root/airflow/dags
+    depends_on:
+      - webserver
+
+  flower:
+    restart: always
+    container_name: airflow_flower
+    image: lab-airflow:base
+    command: bash /root/entrypoint.sh
+    networks:
+      - airflow_distributed
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./init.sh:/root/init.sh
+      - ./flower.sh:/root/entrypoint.sh
+    depends_on:
+      - webserver
+
+  worker_1:
+    <<: *airflow-worker
+    container_name: airflow_worker_1
+
+  worker_2:
+    <<: *airflow-worker
+    container_name: airflow_worker_2
+
+networks:
+  airflow_distributed:
+    name: airflow_distributed
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

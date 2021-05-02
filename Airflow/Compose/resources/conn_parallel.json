@@ -1,0 +1,11 @@
+[
+  {
+    "id": "db_postgres",
+    "type": "postgres",
+    "description": "This connection is for PostgreSQL.",
+    "host": "172.19.0.2",
+    "port": 5432,
+    "login": "postgres",
+    "password": "airflow"
+  }
+]

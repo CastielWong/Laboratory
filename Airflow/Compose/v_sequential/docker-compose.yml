@@ -1,0 +1,28 @@
+version: "3.5"
+
+services:
+  airflow:
+    restart: always
+    container_name: airflow_sequential
+    image: lab-airflow:base
+    build:
+      context: ../../
+      dockerfile: Dockerfiles/base
+    command: bash /root/entrypoint.sh
+    networks:
+      - airflow_sequential
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./entrypoint.sh:/root/entrypoint.sh
+      - ../resources/conn_sequential.json:/root/airflow/connections.json
+      - ../resources/variables.json:/root/airflow/variables.json
+      - ../../volume/dags:/root/airflow/dags
+
+networks:
+  airflow_sequential:
+    name: airflow_sequential
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.0.0/16

@@ -1,0 +1,42 @@
+version: "3.5"
+
+services:
+  postgres:
+    restart: always
+    container_name: airflow_postgres
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_PASSWORD=airflow
+    networks:
+      airflow_parallel:
+        ipv4_address: 172.19.0.2
+    ports:
+      - "5432:5432"
+
+  airflow:
+    restart: always
+    container_name: airflow_parallel
+    image: lab-airflow:base
+    build:
+      context: ../../
+      dockerfile: Dockerfiles/base
+    command: bash /root/entrypoint.sh
+    networks:
+      - airflow_parallel
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./entrypoint.sh:/root/entrypoint.sh
+      - ../resources/variables.json:/root/airflow/variables.json
+      - ../resources/conn_parallel.json:/root/airflow/connections.json
+      - ../../volume/dags:/root/airflow/dags
+    depends_on:
+      - postgres
+
+networks:
+  airflow_parallel:
+    name: airflow_parallel
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.0.0/16
