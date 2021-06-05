@@ -1,11 +1,16 @@
 #!/bin/sh
 
+# GENERAL
 alias chrome='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
 
+# GIT
 # update datetime for current commit
 alias gct_update='git commit --amend --no-edit --date "$(date +"%a %b %d %H:%M:%S %Y %z")"'
 
-# docker customization
+# PYTHON
+alias pip_uninstall_all='pip freeze | xargs pip uninstall -y'
+
+# DOCKER
 alias dkr_psf='docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Status}}\t{{.Names}}"'
 alias dkr_if='docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}" | sort -k 1 -h'
 # remove any existed or created (failed) containers

@@ -1,3 +1,5 @@
-prometheus_client==0.3.0
+# -*- coding: utf-8 -*-
+--index-url https://pypi.org/simple
 Flask==1.0.2
 flask-prometheus==0.0.1
+prometheus_client==0.3.0

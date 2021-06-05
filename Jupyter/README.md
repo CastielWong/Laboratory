@@ -66,3 +66,4 @@ Run `jupyter kernelspec list` to confirm all listed kernel are expected.
 
 - Jupyter password and Docker: https://stackoverflow.com/questions/48875436/jupyter-password-and-docker
 - Using Virtual Environments in Jupyter Notebook and Python: https://janakiev.com/blog/jupyter-virtual-envs/
+- Top 10 Magic Commands in Python to Boost your Productivity: https://towardsdatascience.com/top-10-magic-commands-in-python-to-boost-your-productivity-1acac061c7a9
