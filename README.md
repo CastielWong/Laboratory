@@ -7,6 +7,7 @@
 - [Setup](#setup)
   - [pyenv](#pyenv)
   - [pre-commit](#pre-commit)
+- [Code Quality](#code-quality)
 - [Docker](#docker)
 - [Submodule](#submodule)
 - [Reference](#reference)
@@ -116,6 +117,24 @@ chmod +x .git/hooks/commit-msg
 ```
 
 
+## Code Quality
+THe code quality (at least for Python) is mainly maintained by `pre-commit`:
+- Formatter:
+  - `black`: format Python code without compromise
+  - `isort`: format imports by customized sorting
+- Stylistic:
+  - `pylint`: check for errors and code smells, and tries to enforce coding standard
+  - `pycodestyle`: check against style conventions in PEP8, used by `flake8`
+  - `pydocstyle`: check compliance with Python docstring conventions
+- Logical:
+  - `mypy`: check for optionally-enforced static types
+  - `pyflakes`: analyze programs and detect various errors, used by `flake8`
+  - `bandit`: analyze code to find common security issues
+- Analytical:
+  - `mccabe`: check McCabe complexity, used by `flake8`
+  - `radon`: analyze code for various metrics
+
+
 ## Docker
 Most of labs are done in Docker. For convenience, common Docker commands are listed below:
 - `docker run --rm -it {image} bash`: start a container and access it via bash, which would be removed when it's stopped
@@ -128,7 +147,7 @@ Most of labs are done in Docker. For convenience, common Docker commands are lis
 ## Submodule
 Sometimes it's better to refer codes for exploration, so submodule is a good solution for that purpose.
 
-To add an extrenal git repo, run:
+To add an external git repo, run:
 `git submodule add {repo} {directory}`
 
 To update submodules, run:
@@ -150,3 +169,4 @@ git rm -f {module_path}
 - Semantic Versioning: https://semver.org/
 - Git Basics - Tagging: https://git-scm.com/book/en/v2/Git-Basics-Tagging
 - Giflow Workflow: https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
+- Python Code Quality: https://realpython.com/python-code-quality/
