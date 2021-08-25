@@ -8,7 +8,6 @@ from time import sleep
 
 from kafka import KafkaProducer
 
-
 TOPIC = "numtest"
 TOPIC = "testing"
 

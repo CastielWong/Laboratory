@@ -1,19 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import logging
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from random import randint
 from typing import List
+import logging
 
-from airflow.models import DAG
-from airflow.models import TaskInstance
+from airflow.models import DAG, TaskInstance
 from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
-from airflow.operators.python import BranchPythonOperator
-from airflow.operators.python import PythonOperator
+from airflow.operators.python import BranchPythonOperator, PythonOperator
 from airflow.utils.task_group import TaskGroup
-
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

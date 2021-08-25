@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
 import logging
-from datetime import datetime
-from datetime import timedelta
 
 from airflow.models import DAG
 from airflow.operators.bash import BashOperator

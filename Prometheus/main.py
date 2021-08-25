@@ -1,6 +1,5 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from threading import Thread
 import random
 import time
@@ -8,7 +7,6 @@ import time
 from flask import Flask, request
 from flask_prometheus import monitor
 import prometheus_client as prom
-
 
 generator_summary = prom.Summary(
     "python_metrics_generator", "Metrics Generator in Python"
@@ -48,9 +46,18 @@ def generating():
         histogram.observe(random.random() * 10)
         summary.observe(random.random() * 10)
 
-        gauge_with_label.labels(tagging="A", version="0.1.2",).set(random.randint(0, 5))
-        gauge_with_label.labels(tagging="A", version="0.0.2",).set(random.randint(0, 3))
-        gauge_with_label.labels(tagging="B", version="0.0.1",).set(random.randint(0, 1))
+        gauge_with_label.labels(
+            tagging="A",
+            version="0.1.2",
+        ).set(random.randint(0, 5))
+        gauge_with_label.labels(
+            tagging="A",
+            version="0.0.2",
+        ).set(random.randint(0, 3))
+        gauge_with_label.labels(
+            tagging="B",
+            version="0.0.1",
+        ).set(random.randint(0, 1))
 
         process_request(random.random() * 5)
 

@@ -9,7 +9,6 @@ from flask_jwt_extended import (
     get_jwt_identity,
     fresh_jwt_required,
 )
-
 from models.item import ItemModel
 
 

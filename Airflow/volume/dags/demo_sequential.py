@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
 import json
 import logging
-from datetime import datetime
-from datetime import timedelta
 
-from airflow.models import DAG
-from airflow.models import Variable
+from airflow.models import DAG, Variable
 from airflow.models.taskinstance import TaskInstance
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
@@ -14,7 +12,6 @@ from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.providers.http.sensors.http import HttpSensor
 from airflow.providers.sqlite.operators.sqlite import SqliteOperator
 from pandas import json_normalize
-
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -87,7 +84,10 @@ create_table = SqliteOperator(
 )
 
 check_api_available = HttpSensor(
-    dag=dag, task_id="check_api_available", http_conn_id=_API_NAME, endpoint="api/",
+    dag=dag,
+    task_id="check_api_available",
+    http_conn_id=_API_NAME,
+    endpoint="api/",
 )
 
 extract_user = SimpleHttpOperator(
@@ -101,7 +101,9 @@ extract_user = SimpleHttpOperator(
 )
 
 process_user = PythonOperator(
-    dag=dag, task_id="process_user", python_callable=_process_user,
+    dag=dag,
+    task_id="process_user",
+    python_callable=_process_user,
 )
 
 store_user = BashOperator(
@@ -116,10 +118,10 @@ store_user = BashOperator(
 
 (
     start_point
-    >> create_table
-    >> check_api_available
-    >> extract_user
-    >> process_user
-    >> store_user
-    >> end_point
+    >> create_table  # noqa: W503
+    >> check_api_available  # noqa: W503
+    >> extract_user  # noqa: W503
+    >> process_user  # noqa: W503
+    >> store_user  # noqa: W503
+    >> end_point  # noqa: W503
 )

@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import logging
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from random import randint
+import logging
 
-from airflow.models import DAG
-from airflow.models import TaskInstance
+from airflow.models import DAG, TaskInstance
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.utils.task_group import TaskGroup
-
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -60,7 +57,8 @@ def _pick_out_smaller(ti: TaskInstance) -> int:
         The smaller value
     """
     values = ti.xcom_pull(
-        key=_KEY, task_ids=["processing_tasks.task_3", "processing_tasks.task_4"],
+        key=_KEY,
+        task_ids=["processing_tasks.task_3", "processing_tasks.task_4"],
     )
     print(f"Values acquired from xcom are: {values}")
 

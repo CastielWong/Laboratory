@@ -4,7 +4,6 @@
 from json import loads
 
 from kafka import KafkaConsumer
-
 import producer
 
 consumer = KafkaConsumer(

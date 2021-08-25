@@ -5,9 +5,8 @@ from datetime import timedelta
 
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
-
-import config
 from db import db
+import config
 
 app = Flask(__name__)
 app.secret_key = "secret_for_demo"

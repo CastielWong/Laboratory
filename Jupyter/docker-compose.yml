@@ -9,6 +9,17 @@ services:
       JUPYTER_ENABLE_LAB: "yes"   # enable the new UI
       JUPYTER_TOKEN: demo         # customize access token
     ports:
-      - 8888:8888
+      - "8888:8888"
+    networks:
+      jupyter:
+        ipv4_address: 10.0.5.2
     volumes:
       - $PWD/data:/home/jovyan/work
+
+networks:
+  jupyter:
+    name: demo_airflow
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.5.0/16
