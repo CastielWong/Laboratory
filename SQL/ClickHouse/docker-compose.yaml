@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  ck_server:
+    # restart: always
+    container_name: demo-ck-server
+    image: yandex/clickhouse-server:21.7.4
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+      # - "9009:9009"
+    # ulimits:
+    #   nproc: 65535
+    #   nofile:
+    #     soft: 262144
+    #     hard: 262144
+    # healthcheck:
+    #   test: wget --no-verbose --tries=1 --spider localhost:8123/ping || exit 1
+    #   interval: 2s
+    #   timeout: 2s
+    #   retries: 16
+    networks:
+      dev_clickhouse:
+        ipv4_address: 10.5.0.2
+    volumes:
+      - $PWD/clickhouse:/var/lib/clickhouse
+
+  ck_client:
+    container_name: demo-ck-client
+    image: yandex/clickhouse-client:21.7.4
+    depends_on:
+      - ck_server
+    links:
+      - ck_server:server
+    command: ["--host", "server"]
+    tty: true # ensure it's running
+    networks:
+      dev_clickhouse:
+        ipv4_address: 10.5.0.3
+
+  grafana:
+    container_name: demo-grafana
+    image: grafana/grafana:8.0.5
+    environment:
+      # GF_INSTALL_PLUGINS: "grafana-piechart-panel, vertamedia-clickhouse-datasource"
+      GF_SECURITY_ADMIN_USER: demo
+      GF_SECURITY_ADMIN_PASSWORD: demo
+    ports:
+      - "3000:3000"
+    networks:
+      dev_clickhouse:
+        ipv4_address: 10.5.0.4
+    volumes:
+      - $PWD/grafana/data:/data
+      - $PWD/grafana/plugins:/var/lib/grafana/plugins
+    user: "0" # root group
+    # user: "472" # grafana group
+
+networks:
+  dev_clickhouse:
+    name: dev_ck
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
