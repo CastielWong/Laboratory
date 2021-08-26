@@ -1,2 +1,5 @@
 clickhouse/
-grafana/
+grafana/*
+
+# negate some files
+!grafana/configuration/

@@ -22,8 +22,8 @@ services:
     networks:
       dev_clickhouse:
         ipv4_address: 10.5.0.2
-    volumes:
-      - $PWD/clickhouse:/var/lib/clickhouse
+    # volumes:
+    #   - $PWD/clickhouse:/var/lib/clickhouse
 
   ck_client:
     container_name: demo-ck-client
@@ -53,6 +53,7 @@ services:
     volumes:
       - $PWD/grafana/data:/data
       - $PWD/grafana/plugins:/var/lib/grafana/plugins
+      - $PWD/grafana/configuration:/configuration
     user: "0" # root group
     # user: "472" # grafana group
 
