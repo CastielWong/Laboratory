@@ -1,0 +1,13 @@
+{
+    "name": "ClickHouse",
+    "type": "vertamedia-clickhouse-datasource",
+    "access": "proxy",
+    "url": "http://10.5.0.2:8123",
+    "basicAuth": false,
+    "password": "",
+    "user": "",
+    "database": "",
+    "basicAuthUser": "",
+    "basicAuthPassword": "",
+    "withCredentials": false
+}
