@@ -1,51 +1,29 @@
 
+- [Development](#development)
+- [Setup](#setup)
+  - [Virtual Environment](#virtual-environment)
+  - [Code Quality](#code-quality)
 - [Git](#git)
-  - [Tagging](#tagging)
   - [Branching Model](#branching-model)
     - [GitFlow](#gitflow)
     - [Trunk Based](#trunk-based)
-- [Setup](#setup)
-  - [pyenv](#pyenv)
-  - [pre-commit](#pre-commit)
-- [Code Quality](#code-quality)
+  - [Tagging](#tagging)
+  - [Submodule](#submodule)
 - [Docker](#docker)
-- [Submodule](#submodule)
 - [Reference](#reference)
 
 
 This repo is for experiments of any greenfield technologies or some quick catch-ups.
 
-## Git
-To push this repo from local to Github:
-```sh
-git remote add origin https://github.com/CastielWong/Laboratory.git
-git push -u origin master
-```
+## Development
 
-### Tagging
-Common commands for tagging:
-- `git tag`: check existing tags
-- `git tag -a lastest-{section} -m "{tag message}" {commit}`: create an annotated tag for the specified commit with tagging message
-- `git tag -d {tag}`: delete a tag
-- `git push origin --tags`: synchronize all tags at the remote repo
-- `git push origin --delete {tag}`: delete a tag at remote side
+After complete a feature branch, run `bash ./dev/tag_feature.sh '{name}' '{tag description}'` to tag current commit then synchronize for remote.
 
-### Branching Model
-There are different approaches to branch a repo. It's more about the preference.
-
-#### GitFlow
-[Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) is considered to be a good practice used to develop and maintain the git workflow:
-- `git flow feature start {branch}`: create a new feature branch, which is branched from "develop"
-- `git flow feature finish {branch}`: finish a branch by merging it back to develop and remove the feature branch
-
-#### Trunk Based
-[Trunk Based Development](https://trunkbaseddevelopment.com/) is another good practice for collaboration.
-> A source-control branching model, where developers collaborate on code in a single branch called "trunk", resist any pressure to create other long-lived development branches by employing documented techniques.
 
 
 ## Setup
 
-### pyenv
+### Virtual Environment
 Since most of the scripts involved would be in Python, to make the environment clean and easy to manage, [pyenv](https://github.com/pyenv/pyenv) is used to manage Python version and libraries.
 
 For Mac user, it's suggested to install [Homebrew](https://brew.sh/) to get "pyenv":
@@ -98,7 +76,23 @@ pyenv local {venv}
 pyenv deactivate
 ```
 
-### pre-commit
+### Code Quality
+THe code quality (at least for Python) is mainly maintained by `pre-commit`:
+- Formatter:
+  - `black`: format Python code without compromise
+  - `isort`: format imports by customized sorting
+- Stylistic:
+  - `pylint`: check for errors and code smells, and tries to enforce coding standard
+  - `pycodestyle`: check against style conventions in PEP8, used by `flake8`
+  - `pydocstyle`: check compliance with Python docstring conventions
+- Logical:
+  - `mypy`: check for optionally-enforced static types
+  - `pyflakes`: analyze programs and detect various errors, used by `flake8`
+  - `bandit`: analyze code to find common security issues
+- Analytical:
+  - `mccabe`: check McCabe complexity, used by `flake8`
+  - `radon`: analyze code for various metrics
+
 It's a good practice to have [pre-commit](https://pre-commit.com/) in git repository for the purpose of code linting and formatting.
 Then follow steps below to activate "pyenv" and setup "pre-commit":
 
@@ -117,34 +111,37 @@ chmod +x .git/hooks/commit-msg
 ```
 
 
-## Code Quality
-THe code quality (at least for Python) is mainly maintained by `pre-commit`:
-- Formatter:
-  - `black`: format Python code without compromise
-  - `isort`: format imports by customized sorting
-- Stylistic:
-  - `pylint`: check for errors and code smells, and tries to enforce coding standard
-  - `pycodestyle`: check against style conventions in PEP8, used by `flake8`
-  - `pydocstyle`: check compliance with Python docstring conventions
-- Logical:
-  - `mypy`: check for optionally-enforced static types
-  - `pyflakes`: analyze programs and detect various errors, used by `flake8`
-  - `bandit`: analyze code to find common security issues
-- Analytical:
-  - `mccabe`: check McCabe complexity, used by `flake8`
-  - `radon`: analyze code for various metrics
+
+## Git
+To push this repo from local to Github:
+```sh
+git remote add origin https://github.com/CastielWong/Laboratory.git
+git push -u origin master
+```
+
+### Branching Model
+There are different approaches to branch a repo. It's more about the preference.
+
+#### GitFlow
+[Gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) is considered to be a good practice used to develop and maintain the git workflow:
+- `git flow feature start {branch}`: create a new feature branch, which is branched from "develop"
+- `git flow feature finish {branch}`: finish a branch by merging it back to develop and remove the feature branch
+
+#### Trunk Based
+[Trunk Based Development](https://trunkbaseddevelopment.com/) is another good practice for collaboration.
+> A source-control branching model, where developers collaborate on code in a single branch called "trunk", resist any pressure to create other long-lived development branches by employing documented techniques.
 
 
-## Docker
-Most of labs are done in Docker. For convenience, common Docker commands are listed below:
-- `docker run --rm -it {image} bash`: start a container and access it via bash, which would be removed when it's stopped
-- `docker rm $(docker ps -a -q -f status=exited)`: remove all containers with status existed
-- `docker cp {container_id}:{dir_source}/{file} {dir_target}/{file}`: copy files from container to local directory
-- `docker-compose up --detached`: start containers via `docker-compose`, for whose configuration is usually set in "docker-compose.yml"
-- `docker-compose down`: stop and remove all containers `docker-compose` initiated
+### Tagging
+Common commands for tagging:
+- `git tag`: check existing tags
+- `git tag -a latest-{section} -m "{tag message}" {commit}`: create an annotated tag for the specified commit with tagging message
+- `git tag -d {tag}`: delete a tag
+- `git push origin --tags`: synchronize all tags at the remote repo
+- `git push origin --delete {tag}`: delete a tag at remote side
 
 
-## Submodule
+### Submodule
 Sometimes it's better to refer codes for exploration, so submodule is a good solution for that purpose.
 
 To add an external git repo, run:
@@ -164,9 +161,20 @@ git rm -f {module_path}
 ```
 
 
+
+## Docker
+Most of labs are done in Docker. For convenience, common Docker commands are listed below:
+- `docker run --rm -it {image} bash`: start a container and access it via bash, which would be removed when it's stopped
+- `docker rm $(docker ps -a -q -f status=exited)`: remove all containers with status existed
+- `docker cp {container_id}:{dir_source}/{file} {dir_target}/{file}`: copy files from container to local directory
+- `docker-compose up --detached`: start containers via `docker-compose`, for whose configuration is usually set in "docker-compose.yml"
+- `docker-compose down`: stop and remove all containers `docker-compose` initiated
+
+
+
 ## Reference
 - Compose file version 3 reference: https://docs.docker.com/compose/compose-file
 - Semantic Versioning: https://semver.org/
 - Git Basics - Tagging: https://git-scm.com/book/en/v2/Git-Basics-Tagging
-- Giflow Workflow: https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
+- Gitflow Workflow: https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
 - Python Code Quality: https://realpython.com/python-code-quality/

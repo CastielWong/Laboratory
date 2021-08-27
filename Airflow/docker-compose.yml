@@ -1,7 +1,6 @@
 version: "3.5"
 
-x-airflow-worker:
-  &airflow-worker
+x-airflow-worker: &airflow-worker
   restart: always
   image: lab-airflow:demo
   command: worker
