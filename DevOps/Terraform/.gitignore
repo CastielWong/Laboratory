@@ -1,0 +1,12 @@
+
+terraform.tfvars
+demo_tf_key*
+*.txt
+
+demo.tf
+demo.log
+demo.json
+
+!demo_packer/sample/scripts/init.sh
+!demo_template_file/scripts/init.cfg
+!demo_template_file/scripts/volumes.sh

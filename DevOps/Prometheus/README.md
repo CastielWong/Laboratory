@@ -1,15 +1,14 @@
 
 - [Running](#running)
-    - [Shortcut](#shortcut)
-    - [Client](#client)
-    - [Server](#server)
+  - [Shortcut](#shortcut)
+  - [Client](#client)
+  - [Server](#server)
 - [Reference](#reference)
 
 
 This project is used to explore how Prometheus is collecting metrics.
 
 ## Running
-
 To supply Prometheus server with metrics, a metric generator is needed. The _Dockerfile_ is used to create the Metrics Generator image, which is implemented in Python with Flask. Scripts below is to create the image, and then run the corresponding container.
 
 ```sh
@@ -23,7 +22,7 @@ docker run --detach --rm --name metrics-metric_generator \
     lab-prometheus-metrics-generator
 ```
 
-Run `ifconfig | grep -i mask` to retrieve private IP address. Then place it to the "targets" of "demoing" job in "prometheus.yml" inside directroty "config". The "config/prometheus.yml" file is the customized configuration of Prometheus server. Then retrieve image "prom/prometheus" from Docker Hub and create the container:
+Run `ifconfig | grep -i mask` to retrieve private IP address. Then place it to the "targets" of "demoing" job in "prometheus.yml" inside directory "config". The "config/prometheus.yml" file is the customized configuration of Prometheus server. Then retrieve image "prom/prometheus" from Docker Hub and create the container:
 
 ```sh
 # run the prometheus
@@ -42,7 +41,7 @@ Go to "localhost:8080" via browser, the metrics should be generated and ready to
 
 ### Server
 
-Open "localhost:9090" via browser and execute following expressions to verify the Prometheus server is successfully connected to the metrics genetator.
+Open "localhost:9090" via browser and execute following expressions to verify the Prometheus server is successfully connected to the metrics generator.
 - avg(rate(showing_counter[5m])) by (job, service)
 - showing_gauge_label
 - avg(rate(showing_gauge_label[5m])) by (job, service, tagging, version)
@@ -51,4 +50,4 @@ Open "localhost:9090" via browser and execute following expressions to verify th
 ## Reference
 
 - Prometheus metrics / OpenMetrics code instrumentation: https://sysdig.com/blog/prometheus-metrics/
-- Prometheys Tutorial - A Detailed Guid to Getting Started: https://www.scalyr.com/blog/prometheus-tutorial-detailed-guide-to-getting-started/
+- Prometheus Tutorial - A Detailed Guid to Getting Started: https://www.scalyr.com/blog/prometheus-tutorial-detailed-guide-to-getting-started/
