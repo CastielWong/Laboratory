@@ -10,11 +10,12 @@ services:
     user: root
     ports:
       - "8888:8888"
+      - "8787:8787"
     networks:
       jupyter:
         ipv4_address: 10.0.5.2
     volumes:
-      - $PWD/data:/home/jovyan/work
+      - $PWD/workspace:/home/jovyan/work
       - $PWD/init.sh:/home/root/init.sh
 
 networks:
