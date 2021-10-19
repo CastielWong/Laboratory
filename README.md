@@ -17,7 +17,7 @@ This repo is for experiments of any greenfield technologies or some quick catch-
 
 ## Development
 
-After complete a feature branch, run `bash ./dev/tag_feature.sh '{name}' '{tag description}'` to tag current commit then synchronize for remote.
+After complete a feature branch (after merged), run `bash ./dev/tag_feature.sh '{name}' '{tag description}'` to tag current commit then synchronize for remote.
 
 
 
@@ -106,7 +106,7 @@ pre-commit run --all-files
 pre-commit install
 
 # set up the commit message check
-cp commit-msg .git/hooks/commit-msg
+cp ./dev/commit-msg .git/hooks/commit-msg
 chmod +x .git/hooks/commit-msg
 ```
 

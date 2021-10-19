@@ -324,7 +324,7 @@ Could be good for bar/windowing:
 - avg
 
 Since HTTP Interface wouldn't work, such window functions only available in Command-line Client.
-So make sure using the CLI via `clickhouse-client --host server`, then config `SET allow_experimental_window_functions = 1;` before running window functions.
+So make sure using the CLI via `clickhouse-client --host server -nm`, where `-nm` is for multiline queries, then config `SET allow_experimental_window_functions = 1;` before running window functions.
 
 ```sql
 DROP TABLE uc_window;

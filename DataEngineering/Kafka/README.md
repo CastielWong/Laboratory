@@ -17,7 +17,7 @@ Kafka combines three key capabilities for event streaming end-to-end with a sing
 - To process streams of events as they occur or retrospectively
 
 
-First of all, run `brew install kafka` install Kafka and Zookeeper via Homebrew locally.
+First of all, run `brew install kafka` install Kafka and ZooKeeper via Homebrew locally.
 
 
 ## Concept
@@ -27,9 +27,16 @@ First of all, run `brew install kafka` install Kafka and Zookeeper via Homebrew 
     - similar to a table in a database (without all the constraints)
     - a topic is identified by its name
     - topics are split in partitions
-- Parition:
+- Partition:
     - each partition is ordered
     - each message within a partition gets an incremental id, called offset
+    - only one broker can be a leader for a given partition at any time
+    - only that leader can receive and serve data for a partition
+    - other brokers will synchronize data from the leader
+    - each partition has one leader and multiple ISR (In-Sync Replica)
+    - leader and the ISR are taken care by ZooKeeper
+    - each partition stored on broker's disk
+    - partitions spread across brokers
 - Offset:
     - offset only have a meaning for a specific partition
     - order is guaranteed only within a partition (not across partitions)
@@ -40,15 +47,11 @@ First of all, run `brew install kafka` install Kafka and Zookeeper via Homebrew 
     - a Kafka cluster is composed of multiple brokers
     - each broker is identified with its ID
     - each broker contains certain topic partitions
+    - each broker handles many partitions
     - it will be connected to the entire cluster once connecting to any broker (called a bootstrap broker)
     - every Kafka broker is also called a "bootstrap server"
     - each broker knows about all brokers, topics and partitions (metadata)
-- Partition
-    - only one broker can be a leader for a given partition at any time
-    - only that leader can receive and serve data for a partition
-    - other brokers will synchronize data from the leader
-    - each partition has one leader and multiple ISR (In-Sync Replica)
-    - leader and the ISR are taken care by Zookepper
+    - broker has configurable Retention Policy
 - Producer
     - producers write data to topics
     - producers automatically know to which broker and partition to write to
@@ -63,7 +66,7 @@ First of all, run `brew install kafka` install Kafka and Zookeeper via Homebrew 
         - a key is basically sent if message ordering for a specific field is needed
 - Consumer
     - consumer read data from a topic (identified by name)
-    - consumers know hwich broker to read from
+    - consumers know which broker to read from
     - in case of broker failures, consumers know how to recover
     - data is read in order within each partitions
     - consumer offsets:
@@ -76,17 +79,19 @@ First of all, run `brew install kafka` install Kafka and Zookeeper via Homebrew 
             - at least once
             - exactly once
 
-Kafka applies Zookeeper to manager its broker, so Kafka can't work work without Zookeeper:
-- Zookeeper manages brokers (keeps a list of them)
-- Zookeeper helps in performing leader election for partitions
-- Zookeeper sends notifications to Kafka in case of changes, (e.g, new topic, broker dies, broker comes up, delete topics and so on)
-- Zookeeper by design operates withn an odd number of servers (3, 5, 7, ...)
-- Zookeeper has a leader (handle writes), the rest of the servers are followers (hadnle reads)
+Kafka applies ZooKeeper to manager its broker, so Kafka can't work work without ZooKeeper:
+- ZooKeeper manages brokers (keeps a list of them)
+- ZooKeeper helps in performing leader election for partitions
+- ZooKeeper sends notifications to Kafka in case of changes, (e.g, new topic, broker dies, broker comes up, delete topics and so on)
+- ZooKeeper by design operates within an odd number of servers (3, 5, 7, ...)
+- ZooKeeper has a leader (handle writes), the rest of the servers are followers (handle reads)
+
+ZooKeeper is going to be replaced by KIP (Kafka Improvement Proposal) 500, which is initiated to remove ZooKeeper from Kafka completely.
 
 There are some guarantees Kafka admits:
 - messages are appended to a topic-partition in the order they are sent
 - consumers read messages in the order stored in a topic-partition
-- within a relication factor of N, producers and consumers can tolerate up to N - 1 brokers being down
+- within a replication factor of N, producers and consumers can tolerate up to N - 1 brokers being down
 - a replication factor of 3 is a good idea, since it allows for one broker to be taken down for maintenance, while allowing for another broker to be taken down unexpectedly
 - as long as the number of partitions remains constant for a topic(no new partitions), the same key will always go to the same partition
 
@@ -95,22 +100,29 @@ There are some guarantees Kafka admits:
 
 ### Docker
 
-To run Kafka via Docker, simply run `docker-compose -f zk-single-kafka-single.yml up` to start both Kafka and Zookeeper.
+To run Kafka via Docker, simply run `docker-compose -f zk-single-kafka-single.yml up` to start both Kafka and ZooKeeper.
 
 ### Native
 
-If it's to run Kafka locally, go to Kafka directory and config property in both Kafka and Zookeeper is recommended:
+If it's to run Kafka locally, go to Kafka directory and config property in both Kafka and ZooKeeper is recommended:
 - "config/zookeeper.properties": `dataDir=/{dir}`
 - "config/server.properties": `log.dirs=/{dir}`
 
 After configuration, run:
-- `zookeeper-server-start config/zookeeper.properties` to start up Zookeeper
+- `zookeeper-server-start config/zookeeper.properties` to start up ZooKeeper
 - `zookeeper-server-start config/server.properties` to start Kafka
 
 
 ## CLI
 
 ### Topic
+- Topic is a Logical Representation
+- Topics are stream of "related" Messages in Kafka
+- Topics categorizes Messages into Groups
+- Developers define Topics
+- Producer <-> Topic: N to N relation
+- Unlimited number of Topics
+- A topic can be considered as a durable, persistent log, formally speaking a partition is a log
 
 Since `kafka-topics --zookeeper 127.0.0.1:2181` is deprecated, it's suggested to use `kafka-topics --bootstrap-server 127.0.0.1:9092` instead.
 
@@ -136,7 +148,7 @@ kafka-topics --bootstrap-server 127.0.0.1:9092 --topic {topic} --delete
 kafka-console-producer --broker-list 127.0.0.1:9092 --topic {topic}
 
 # produce message with key
-kafka-console-producer --broker-list 127.0.0.1:9092 --topic {topic} --property parse.key=true --property key.separtor={separtor}
+kafka-console-producer --broker-list 127.0.0.1:9092 --topic {topic} --property parse.key=true --property key.separator={separator}
 ```
 
 ### Consumer
@@ -145,10 +157,10 @@ kafka-console-producer --broker-list 127.0.0.1:9092 --topic {topic} --property p
 # start to consume message
 kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic {topic}
 
-# consume message from the begining with key
-kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic {topic} --from-beginning --property print.key=true --property key.separator={separtor}
+# consume message from the beginning with key
+kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic {topic} --from-beginning --property print.key=true --property key.separator={separator}
 
-# mutliple consumers consume message in the same group
+# multiple consumers consume message in the same group
 kafka-console-consumer --bootstrap-server 127.0.0.1:9092 --topic {topic} --group {group}
 
 # list existing consumer groups
@@ -159,7 +171,6 @@ kafka-consumer-groups --bootstrap-server 127.0.0.1:9092 --describe --group {grou
 
 
 ## Reference
-
 - Introduction of Apache Kafka: https://kafka.apache.org/intro
 - What is Apache Kafka: https://www.youtube.com/watch?v=06iRM1Ghr1k
 - Apache Kafka: https://www.udemy.com/course/apache-kafka/
