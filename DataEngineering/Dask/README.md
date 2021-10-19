@@ -1,6 +1,8 @@
 
 - [Usage](#usage)
 - [Specification](#specification)
+- [Best Practice](#best-practice)
+  - [Delayed](#delayed)
 - [Limitation](#limitation)
   - [DataFrame](#dataframe)
 - [Reference](#reference)
@@ -28,6 +30,44 @@ with dask.config.set(scheduler="processes"):
 dask.config.set(scheduler="processes")
 ```
 
+
+## Best Practice
+
+### Delayed
+```py
+# DO NOT call `delayed` on result since it would execute immediately
+dask.delayed(f(x, y))
+
+# DO `delayed` on function
+dask.delayed(f)(x, y)
+
+
+# DO NOT `compute` repeatedly
+results = []
+for x in data:
+  y = dask.delayed(f)(x)
+  results.append(y.compute())
+
+# DO collect calls for one `compute`
+results = []
+for x in data:
+  y = dask.delayed(f)(x)
+  results.append(y)
+results = dask.compute(*results)
+
+
+# DO NOT mutate inputs in function
+@dask.delayed
+def f(x):
+  x += 1
+  return x
+
+# DO return new value or copy
+@dask.delayed
+def f(x):
+  x = x + 1
+  return x
+```
 
 ## Limitation
 
