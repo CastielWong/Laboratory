@@ -45,6 +45,8 @@ services:
       # GF_INSTALL_PLUGINS: "grafana-piechart-panel, vertamedia-clickhouse-datasource"
       GF_SECURITY_ADMIN_USER: demo
       GF_SECURITY_ADMIN_PASSWORD: demo
+    user: "0" # root group
+    # user: "472" # grafana group
     ports:
       - "3000:3000"
     networks:
@@ -54,8 +56,6 @@ services:
       - $PWD/grafana/data:/data
       - $PWD/grafana/plugins:/var/lib/grafana/plugins
       - $PWD/grafana/configuration:/configuration
-    user: "0" # root group
-    # user: "472" # grafana group
 
 networks:
   dev_clickhouse:

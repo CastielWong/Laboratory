@@ -1,8 +1,8 @@
 
+- [Shortcut](#shortcut)
 - [Running](#running)
 - [Virtual Environment](#virtual-environment)
 - [Reference](#reference)
-
 
 This section is used to easily and quickly provision a Jupyter local environment.
 
@@ -17,6 +17,13 @@ Core stacks available are:
 - [Data Science Notebook](https://hub.docker.com/r/jupyter/datascience-notebook/tags/)
 - [PySpark Notebook](https://hub.docker.com/r/jupyter/pyspark-notebook/tags/)
 - [All Spark Notebook](https://hub.docker.com/r/jupyter/all-spark-notebook/tags/)
+
+
+## Shortcut
+- "A" for inserting a cell above the current cell
+- "B" for inserting a cell below the current cell
+- "M" for switching to markdown
+- "Y" for switching to code cell
 
 
 ## Running
