@@ -2,6 +2,8 @@
 - [Development](#development)
 - [Setup](#setup)
   - [Virtual Environment](#virtual-environment)
+    - [Mac](#mac)
+    - [Linux](#linux)
   - [Code Quality](#code-quality)
 - [Git](#git)
   - [Permission](#permission)
@@ -27,6 +29,7 @@ After complete a feature branch (after merged), run `bash ./dev/tag_feature.sh '
 ### Virtual Environment
 Since most of the scripts involved would be in Python, to make the environment clean and easy to manage, [pyenv](https://github.com/pyenv/pyenv) is used to manage Python version and libraries.
 
+#### Mac
 For Mac user, it's suggested to install [Homebrew](https://brew.sh/) to get "pyenv":
 ```sh
 # update Homebrew
@@ -38,10 +41,14 @@ brew install pyenv-virtualenv
 brew list
 ```
 
+#### Linux
 For Linux user, follow steps below for the installation:
 ```sh
-# install pyenv (https://github.com/pyenv/pyenv#installation)
+# install pyenv
+# either via https://github.com/pyenv/pyenv#installation
 git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+# or via https://github.com/pyenv/pyenv-installer
+curl https://pyenv.run | bash
 
 echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
 echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
@@ -53,10 +60,18 @@ echo 'eval "$(pyenv init -)"' >> ~/.bashrc
 echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
 ```
 
-Note, if encountering warnings like "MIssing the GNU readline lib" or "Missing the SQLite3 lib", fix them by running:
+For RedHat OS, if encountering warnings like "Missing the GNU readline lib" or "Missing the SQLite3 lib", fix them by running:
 ```sh
 sudo yum install readline-devel
 sudo yum install sqlite-devel
+```
+
+For Ubuntu OS, some packages needed before using `pyenv` for the reason that Python installation required:
+```sh
+apt-get install build-essential \
+    zlib1g-dev libffi-dev libssl-dev libbz2-dev \
+    libreadline-dev libsqlite3-dev liblzma-dev \
+    -y
 ```
 
 Then apply `pyenv` to create and use the virtual environment. Below is those commonly used commands:
@@ -224,3 +239,4 @@ Most of labs are done in Docker. For convenience, common Docker commands are lis
 - Bitbucket - Permission denied (publickey): https://confluence.atlassian.com/bbkb/permission-denied-publickey-302811860.html
 - SourceTree - Permission denied (publickey): https://community.atlassian.com/t5/Sourcetree-questions/Permission-denied-publickey/qaq-p/594966
 - ssh-agent(1) - Linux man page: https://linux.die.net/man/1/ssh-agent
+- Ubuntu 18.04 Pyenv Build Python 3.7 Common Error: https://code.luasoftware.com/tutorials/linux/ubuntu-pyenv-build-python-37-common-error/
