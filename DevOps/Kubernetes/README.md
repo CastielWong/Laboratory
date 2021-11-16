@@ -5,6 +5,9 @@
   - [etcd](#etcd)
   - [Container Runtime](#container-runtime)
 - [Object Model](#object-model)
+- [Access Control](#access-control)
+  - [Authentication](#authentication)
+  - [Authorization](#authorization)
 - [Reference](#reference)
 
 "Kubernetes is an open-source system for automating deployment, scaling, and management of containerized applications."
@@ -157,6 +160,43 @@ The fourth required field `spec` marks the beginning of the block defining the d
 A nested object, such as the `Pod` being part of a `Deployment`, retains its `metadata` and `spec` and loses the `apiVersion` and `kind` - both being replaced by `template`. In `spec.template.spec`, it defines the desired state of the `Pod`, for whose `Pod` creates a single container running the `nginx:1.15.11` image from Docker Hub.
 
 Once the Deployment object is created, the Kubernetes system attaches the `status` field to the object and populates it with all necessary status fields.
+
+
+## Access Control
+To access and manage Kubernetes resources or objects in the cluster, it's needed to access a specific API endpoint on the API server. Each access request goes through the following access control stages:
+1. Authentication: Logs in a user
+2. Authorization: Authorizes the API requests submitted by the authenticated user
+3. Admission Control: Software modules that validate and/or modify user requests based
+
+### Authentication
+Kubernetes uses a series of authentication modules:
+- X509 Client Certificates:
+  To enable client certificate authentication, it's needed to reference a file containing one or more certificate authorities by passing the `--client-ca-file=SOMEFILE` option to the API server.
+  The certificate authorities mentioned in the file would validate the client certificates presented by users to the API server.
+- Static Token File:
+  Passing a file containing pre-defined bearer tokens with the `--token-auth-file=SOMEFILE` option to the API server.
+  Currently, these tokens would last indefinitely, and they cannot be changed without restarting the API server.
+- Bootstrap Tokens:
+  Tokens used for bootstrapping new Kubernetes clusters.
+- Service Account Tokens:
+  Automatically enabled authenticators that use signed bearer tokens to verify requests.
+  These tokens get attached to Pods using the ServiceAccount Admission Controller, which allows in-cluster processes to talk to the API server.
+- OpenID Connect Tokens:
+  OpenID Connect helps to connect with OAuth2 providers, such as Azure Active Directory, Salesforce, and Google, to offload the authentication to external services.
+- Webhook Token Authentication:
+  With Webhook-based authentication, verification of bearer tokens can be offloaded to a remote service.
+- Authenticating Proxy:
+  Allows for the programming of additional authentication logic.
+
+### Authorization
+- Node
+- ABAC (Attribute-Based Access Control)
+- Webhook
+- RBAC (Role-BasedAccess Control)
+  - Role: grants access to resources within a specific Namespace
+  - ClusterRole: grants the same permissions as Role does, but its scope is cluster-wide
+
+
 
 
 ## Reference

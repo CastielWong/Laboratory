@@ -15,6 +15,8 @@ kubectl config set-context --current --namespace={space}
 
 kubectl get [sts | pvc | cm | configmap | statefulset | statefulsets]
 
+kubectl -n {namespace} get roles
+
 
 kubectl logs -f --tail 200 {pod}
 
