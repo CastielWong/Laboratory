@@ -4,6 +4,7 @@
   - [Virtual Environment](#virtual-environment)
   - [Code Quality](#code-quality)
 - [Git](#git)
+  - [Permission](#permission)
   - [Branching Model](#branching-model)
     - [GitFlow](#gitflow)
     - [Trunk Based](#trunk-based)
@@ -119,6 +120,22 @@ git remote add origin https://github.com/CastielWong/Laboratory.git
 git push -u origin master
 ```
 
+### Permission
+
+```sh
+# start the authentication agent with Bourne shell commands generated on "stdout"
+eval `ssh-agent -s`
+
+# check if any identity is set
+ssh-add -l
+# add the identity/credential
+ssh-add ~/.ssh/{id}
+
+# verify the identity is working
+ssh-add -l
+```
+
+
 ### Branching Model
 There are different approaches to branch a repo. It's more about the preference.
 
@@ -178,3 +195,7 @@ Most of labs are done in Docker. For convenience, common Docker commands are lis
 - Git Basics - Tagging: https://git-scm.com/book/en/v2/Git-Basics-Tagging
 - Gitflow Workflow: https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
 - Python Code Quality: https://realpython.com/python-code-quality/
+- Play with Docker Classroom: https://training.play-with-docker.com/
+- Bitbucket - Permission denied (publickey): https://confluence.atlassian.com/bbkb/permission-denied-publickey-302811860.html
+- SourceTree - Permission denied (publickey): https://community.atlassian.com/t5/Sourcetree-questions/Permission-denied-publickey/qaq-p/594966
+- ssh-agent(1) - Linux man page: https://linux.die.net/man/1/ssh-agent
