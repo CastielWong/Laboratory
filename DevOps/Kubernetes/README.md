@@ -5,12 +5,19 @@
   - [etcd](#etcd)
   - [Container Runtime](#container-runtime)
 - [Object Model](#object-model)
+  - [Pod](#pod)
+  - [Label](#label)
+  - [ReplicaSet](#replicaset)
+  - [Deployment](#deployment)
+  - [Namespace](#namespace)
+  - [Service](#service)
+  - [Sample](#sample)
 - [Access Control](#access-control)
   - [Authentication](#authentication)
   - [Authorization](#authorization)
 - [Reference](#reference)
 
-"Kubernetes is an open-source system for automating deployment, scaling, and management of containerized applications."
+"Kubernetes is an open-source system for automating deployment, scaling, and management of containerized applications." It's an open source container orchestration framework/tool.
 
 To access and manage Kubernetes resources or objects in the cluster, we need to access a specific API endpoint on the API server. Each access request goes through the following access control stages (Authentication -> Authorization -> Admission Control):
 - Authentication: Logs in a user
@@ -94,38 +101,46 @@ Although the API server accepts object definition files in a JSON format, most o
 
 The default recommended controller is the Deployment which configures a ReplicaSet controller to manage Pod's lifecycle.
 
-- Pod:
-  - the smallest and simplest Kubernetes object.
-  - the unit of deployment in Kubernetes, which represents a single instance of the application
-  - a logical collection of one or more containers, which:
-    - are scheduled together on the same host with the Pod
-    - share the same network namespace, meaning that they share a single IP address originally assigned to the Pod
-    - have access to mount the same external storage (volumes)
-  - ephemeral in nature, and they do not have the capability to self-heal themselves
-- Label:
-  - key-value pairs attached to Kubernetes objects (e.g. Pods, ReplicaSets, Nodes, Namespaces, Persistent Volumes)
-  - are used to organize and select a subset of objects, based on the requirements in place
-  - many objects can have the same Label(s), which means Label do not provide uniqueness to objects
-  - Controllers use Labels to logically group together decoupled objects, rather than using objects' names or IDs
-- ReplicaSet:
-  - implements the replication and self-healing aspects of the ReplicationController
-  - supports both equality- and set-based Selectors
-  - detect and ensures that the current state matches the desired state
-  - can be used independently as Pod controllers but they only offer a limited set of features
-- Deployment:
-  - provides declarative updates to Pods and ReplicaSets
-  - allows for seamless application updates and `rollbacks` through `rollouts` and `rollbacks`, and it directly manages its ReplicaSets for application scaling
-- Namespace:
-  - names of the resources/objects created inside a Namespace are unique, but not across Namespaces in the cluster
-  - Kubernetes creates four Namespaces out of the box generally:
-    - `kube-system` contains the objects created by the Kubernetes system, mostly the control plane agents
-    - `kube-public` is a special Namespace, which is unsecured and readable by anyone, used for special purposes such as exposing public (non-sensitive) information about the cluster
-    - `kube-node-lease` is the newest, which holds node lease objects used for node heartbeat data
-    - `default` contains the objects and resources created by administrators and developers, and objects are assigned to it by default unless another Namespace name is provided by the user
-  - the good practice is to create additional Namespaces, as desired, to virtualize the cluster and isolate users, developer teams, applications, or tiers
-  - secures its lead against competitors, as it provides a solution to the multi-tenancy requirement of today's enterprise development teams
+### Pod
+- the smallest and simplest Kubernetes object
+- the unit of deployment in Kubernetes, which represents a single instance of the application
+- a logical collection of one or more containers, which:
+  - are scheduled together on the same host with the Pod
+  - share the same network namespace, meaning that they share a single IP address originally assigned to the Pod
+  - have access to mount the same external storage (volumes)
+- ephemeral in nature, and they do not have the capability to self-heal themselves
 
-Example:
+### Label
+- key-value pairs attached to Kubernetes objects (e.g. Pods, ReplicaSets, Nodes, Namespaces, Persistent Volumes)
+- are used to organize and select a subset of objects, based on the requirements in place
+- many objects can have the same Label(s), which means Label do not provide uniqueness to objects
+- Controllers use Labels to logically group together decoupled objects, rather than using objects' names or IDs
+
+### ReplicaSet
+- implements the replication and self-healing aspects of the ReplicationController
+- supports both equality- and set-based Selectors
+- detect and ensures that the current state matches the desired state
+- can be used independently as Pod controllers but they only offer a limited set of features
+
+### Deployment
+- provides declarative updates to Pods and ReplicaSets
+- allows for seamless application updates and `rollbacks` through `rollouts` and `rollbacks`, and it directly manages its ReplicaSets for application scaling
+
+### Namespace
+- names of the resources/objects created inside a Namespace are unique, but not across Namespaces in the cluster
+- Kubernetes creates four Namespaces out of the box generally:
+  - `kube-system` contains the objects created by the Kubernetes system, mostly the control plane agents
+  - `kube-public` is a special Namespace, which is unsecured and readable by anyone, used for special purposes such as exposing public (non-sensitive) information about the cluster
+  - `kube-node-lease` is the newest, which holds node lease objects used for node heartbeat data
+  - `default` contains the objects and resources created by administrators and developers, and objects are assigned to it by default unless another Namespace name is provided by the user
+- the good practice is to create additional Namespaces, as desired, to virtualize the cluster and isolate users, developer teams, applications, or tiers
+- secures its lead against competitors, as it provides a solution to the multi-tenancy requirement of today's enterprise development teams
+
+### Service
+- can expose single Pods, ReplicaSets, Deployments, DaemonSets, and StatefulSets
+
+
+### Sample
 ```yaml
 apiVersion: apps/v1
 kind: Deployment

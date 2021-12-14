@@ -6,6 +6,9 @@ kubectl version
 kubectl get pods --all-namespaces
 kubectl get namespaces
 kubectl get deployments, rs, po -l {label_key}={label_value}
+kubectl get endpoints
+kubectl get pod {pod} -o yaml
+
 
 kubectl cluster-info
 
