@@ -114,14 +114,39 @@ chmod +x .git/hooks/commit-msg
 
 
 ## Git
+To set the default initialized branch to "main", run `git config --global init.defaultBranch main`.
+
 To push this repo from local to Github:
 ```sh
 git remote add origin https://github.com/CastielWong/Laboratory.git
-git push -u origin master
+git push -u origin main
 ```
 
-### Permission
+There are several ways to rename the "master" branch to "main" locally. Remember to rename it in the remote repo before take any action below.
 
+1. Clone the project totally (Recommended if nothing stashed).
+
+2. Rename then reset origin (Recommended if local repo is desired to keep):
+```sh
+# rename master branch
+git branch -m master main
+# either `git fetch` or remove the "main" branch in ".git/config"
+git fetch --all --prune
+# reset origin
+git push --set-upstream origin main
+```
+
+3. Fetch change from remote (Not recommended):
+```sh
+git branch -m master main
+# ensure the remote branch is renamed already
+git fetch origin
+git branch -u origin/main main
+git remote set-head origin -a
+```
+
+
+### Permission
 ```sh
 # start the authentication agent with Bourne shell commands generated on "stdout"
 eval `ssh-agent -s`
