@@ -5,8 +5,12 @@
     - [Ubuntu](#ubuntu)
     - [CentOS](#centos)
   - [MacOS](#macos)
+  - [Homebrew](#homebrew)
 - [CRI-O](#cri-o)
 - [Reference](#reference)
+
+
+Minikube CLI is used for start/delete the cluster; while Kubectl CLI is used for configuring the Minikube cluster.
 
 ## Common Command
 
@@ -85,6 +89,59 @@ Download VirtualBox from its website then have it installed.
 Either install it directly or via Homebrew is feasible:
 - directly: `curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/`
 - Homebrew: `brew install minikube`
+
+### Homebrew
+```sh
+# install the vm
+brew install hyperkit
+# install the driver
+brew install docker-machine-driver-hyperkit
+# grant superuser privileges since it is required to access the hypervisor
+sudo chown root:wheel /usr/local/opt/docker-machine-driver-hyperkit/bin/docker-machine-driver-hyperkit
+sudo chmod u+s /usr/local/opt/docker-machine-driver-hyperkit/bin/docker-machine-driver-hyperkit
+# install the minikube
+brew install minikube
+
+minikube start --vm-driver=hyperkit
+
+kubectl get nodes
+
+minikube status
+```
+
+Running:
+```sh
+kubectl get pod
+kubectl get services
+
+kubectl create deployment <dp-name> --image=nginx
+kubectl get deployment
+kubectl get replicaset
+
+# edit to change the image version
+kubectl edit deployment <dp-name>
+# check the pod changed, with deployment to be the same
+kubectl get pod
+# replicaset would be changed
+kubectl get rs
+
+kubect get logs <pod-name>
+kubectl describe pod <pod-name>
+
+kubectl exec -it <pod-name> -- /bin/bash
+
+kubectl delete deployment <dp-name>
+kubectl delete -f <config>.yaml
+
+kubectl apply -f <config>.yaml
+
+kubectl get all
+
+# encrypt value in `base64`
+echo -n '<value>' | base64
+
+kubectl get secret
+```
 
 
 ## CRI-O

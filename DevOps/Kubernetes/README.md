@@ -4,7 +4,7 @@
 - [Architecture](#architecture)
   - [etcd](#etcd)
   - [Container Runtime](#container-runtime)
-- [Object Model](#object-model)
+- [Object Model / Component](#object-model--component)
   - [Pod](#pod)
   - [Label](#label)
   - [ReplicaSet](#replicaset)
@@ -15,6 +15,7 @@
 - [Access Control](#access-control)
   - [Authentication](#authentication)
   - [Authorization](#authorization)
+- [Configuration](#configuration)
 - [Reference](#reference)
 
 "Kubernetes is an open-source system for automating deployment, scaling, and management of containerized applications." It's an open source container orchestration framework/tool.
@@ -23,6 +24,7 @@ To access and manage Kubernetes resources or objects in the cluster, we need to 
 - Authentication: Logs in a user
 - Authorization: Authorizes the API requests submitted by the authenticated user
 - Admission Control: Software modules that validate and/or modify user requests based
+
 
 ## Concept
 
@@ -57,7 +59,6 @@ Kubernetes as-a-Service solution:
 - VMware Tanzu Kubernetes Grid
 
 
-
 ## Architecture
 
 A master node runs following control plane components:
@@ -71,12 +72,29 @@ In addition, the master node runs:
 - Node Agent
 - Proxy
 
+Master Processes:
+- API Server
+  - is load balanced
+- Scheduler
+- Controller Manager
+- etcd
+  - is the cluster brain
+  - cluster changes get stored in the key value store
+  - application data is not stored in
+  - distributed storage across all master nodes
+  - holds the current status of any Kubernetes component
+
+Node Processes:
+- kubelet
+  - interacts with both the container and node
+  - starts the pod with a container inside
+- Kube Proxy forwards the requests
+- Container runtime
 
 ### etcd
 To persist the Kubernetes cluster's state, all cluster configuration data is saved to etcd. etcd is a distributed key-value store which only holds cluster state related data, no client workload data. etcd may be configured on the master node (stacked topology), or on its dedicated host (external topology) to help reduce the chances of data store loss by decoupling it from the other control plane agents.
 
 With stacked etcd topology, HA master node replicas ensure the etcd data store's resiliency as well. However, that is not the case with external etcd topology, where the etcd hosts have to be separately replicated for HA, a configuration that introduces the need for additional hardware.
-
 
 ### Container Runtime
 Although Kubernetes is described as a "container orchestration engine", it does not have the capability to directly handle containers. In order to manage a container's lifecycle, Kubernetes requires a __container runtime__ on the node where a Pod and its containers are to be scheduled. Kubernetes supports many container runtimes:
@@ -86,7 +104,7 @@ Although Kubernetes is described as a "container orchestration engine", it does 
 - frakti: a hypervisor-based container runtime for Kubernetes
 
 
-## Object Model
+## Object Model / Component
 Kubernetes has a very rich object model, representing different persistent entities in the Kubernetes cluster. Those entities describe:
 - What containerized applications running
 - The nodes where the containerized applications are deployed
@@ -101,6 +119,11 @@ Although the API server accepts object definition files in a JSON format, most o
 
 The default recommended controller is the Deployment which configures a ReplicaSet controller to manage Pod's lifecycle.
 
+Layers of abstraction:
+- Deployment manages a ReplicateSet
+- ReplicateSet manages a Pod
+- Pod is an abstraction of Container
+
 ### Pod
 - the smallest and simplest Kubernetes object
 - the unit of deployment in Kubernetes, which represents a single instance of the application
@@ -109,6 +132,10 @@ The default recommended controller is the Deployment which configures a ReplicaS
   - share the same network namespace, meaning that they share a single IP address originally assigned to the Pod
   - have access to mount the same external storage (volumes)
 - ephemeral in nature, and they do not have the capability to self-heal themselves
+- abstraction over container
+- usually 1 application per pod
+- each pod gets its own IP address
+- new IP address on re-creation
 
 ### Label
 - key-value pairs attached to Kubernetes objects (e.g. Pods, ReplicaSets, Nodes, Namespaces, Persistent Volumes)
@@ -125,6 +152,9 @@ The default recommended controller is the Deployment which configures a ReplicaS
 ### Deployment
 - provides declarative updates to Pods and ReplicaSets
 - allows for seamless application updates and `rollbacks` through `rollouts` and `rollbacks`, and it directly manages its ReplicaSets for application scaling
+- abstraction over Pods
+- database can't be replicated by Deployment since it's stateful, which should be handled by StatefulSet
+- Deployment for stateLESS apps; while StatefulSet for stateFUL apps or databases
 
 ### Namespace
 - names of the resources/objects created inside a Namespace are unique, but not across Namespaces in the cluster
@@ -136,8 +166,26 @@ The default recommended controller is the Deployment which configures a ReplicaS
 - the good practice is to create additional Namespaces, as desired, to virtualize the cluster and isolate users, developer teams, applications, or tiers
 - secures its lead against competitors, as it provides a solution to the multi-tenancy requirement of today's enterprise development teams
 
+Scenario when to use Namespace:
+1. Structure your components
+2. Avoid conflicts between teams
+3. Share services between different environments
+4. Access and Resource Limits on Namespace level
+
 ### Service
 - can expose single Pods, ReplicaSets, Deployments, DaemonSets, and StatefulSets
+- stable IP address
+- lifecycle of Pod and Service are not connected
+- request goes into Ingress first then forwarding to Service
+- loadbalancing
+- loose coupling
+- with & outside cluster
+
+Four types:
+- ClusterIP
+- Headless
+- NodePort
+- LoadBalancer
 
 
 ### Sample
@@ -212,7 +260,15 @@ Kubernetes uses a series of authentication modules:
   - ClusterRole: grants the same permissions as Role does, but its scope is cluster-wide
 
 
+## Configuration
+Configuration file: Connecting Deployments to Service to Pod.
+
+Each configuration has three parts:
+- metadata
+- specification
+- status, which is generated and added automatically by Kubernetes
 
 
 ## Reference
 - Introduction to Kubernetes: https://learning.edx.org/course/course-v1:LinuxFoundationX+LFS158x+3T2020/
+- Kubernetes Tutorial for Beginners: https://www.youtube.com/watch?v=X48VuDVv0do
