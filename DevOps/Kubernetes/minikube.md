@@ -107,6 +107,8 @@ minikube start --vm-driver=hyperkit
 kubectl get nodes
 
 minikube status
+
+minikube addons list
 ```
 
 Running:

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blue-cm
+  namespace: default
+data:
+  index.html: |
+    <html>
+      <body style="background-color:#1c87c9;">
+      <h1>Welcome in blue</h1>
+    </html>

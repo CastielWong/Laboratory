@@ -11,7 +11,10 @@
   - [Deployment](#deployment)
   - [Namespace](#namespace)
   - [Service](#service)
-  - [Sample](#sample)
+  - [Volume](#volume)
+    - [Persistent Volume](#persistent-volume)
+    - [Persistent Volume Claims](#persistent-volume-claims)
+  - [Ingress](#ingress)
 - [Access Control](#access-control)
   - [Authentication](#authentication)
   - [Authorization](#authorization)
@@ -124,6 +127,42 @@ Layers of abstraction:
 - ReplicateSet manages a Pod
 - Pod is an abstraction of Container
 
+Sample Code:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.15.11
+        ports:
+        - containerPort: 80
+```
+
+The `apiVersion` field is the first required field, and it specifies the API endpoint on the API server which we want to connect to; it must match an existing version for the object type defined.
+
+The second required field is `kind`, specifying the object type - in our case it is `Deployment`, but it can be `Pod`, `Replicaset`, `Namespace`, `Service`, etc.
+
+The third required field `metadata`, holds the object's basic information, such as `name`, `labels`, `namespace`, etc. The example shows two `spec` fields (`spec` and `spec.template.spec`).
+
+The fourth required field `spec` marks the beginning of the block defining the desired state of the Deployment object. In the example, it's requesting that 3 replicas, or 3 instances of the Pod, are running at any given time. The Pods are created using the Pod Template defined in `spec.template`.
+A nested object, such as the `Pod` being part of a `Deployment`, retains its `metadata` and `spec` and loses the `apiVersion` and `kind` - both being replaced by `template`. In `spec.template.spec`, it defines the desired state of the `Pod`, for whose `Pod` creates a single container running the `nginx:1.15.11` image from Docker Hub.
+
+Once the Deployment object is created, the Kubernetes system attaches the `status` field to the object and populates it with all necessary status fields.
+
 ### Pod
 - the smallest and simplest Kubernetes object
 - the unit of deployment in Kubernetes, which represents a single instance of the application
@@ -187,42 +226,54 @@ Four types:
 - NodePort
 - LoadBalancer
 
+### Volume
+A Volume is essentially a mount point on the container's file system backed by a storage medium. In Kubernetes, a Volume is linked to a Pod and can be shared among the containers of that Pod.
 
-### Sample
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-  labels:
-    app: nginx
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:1.15.11
-        ports:
-        - containerPort: 80
-```
+Type:
+- "emptyDir": An empty Volume is created for the Pod as soon as it is scheduled on the worker node, whose life is tightly coupled with the Pod. If the Pod is terminated, the content of emptyDir is deleted forever
+- "hostPath": it shares a directory between the host and the Pod. If the Pod is terminated, the content of the Volume is still available on the host
+- "gcePersistentDisk": it mounts a Google Compute Engine (GCE) persistent disk
+- "awsElasticBlockStore": it mounts an AWS EBS Volume
+- "azureDisk": it mounts a Microsoft Azure Data Disk
+- "azureFile": it mounts a Microsoft Azure File Volume
+- "cephfs": it mounts an existing CephFS volume. When a Pod terminates, the volume is unmounted and the contents of the volume are preserved
+- "nfs": it mounts an NFS share
+- "iscsi": it mounts an iSCSI share
+- "secret": it can pass sensitive information, such as passwords, to Pods
+- "configMap": it provides configuration data, or shell commands and arguments into a Pod
+- "persistentVolumeClaim": it can be used to attach a PersistentVolume to a Pod
 
-The `apiVersion` field is the first required field, and it specifies the API endpoint on the API server which we want to connect to; it must match an existing version for the object type defined.
+#### Persistent Volume
+In a typical IT environment, storage is managed by the storage/system administrators. The end user will just receive instructions to use the storage but is not involved with the underlying storage management.
 
-The second required field is `kind`, specifying the object type - in our case it is `Deployment`, but it can be `Pod`, `Replicaset`, `Namespace`, `Service`, etc.
+Kubernetes resolves this problem with the PersistentVolume (PV) subsystem, which provides APIs for users and administrators to manage and consume persistent storage.
 
-The third required field `metadata`, holds the object's basic information, such as `name`, `labels`, `namespace`, etc. The example shows two `spec` fields (`spec` and `spec.template.spec`).
+PersistentVolumes can be dynamically provisioned based on the StorageClass resource. A StorageClass contains pre-defined provisioners and parameters to create a PersistentVolume. Using PersistentVolumeClaims, a user sends the request for dynamic PV creation, which gets wired to the StorageClass resource.
 
-The fourth required field `spec` marks the beginning of the block defining the desired state of the Deployment object. In the example, it's requesting that 3 replicas, or 3 instances of the Pod, are running at any given time. The Pods are created using the Pod Template defined in `spec.template`.
-A nested object, such as the `Pod` being part of a `Deployment`, retains its `metadata` and `spec` and loses the `apiVersion` and `kind` - both being replaced by `template`. In `spec.template.spec`, it defines the desired state of the `Pod`, for whose `Pod` creates a single container running the `nginx:1.15.11` image from Docker Hub.
+#### Persistent Volume Claims
+A PersistentVolumeClaim (PVC) is a request for storage by a user. Users request for PersistentVolume resources based on type, access mode, and size. There are three access modes:
+- ReadWriteOnce (read-write by a single node)
+- ReadOnlyMany (read-only by many nodes)
+- ReadWriteMany (read-write by many nodes)
 
-Once the Deployment object is created, the Kubernetes system attaches the `status` field to the object and populates it with all necessary status fields.
+Once a suitable PersistentVolume is found, it is bound to a PersistentVolumeClaim.
+After a successful bound, the PersistentVolumeClaim resource can be used by the containers of the Pod.
+
+Once a user finishes its work, the attached PersistentVolumes can be released. The underlying PersistentVolumes can then be reclaimed (for an admin to verify and/or aggregate data), deleted (both data and volume are deleted), or recycled for future usage (only data is deleted), based on the configured persistentVolumeReclaimPolicy property.
+
+### Ingress
+An Ingress is a collection of rules that allow inbound connections to reach the cluster Services.
+
+To allow the inbound connection to reach the cluster Services, Ingress configures a Layer 7 HTTP/HTTPS load balancer for Services and provides the following:
+- TLS (Transport Layer Security)
+- Name-based virtual hosting
+- Fanout routing
+- Loadbalancing
+- Custom rules
+
+The Ingress resource does not do any request forwarding by itself, it merely accepts the definitions of traffic routing rules. The ingress is fulfilled by an Ingress Controller, which is a reverse proxy responsible for traffic routing based on rules defined in the Ingress resource.
+
+An Ingress Controller is an application watching the Master Node's API server for changes in the Ingress resources and updates the Layer 7 Load Balancer accordingly. Ingress Controllers are also know as Controllers, Ingress Proxy, Service Proxy, Revers Proxy, etc.
 
 
 ## Access Control

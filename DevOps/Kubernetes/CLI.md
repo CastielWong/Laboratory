@@ -7,6 +7,8 @@ kubectl get pods --all-namespaces
 kubectl get namespaces
 kubectl get deployments, rs, po -l {label_key}={label_value}
 kubectl get endpoints
+kubectl get configmaps
+kubectl get secret
 kubectl get pod {pod} -o yaml
 
 
@@ -41,8 +43,21 @@ kubectl set image deployment {name} {container}={image}
 kubectl rollout history deploy {name} --revision={i}
 kubectl rollout undo deployment {name} --to-revision={i}
 
+kubectl expose deployment {deployment-name} --name={service-name} --type={service-type}
 
+# watch the pod
+kubectl get pod {pod-name} -w
 
+kubectl delete -f {config}.yaml
+
+kubectl create configmap {cm-name} \
+    --from-literal={key1}={value1} \
+    --from-literal={key2}={value2}
+
+kubectl create secret generic {secret-name} \
+    --from-literal={key}={value}
+
+kubectl exec {name} -- /bin/sh -c 'cat /usr/share/nginx/html/index.html'
 ```
 
 Usual path to explore:
