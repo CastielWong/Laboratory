@@ -12,6 +12,7 @@
     - [Trunk Based](#trunk-based)
   - [Tagging](#tagging)
   - [Submodule](#submodule)
+  - [Revert](#revert)
 - [Docker](#docker)
 - [Reference](#reference)
 
@@ -207,7 +208,7 @@ To add an external git repo, run:
 To update submodules, run:
 `git submodule update --init --recursive`
 
-To remove an added module, follows:
+To remove an added module, follow:
 ```sh
 # unregister the submodule with its path
 git submodule deinit -f -- {module_path}
@@ -217,6 +218,14 @@ rm -rf .git/modules/{module_path}
 git rm -f {module_path}
 ```
 
+### Revert
+To revert a file to previous commit, run:
+```sh
+# find out previous commits involved such file changed
+git rev-list -n <n> HEAD <file>
+# revert the file to the specified commit softly
+git reset <commit> <file>
+```
 
 
 ## Docker

@@ -25,10 +25,17 @@ minikube status
 
 minikube ssh
 
+# get driver
+minikube profile list
+
 minikube stop
 
 # access to http://localhost:{port}/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
 minkube dashboard
+
+
+## delete all
+minikube delete --purge --all
 ```
 
 
