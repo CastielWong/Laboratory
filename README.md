@@ -208,6 +208,9 @@ To add an external git repo, run:
 To update submodules, run:
 `git submodule update --init --recursive`
 
+If previous command to update failed, try `git submodule foreach git pull` instead.
+
+
 To remove an added module, follow:
 ```sh
 # unregister the submodule with its path
