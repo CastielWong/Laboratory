@@ -1,0 +1,29 @@
+# Ingress rule: Name-Based Virtual Hosting
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: virtual-host-ingress
+  namespace: default
+spec:
+  rules:
+  - host: blue.example.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: blue-nginx
+            port:
+              number: 80
+              # number: 8080
+        path: /
+        pathType: ImplementationSpecific
+  - host: green.example.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: green-nginx
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
