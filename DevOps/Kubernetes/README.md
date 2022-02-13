@@ -21,41 +21,38 @@
 - [Configuration](#configuration)
 - [Reference](#reference)
 
-"Kubernetes is an open-source system for automating deployment, scaling, and management of containerized applications." It's an open source container orchestration framework/tool.
+"Kubernetes is an open-source system for automating deployment, scaling, and management of containerized applications."
+It's an open source container orchestration framework/tool.
 
-To access and manage Kubernetes resources or objects in the cluster, we need to access a specific API endpoint on the API server. Each access request goes through the following access control stages (Authentication -> Authorization -> Admission Control):
-- Authentication: Logs in a user
-- Authorization: Authorizes the API requests submitted by the authenticated user
-- Admission Control: Software modules that validate and/or modify user requests based
 
 
 ## Concept
 
 ### Container Orchestration
-In Development (Dev) environments, running containers on a single host for development and testing of applications may be an option. However, when migrating to Quality Assurance (QA) and Production (Prod) environments, that is no longer a viable option because the applications and services need to meet specific requirements:
-
-- Fault-tolerance
--On-demand scalability
-- Optimal resource usage
-- Auto-discovery to automatically discover and communicate with each other
-- Accessibility from the outside world
-- Seamless updates/rollbacks without any downtime.
+In Development (Dev) environments, running containers on a single host for development and testing of applications may be an option.
+However, when migrating to Quality Assurance (QA) and Production (Prod) environments, that is no longer a viable option because the applications and services need to meet specific requirements:
+- fault-tolerance
+- on-demand scalability
+- optimal resource usage
+- auto-discovery to automatically discover and communicate with each other
+- accessibility from the outside world
+- seamless updates/rollbacks without any downtime
 
 __Container orchestrators__ are tools which group systems together to form clusters where containers' deployment and management is automated at scale while meeting the requirements mentioned above.
 
 Container orchestration tool:
-- Amazon Elastic Container Service: ECS is a hosted service provided by Amazon Web Services (AWS) to run Docker containers at scale on its infrastructure.
-- Azure Container Instances: Azure Container Instance (ACI) is a basic container orchestration service provided by Microsoft Azure.
-- Azure Service Fabric: it is an open source container orchestrator provided by Microsoft Azure.
-- Kubernetes: it is an open source orchestration tool, originally started by Google, today part of the Cloud Native Computing Foundation (CNCF) project.
-- Marathon: it is a framework to run containers at scale on Apache Mesos.
-- Nomad: it is the container and workload orchestrator provided by HashiCorp.
-- Docker Swarm: it is a container orchestrator provided by Docker, Inc. It is part of Docker Engine.
+- Amazon Elastic Container Service: a hosted service provided by Amazon Web Services (AWS) to run Docker containers at scale on its infrastructure
+- Azure Container Instances: a basic container orchestration service provided by Microsoft Azure
+- Azure Service Fabric: an open source container orchestrator provided by Microsoft Azure
+- Kubernetes: an open source orchestration tool, originally started by Google, today part of the Cloud Native Computing Foundation (CNCF) project
+- Marathon: a framework to run containers at scale on Apache Mesos
+- Nomad: a container and workload orchestrator provided by HashiCorp
+- Docker Swarm: a container orchestrator provided by Docker, Inc, which is part of Docker Engine
 
 Kubernetes as-a-Service solution:
 - Amazon Elastic Kubernetes Service (EKS)
 - Azure Kubernetes Service (AKS)
-- DigitalOcean Kubernetes
+- Digital Ocean Kubernetes
 - Google Kubernetes Engine (GKE)
 - IBM Cloud Kubernetes Service
 - Oracle Container Engine for Kubernetes
@@ -63,7 +60,6 @@ Kubernetes as-a-Service solution:
 
 
 ## Architecture
-
 A master node runs following control plane components:
 - API Server
 - Scheduler
@@ -95,12 +91,17 @@ Node Processes:
 - Container runtime
 
 ### etcd
-To persist the Kubernetes cluster's state, all cluster configuration data is saved to etcd. etcd is a distributed key-value store which only holds cluster state related data, no client workload data. etcd may be configured on the master node (stacked topology), or on its dedicated host (external topology) to help reduce the chances of data store loss by decoupling it from the other control plane agents.
+To persist the Kubernetes cluster's state, all cluster configuration data is saved to etcd.
+etcd is a distributed key-value store which only holds cluster state related data, no client workload data.
+etcd may be configured on the master node (stacked topology), or on its dedicated host (external topology) to help reduce the chances of data store loss by decoupling it from the other control plane agents.
 
-With stacked etcd topology, HA master node replicas ensure the etcd data store's resiliency as well. However, that is not the case with external etcd topology, where the etcd hosts have to be separately replicated for HA, a configuration that introduces the need for additional hardware.
+With stacked etcd topology, High Availability (HA) master node replicas ensure the etcd data store's resiliency as well.
+However, that is not the case with external etcd topology, where the etcd hosts have to be separately replicated for HA, a configuration that introduces the need for additional hardware.
 
 ### Container Runtime
-Although Kubernetes is described as a "container orchestration engine", it does not have the capability to directly handle containers. In order to manage a container's lifecycle, Kubernetes requires a __container runtime__ on the node where a Pod and its containers are to be scheduled. Kubernetes supports many container runtimes:
+Although Kubernetes is described as a "container orchestration engine", it does not have the capability to directly handle containers.
+In order to manage a container's lifecycle, Kubernetes requires a __container runtime__ on the node where a Pod and its containers are to be scheduled.
+Kubernetes supports many container runtimes:
 - Docker: although a container platform which uses "containerd" as a container runtime, it is the most popular container runtime used with Kubernetes
 - CRI-O: a lightweight container runtime for Kubernetes, it also supports Docker image registries
 - containerd: a simple and portable container runtime providing robustness
@@ -109,20 +110,22 @@ Although Kubernetes is described as a "container orchestration engine", it does 
 
 ## Object Model / Component
 Kubernetes has a very rich object model, representing different persistent entities in the Kubernetes cluster. Those entities describe:
-- What containerized applications running
-- The nodes where the containerized applications are deployed
-- Application resource consumption
-- Policies attached to applications, like restart/upgrade policies, fault tolerance, etc
+- what containerized applications running
+- the nodes where the containerized applications are deployed
+- application resource consumption
+- policies attached to applications, like restart/upgrade policies, fault tolerance, etc
 
-With each object, the intent or the desired state of the object, is declared in the `spec` section. The Kubernetes system manages the `status` section for objects, where it records the actual state of the object.
+With each object, the intent or the desired state of the object, is declared in the `spec` section.
+The Kubernetes system manages the `status` section for objects, where it records the actual state of the object.
 At any given point in time, the Kubernetes Control Plane tries to match the object's actual state to the object's desired state.
 
-When creating an object, the object's configuration data section from below the `spec` field has to be submitted to the Kubernetes API server. The API request to create an object must have the `spec` section, describing the desired state, as well as other details.
+When creating an object, the object's configuration data section from below the `spec` field has to be submitted to the Kubernetes API server.
+The API request to create an object must have the `spec` section, describing the desired state, as well as other details.
 Although the API server accepts object definition files in a JSON format, most often it's suggested to provide such files in a YAML format, which is converted by `kubectl` in a JSON payload and sent to the API server.
 
 The default recommended controller is the Deployment which configures a ReplicaSet controller to manage Pod's lifecycle.
 
-Layers of abstraction:
+__Layers of abstraction__:
 - Deployment manages a ReplicateSet
 - ReplicateSet manages a Pod
 - Pod is an abstraction of Container
@@ -156,9 +159,13 @@ The `apiVersion` field is the first required field, and it specifies the API end
 
 The second required field is `kind`, specifying the object type - in our case it is `Deployment`, but it can be `Pod`, `Replicaset`, `Namespace`, `Service`, etc.
 
-The third required field `metadata`, holds the object's basic information, such as `name`, `labels`, `namespace`, etc. The example shows two `spec` fields (`spec` and `spec.template.spec`).
+The third required field `metadata`, holds the object's basic information, such as `name`, `labels`, `namespace`, etc.
+The example shows two `spec` fields (`spec` and `spec.template.spec`).
 
-The fourth required field `spec` marks the beginning of the block defining the desired state of the Deployment object. In the example, it's requesting that 3 replicas, or 3 instances of the Pod, are running at any given time. The Pods are created using the Pod Template defined in `spec.template`.
+The fourth required field `spec` marks the beginning of the block defining the desired state of the Deployment object.
+In the example, it's requesting that 3 replicas, or 3 instances of the Pod, are running at any given time.
+The Pods are created using the Pod Template defined in `spec.template`.
+
 A nested object, such as the `Pod` being part of a `Deployment`, retains its `metadata` and `spec` and loses the `apiVersion` and `kind` - both being replaced by `template`. In `spec.template.spec`, it defines the desired state of the `Pod`, for whose `Pod` creates a single container running the `nginx:1.15.11` image from Docker Hub.
 
 Once the Deployment object is created, the Kubernetes system attaches the `status` field to the object and populates it with all necessary status fields.
@@ -216,7 +223,7 @@ Scenario when to use Namespace:
 - stable IP address
 - lifecycle of Pod and Service are not connected
 - request goes into Ingress first then forwarding to Service
-- loadbalancing
+- load balancing
 - loose coupling
 - with & outside cluster
 
@@ -227,16 +234,17 @@ Four types:
 - LoadBalancer
 
 ### Volume
-A Volume is essentially a mount point on the container's file system backed by a storage medium. In Kubernetes, a Volume is linked to a Pod and can be shared among the containers of that Pod.
+A Volume is essentially a mount point on the container's file system backed by a storage medium.
+In Kubernetes, a Volume is linked to a Pod and can be shared among the containers of that Pod.
 
 Type:
-- "emptyDir": An empty Volume is created for the Pod as soon as it is scheduled on the worker node, whose life is tightly coupled with the Pod. If the Pod is terminated, the content of emptyDir is deleted forever
+- "emptyDir": an empty Volume is created for the Pod as soon as it is scheduled on the worker node, whose life is tightly coupled with the Pod (if the Pod is terminated, the content of emptyDir is deleted forever)
 - "hostPath": it shares a directory between the host and the Pod. If the Pod is terminated, the content of the Volume is still available on the host
 - "gcePersistentDisk": it mounts a Google Compute Engine (GCE) persistent disk
 - "awsElasticBlockStore": it mounts an AWS EBS Volume
 - "azureDisk": it mounts a Microsoft Azure Data Disk
 - "azureFile": it mounts a Microsoft Azure File Volume
-- "cephfs": it mounts an existing CephFS volume. When a Pod terminates, the volume is unmounted and the contents of the volume are preserved
+- "cephfs": it mounts an existing CephFS volume, when a Pod terminates, the volume is unmounted and the contents of the volume are preserved
 - "nfs": it mounts an NFS share
 - "iscsi": it mounts an iSCSI share
 - "secret": it can pass sensitive information, such as passwords, to Pods
@@ -244,14 +252,19 @@ Type:
 - "persistentVolumeClaim": it can be used to attach a PersistentVolume to a Pod
 
 #### Persistent Volume
-In a typical IT environment, storage is managed by the storage/system administrators. The end user will just receive instructions to use the storage but is not involved with the underlying storage management.
+In a typical IT environment, storage is managed by the storage/system administrators.
+The end user will just receive instructions to use the storage but is not involved with the underlying storage management.
 
 Kubernetes resolves this problem with the PersistentVolume (PV) subsystem, which provides APIs for users and administrators to manage and consume persistent storage.
 
-PersistentVolumes can be dynamically provisioned based on the StorageClass resource. A StorageClass contains pre-defined provisioners and parameters to create a PersistentVolume. Using PersistentVolumeClaims, a user sends the request for dynamic PV creation, which gets wired to the StorageClass resource.
+`PersistentVolumes` can be dynamically provisioned based on the StorageClass resource.
+A StorageClass contains pre-defined provisioners and parameters to create a PersistentVolume.
+Using `PersistentVolumeClaims`, a user sends the request for dynamic PV creation, which gets wired to the StorageClass resource.
 
 #### Persistent Volume Claims
-A PersistentVolumeClaim (PVC) is a request for storage by a user. Users request for PersistentVolume resources based on type, access mode, and size. There are three access modes:
+A PersistentVolumeClaim (PVC) is a request for storage by a user.
+Users request for PersistentVolume resources based on type, access mode, and size.
+There are three access modes:
 - ReadWriteOnce (read-write by a single node)
 - ReadOnlyMany (read-only by many nodes)
 - ReadWriteMany (read-write by many nodes)
@@ -259,7 +272,8 @@ A PersistentVolumeClaim (PVC) is a request for storage by a user. Users request 
 Once a suitable PersistentVolume is found, it is bound to a PersistentVolumeClaim.
 After a successful bound, the PersistentVolumeClaim resource can be used by the containers of the Pod.
 
-Once a user finishes its work, the attached PersistentVolumes can be released. The underlying PersistentVolumes can then be reclaimed (for an admin to verify and/or aggregate data), deleted (both data and volume are deleted), or recycled for future usage (only data is deleted), based on the configured persistentVolumeReclaimPolicy property.
+Once a user finishes its work, the attached PersistentVolumes can be released.
+The underlying PersistentVolumes can then be reclaimed (for an admin to verify and/or aggregate data), deleted (both data and volume are deleted), or recycled for future usage (only data is deleted), based on the configured persistentVolumeReclaimPolicy property.
 
 ### Ingress
 An Ingress is a collection of rules that allow inbound connections to reach the cluster Services.
@@ -271,13 +285,16 @@ To allow the inbound connection to reach the cluster Services, Ingress configure
 - Loadbalancing
 - Custom rules
 
-The Ingress resource does not do any request forwarding by itself, it merely accepts the definitions of traffic routing rules. The ingress is fulfilled by an Ingress Controller, which is a reverse proxy responsible for traffic routing based on rules defined in the Ingress resource.
+The Ingress resource does not do any request forwarding by itself, it merely accepts the definitions of traffic routing rules.
+The ingress is fulfilled by an Ingress Controller, which is a reverse proxy responsible for traffic routing based on rules defined in the Ingress resource.
 
-An Ingress Controller is an application watching the Master Node's API server for changes in the Ingress resources and updates the Layer 7 Load Balancer accordingly. Ingress Controllers are also know as Controllers, Ingress Proxy, Service Proxy, Revers Proxy, etc.
+An Ingress Controller is an application watching the Master Node's API server for changes in the Ingress resources and updates the Layer 7 Load Balancer accordingly.
+Ingress Controllers are also know as Controllers, Ingress Proxy, Service Proxy, Revers Proxy, etc.
 
 
 ## Access Control
-To access and manage Kubernetes resources or objects in the cluster, it's needed to access a specific API endpoint on the API server. Each access request goes through the following access control stages:
+To access and manage Kubernetes resources or objects in the cluster, it's needed to access a specific API endpoint on the API server.
+Each access request goes through the following access control stages, where:
 1. Authentication: Logs in a user
 2. Authorization: Authorizes the API requests submitted by the authenticated user
 3. Admission Control: Software modules that validate and/or modify user requests based
@@ -321,5 +338,6 @@ Each configuration has three parts:
 
 
 ## Reference
+- Glossary: https://kubernetes.io/docs/reference/glossary
 - Introduction to Kubernetes: https://learning.edx.org/course/course-v1:LinuxFoundationX+LFS158x+3T2020/
 - Kubernetes Tutorial for Beginners: https://www.youtube.com/watch?v=X48VuDVv0do

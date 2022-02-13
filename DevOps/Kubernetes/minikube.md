@@ -44,9 +44,11 @@ minikube delete --purge --all
 Verify the virtualization support on your Linux OS (a non-empty output indicates supported virtualization):
 `grep -E --color 'vmx|svm' /proc/cpuinfo`
 
-Firstly, it's needed to install the VirtualBox hypervisor. Then download the latest release or a specific release from the Minikube release page, note that replacing "/latest/" with a particular version, such as "/v1.13.0/" will download that specified version.
+Firstly, it's needed to install the VirtualBox hypervisor.
+Then download the latest release or a specific release from the Minikube release page, note that replacing "/latest/" with a particular version, such as "/v1.13.0/" will download that specified version.
 
-After Minikube is installed, start it with the `minikube start` command, that bootstraps a single-node cluster with the latest stable Kubernetes version release. For a specific Kubernetes version the `--kubernetes-version` option can be used as such `minikube start --kubernetes-version v1.19.0` (where `latest` is default and acceptable version value, and `stable` is also acceptable).
+After Minikube is installed, start it with the `minikube start` command, that bootstraps a single-node cluster with the latest stable Kubernetes version release.
+For a specific Kubernetes version the `--kubernetes-version` option can be used as such `minikube start --kubernetes-version v1.19.0` (where `latest` is default and acceptable version value, and `stable` is also acceptable).
 
 #### Ubuntu
 ```sh
