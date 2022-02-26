@@ -1,0 +1,113 @@
+---
+# Reference: https://octopus.com/blog/aws-cloudformation-ec2-examples
+
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: m5a.large
+    Description: The instance size, either m5a.large or t2.large
+  AMI:
+    Type: String
+    Default: ami-05654370f5b5eb0b0
+    Description: AMI to Ubuntu 18.04
+  PemKey:
+    Type: String
+    Default: <key>
+    Description: PEM file used as the key to instance
+
+Resources:
+  DemoInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Usage
+        Value: k8s
+
+  DemoVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 172.10.0.0/16
+      EnableDnsSupport: true  # need to enable for SSH
+      EnableDnsHostnames: true
+      Tags:
+      - Key: Usage
+        Value: k8s
+
+  DemoVpcGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref DemoInternetGateway
+      VpcId: !Ref DemoVpc
+
+  DemoSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: ap-southeast-2b
+      VpcId: !Ref DemoVpc
+      # AvailabilityZoneId:
+      CidrBlock: 172.10.0.0/24
+      # MapPublicIpOnLaunch: true
+
+  DemoRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref DemoVpc
+
+  DemoRoute:
+    Type: AWS::EC2::Route
+    DependsOn: DemoInternetGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref DemoInternetGateway
+      RouteTableId: !Ref DemoRouteTable
+
+  DemoSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DemoRouteTable
+      SubnetId: !Ref DemoSubnet
+
+  DemoSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Used for Linux Foundation - K8S
+      GroupName: lf-k8s
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        CidrIp: 0.0.0.0/0
+        FromPort: 22
+        ToPort: 22
+        Description: for SSH
+      SecurityGroupEgress:
+      - IpProtocol: -1
+        CidrIp: 0.0.0.0/0
+        Description: to all
+      VpcId: !Ref DemoVpc
+      Tags:
+      - Key: Usage
+        Value: k8s
+
+  DemoNode:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: ap-southeast-2b
+      ImageId: !Ref AMI
+      InstanceType:
+        Ref: InstanceTypeParameter
+      KeyName: !Ref PemKey
+      NetworkInterfaces:
+        - SubnetId: !Ref DemoSubnet
+          AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          GroupSet:
+          - !Ref DemoSecurityGroup
+
+Outputs:
+  PublicIp:
+    Value:
+      Fn::GetAtt:
+        - DemoNode
+        - PublicIp
+    Description: Server's PublicIp Address
