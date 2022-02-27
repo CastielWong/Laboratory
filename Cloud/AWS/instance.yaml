@@ -56,7 +56,6 @@ Resources:
       - Key: usage
         Value: demo
 
-
   DemoRoute:
     Type: AWS::EC2::Route
     DependsOn: DemoInternetGateway
@@ -85,7 +84,15 @@ Resources:
         CidrIp: 0.0.0.0/0
         FromPort: 22
         ToPort: 22
-        Description: for SSH
+        Description: for terminal connection
+      - IpProtocol: icmp
+        CidrIp:
+          Fn::GetAtt:
+            - DemoVpc
+            - CidrBlock
+        FromPort: -1
+        ToPort: -1
+        Description: for internal communication
       SecurityGroupEgress:
       - IpProtocol: -1
         CidrIp: 0.0.0.0/0
@@ -107,7 +114,7 @@ Resources:
       Tags:
       - Key: usage
         Value: Demo
-  DemoNode:
+  DemoNode1:
     Type: AWS::EC2::Instance
     Properties:
       AvailabilityZone: !Ref Ec2AZ
@@ -125,6 +132,23 @@ Resources:
       Volumes:
       - VolumeId: !Ref DemoVolume
         Device: /dev/sdk  # add a new storage
+      Tags:
+      - Key: usage
+        Value: Demo
+  DemoNode2:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: !Ref Ec2AZ
+      ImageId: !Ref Ec2AMI
+      InstanceType: !Ref Ec2Type
+      KeyName: !Ref Ec2PemKey
+      NetworkInterfaces:
+        - SubnetId: !Ref DemoSubnet
+          AssociatePublicIpAddress: true
+          PrivateIpAddress: 172.10.0.5
+          DeviceIndex: 0
+          GroupSet:
+          - !Ref DemoSecurityGroup
       Tags:
       - Key: usage
         Value: Demo
