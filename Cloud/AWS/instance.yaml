@@ -1,30 +1,28 @@
+%YAML 1.2
 ---
 # Reference: https://octopus.com/blog/aws-cloudformation-ec2-examples
 
 AWSTemplateFormatVersion: 2010-09-09
 
 Parameters:
-  InstanceTypeParameter:
+  Ec2Type:
     Type: String
     Default: m5a.large
     Description: The instance size, either m5a.large or t2.large
-  AMI:
+  Ec2AMI:
     Type: String
     Default: ami-05654370f5b5eb0b0
     Description: AMI to Ubuntu 18.04
-  PemKey:
+  Ec2PemKey:
     Type: String
-    Default: <key>
+    Default: <pem>
     Description: PEM file used as the key to instance
+  Ec2AZ:
+    Type: String
+    Default: ap-southeast-2b
+    Description: AvailabilityZone
 
 Resources:
-  DemoInternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-      - Key: Usage
-        Value: k8s
-
   DemoVpc:
     Type: AWS::EC2::VPC
     Properties:
@@ -34,26 +32,24 @@ Resources:
       Tags:
       - Key: Usage
         Value: k8s
-
-  DemoVpcGatewayAttachment:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      InternetGatewayId: !Ref DemoInternetGateway
-      VpcId: !Ref DemoVpc
-
   DemoSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: ap-southeast-2b
       VpcId: !Ref DemoVpc
-      # AvailabilityZoneId:
       CidrBlock: 172.10.0.0/24
       # MapPublicIpOnLaunch: true
-
   DemoRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref DemoVpc
+  DemoInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Usage
+        Value: k8s
+
 
   DemoRoute:
     Type: AWS::EC2::Route
@@ -62,12 +58,16 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref DemoInternetGateway
       RouteTableId: !Ref DemoRouteTable
-
   DemoSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref DemoRouteTable
       SubnetId: !Ref DemoSubnet
+  DemoVpcGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref DemoInternetGateway
+      VpcId: !Ref DemoVpc
 
   DemoSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -92,14 +92,15 @@ Resources:
   DemoNode:
     Type: AWS::EC2::Instance
     Properties:
-      AvailabilityZone: ap-southeast-2b
-      ImageId: !Ref AMI
-      InstanceType:
-        Ref: InstanceTypeParameter
-      KeyName: !Ref PemKey
+      AvailabilityZone: !Ref Ec2AZ
+      ImageId: !Ref Ec2AMI
+      InstanceType: !Ref Ec2Type
+      KeyName: !Ref Ec2PemKey
       NetworkInterfaces:
         - SubnetId: !Ref DemoSubnet
           AssociatePublicIpAddress: true
+          # the first 4 and the last IP address in each subnet CIDR block are reserved
+          PrivateIpAddress: 172.10.0.4
           DeviceIndex: 0
           GroupSet:
           - !Ref DemoSecurityGroup
