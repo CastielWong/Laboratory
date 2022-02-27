@@ -30,8 +30,8 @@ Resources:
       EnableDnsSupport: true  # need to enable for SSH
       EnableDnsHostnames: true
       Tags:
-      - Key: Usage
-        Value: k8s
+      - Key: usage
+        Value: demo
   DemoSubnet:
     Type: AWS::EC2::Subnet
     Properties:
@@ -39,16 +39,22 @@ Resources:
       VpcId: !Ref DemoVpc
       CidrBlock: 172.10.0.0/24
       # MapPublicIpOnLaunch: true
+      Tags:
+      - Key: usage
+        Value: Demo
   DemoRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref DemoVpc
+      Tags:
+      - Key: usage
+        Value: Demo
   DemoInternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
-      - Key: Usage
-        Value: k8s
+      - Key: usage
+        Value: demo
 
 
   DemoRoute:
@@ -86,9 +92,21 @@ Resources:
         Description: to all
       VpcId: !Ref DemoVpc
       Tags:
-      - Key: Usage
-        Value: k8s
+      - Key: usage
+        Value: Demo
 
+  DemoVolume:
+    Type: AWS::EC2::Volume
+    DeletionPolicy: Delete
+    Properties:
+      VolumeType: gp2
+      AutoEnableIO: true  # enable instance to write automatically
+      AvailabilityZone: !Ref Ec2AZ
+      # MultiAttachEnabled: true
+      Size: 20
+      Tags:
+      - Key: usage
+        Value: Demo
   DemoNode:
     Type: AWS::EC2::Instance
     Properties:
@@ -104,6 +122,12 @@ Resources:
           DeviceIndex: 0
           GroupSet:
           - !Ref DemoSecurityGroup
+      Volumes:
+      - VolumeId: !Ref DemoVolume
+        Device: /dev/sdk  # add a new storage
+      Tags:
+      - Key: usage
+        Value: Demo
 
 Outputs:
   PublicIp:
@@ -111,4 +135,4 @@ Outputs:
       Fn::GetAtt:
         - DemoNode
         - PublicIp
-    Description: Server's PublicIp Address
+    Description: Server's Public IP Address
