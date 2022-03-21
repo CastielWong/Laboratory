@@ -1,13 +1,11 @@
 %YAML 1.2
 ---
-# Reference: https://octopus.com/blog/aws-cloudformation-ec2-examples
-
 AWSTemplateFormatVersion: 2010-09-09
 
 Parameters:
   Ec2Type:
     Type: String
-    Default: m5a.large
+    Default: t2.small
     Description: The instance size, either m5a.large or t2.large
   Ec2AMI:
     Type: String
@@ -15,12 +13,12 @@ Parameters:
     Description: AMI to Ubuntu 18.04
   Ec2PemKey:
     Type: String
-    Default: <pem>
+    Default: ""
     Description: PEM file used as the key to instance
   Ec2AZ:
     Type: String
     Default: ap-southeast-2b
-    Description: AvailabilityZone
+    Description: Availability Zone
   VpcCidr:
     Type: String
     Default: 172.10.0.0/16
@@ -29,13 +27,9 @@ Parameters:
     Type: String
     Default: 172.10.0.0/24
     Description: CIDR block for subnet inside the VPC
-  VpcNode1Ip:
+  VpcNodeIp:
     Type: String
     Default: 172.10.0.4
-    Description: Private IP address assigned to its belonging subnet
-  VpcNode2Ip:
-    Type: String
-    Default: 172.10.0.5
     Description: Private IP address assigned to its belonging subnet
   UserData:
     Type: String
@@ -47,7 +41,7 @@ Resources:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Ref VpcCidr
-      EnableDnsSupport: true  # need to enable for SSH
+      EnableDnsSupport: true
       EnableDnsHostnames: true
       Tags:
       - Key: usage
@@ -58,7 +52,6 @@ Resources:
       AvailabilityZone: ap-southeast-2b
       VpcId: !Ref DemoVpc
       CidrBlock: !Ref VpcSubnetCidr
-      # MapPublicIpOnLaunch: true
       Tags:
       - Key: usage
         Value: Demo
@@ -105,6 +98,11 @@ Resources:
         FromPort: 22
         ToPort: 22
         Description: for terminal connection
+      - IpProtocol: tcp
+        CidrIp: 0.0.0.0/0
+        FromPort: 9000
+        ToPort: 9000
+        Description: for shadowsocks
       - IpProtocol: icmp
         CidrIp:
           Fn::GetAtt:
@@ -122,19 +120,7 @@ Resources:
       - Key: usage
         Value: Demo
 
-  DemoVolume:
-    Type: AWS::EC2::Volume
-    DeletionPolicy: Delete
-    Properties:
-      VolumeType: gp2
-      AutoEnableIO: true  # enable instance to write automatically
-      AvailabilityZone: !Ref Ec2AZ
-      # MultiAttachEnabled: true
-      Size: 20
-      Tags:
-      - Key: usage
-        Value: Demo
-  DemoNode1:
+  ProxyNode:
     Type: AWS::EC2::Instance
     Properties:
       AvailabilityZone: !Ref Ec2AZ
@@ -145,29 +131,7 @@ Resources:
       NetworkInterfaces:
         - SubnetId: !Ref DemoSubnet
           AssociatePublicIpAddress: true
-          # the first 4 and the last IP address in each subnet CIDR block are reserved
-          PrivateIpAddress: !Ref VpcNode1Ip
-          DeviceIndex: 0
-          GroupSet:
-          - !Ref DemoSecurityGroup
-      Volumes:
-      - VolumeId: !Ref DemoVolume
-        Device: /dev/sdk  # add a new storage
-      Tags:
-      - Key: usage
-        Value: Demo
-  DemoNode2:
-    Type: AWS::EC2::Instance
-    Properties:
-      AvailabilityZone: !Ref Ec2AZ
-      ImageId: !Ref Ec2AMI
-      InstanceType: !Ref Ec2Type
-      KeyName: !Ref Ec2PemKey
-      UserData: !Ref UserData
-      NetworkInterfaces:
-        - SubnetId: !Ref DemoSubnet
-          AssociatePublicIpAddress: true
-          PrivateIpAddress: !Ref VpcNode2Ip
+          PrivateIpAddress: !Ref VpcNodeIp
           DeviceIndex: 0
           GroupSet:
           - !Ref DemoSecurityGroup
@@ -176,9 +140,9 @@ Resources:
         Value: Demo
 
 Outputs:
-  PublicIp:
+  PublicIp1:
     Value:
       Fn::GetAtt:
-        - DemoNode
+        - ProxyNode
         - PublicIp
-    Description: Server's Public IP Address
+    Description: Proxy's Public IP

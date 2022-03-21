@@ -244,9 +244,11 @@ Most of labs are done in Docker. For convenience, common Docker commands are lis
 ## Reference
 - Compose file version 3 reference: https://docs.docker.com/compose/compose-file
 - Semantic Versioning: https://semver.org/
+- Conventional Commits: https://www.conventionalcommits.org/en/v1.0.0/
 - Git Basics - Tagging: https://git-scm.com/book/en/v2/Git-Basics-Tagging
 - Gitflow Workflow: https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
 - Python Code Quality: https://realpython.com/python-code-quality/
+- Playbook Deployment: https://wa.aws.amazon.com/wellarchitected/2020-07-02T19-33-23/wat.concept.playbook.en.html
 - Play with Docker Classroom: https://training.play-with-docker.com/
 - Bitbucket - Permission denied (publickey): https://confluence.atlassian.com/bbkb/permission-denied-publickey-302811860.html
 - SourceTree - Permission denied (publickey): https://community.atlassian.com/t5/Sourcetree-questions/Permission-denied-publickey/qaq-p/594966
