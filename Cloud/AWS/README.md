@@ -3,6 +3,7 @@ Keep the most commonly used script to launch AWS services.
 
 - [General](#general)
 - [Template](#template)
+  - [Generic](#generic)
   - [Proxy](#proxy)
 
 ## General
@@ -23,8 +24,22 @@ To check the finger print of a PEM file, run `openssl pkcs8 -in Tibra.pem -nocry
 
 ## Template
 
-### Proxy
+### Generic
+This is a template for the most generic stack, which will create two instances connected:
+```sh
+aws cloudformation create-stack \
+    --template-body file://generic/cf.yaml \
+    --parameters \
+        ParameterKey=Ec2PemKey,ParameterValue="<name_of_pem>" \
+        ParameterKey=UserData,ParameterValue=$(base64 generic/init.sh) \
+    --stack-name generic
 
+aws cloudformation delete-stack \
+    --stack-name generic
+```
+
+### Proxy
+This is to launch a proxy server via V2Ray:
 ```sh
 aws cloudformation create-stack \
     --template-body file://proxy/cf.yaml \

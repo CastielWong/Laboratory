@@ -7,8 +7,8 @@ AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   Ec2Type:
     Type: String
-    Default: m5a.large
-    Description: The instance size, either m5a.large or t2.large
+    Default: t2.small
+    Description: The instance size
   Ec2AMI:
     Type: String
     Default: ami-05654370f5b5eb0b0
@@ -105,6 +105,11 @@ Resources:
         FromPort: 22
         ToPort: 22
         Description: for terminal connection
+      - IpProtocol: tcp
+        CidrIp: 0.0.0.0/0
+        FromPort: 80
+        ToPort: 80
+        Description: for HTTP connection
       - IpProtocol: icmp
         CidrIp:
           Fn::GetAtt:
@@ -176,9 +181,15 @@ Resources:
         Value: Demo
 
 Outputs:
-  PublicIp:
+  PublicIp1:
     Value:
       Fn::GetAtt:
-        - DemoNode
+        - DemoNode1
         - PublicIp
-    Description: Server's Public IP Address
+    Description: Node 1's Public IP Address
+  PublicIp2:
+    Value:
+      Fn::GetAtt:
+        - DemoNode2
+        - PublicIp
+    Description: Node 2's Public IP Address
