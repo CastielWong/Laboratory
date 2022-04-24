@@ -1,0 +1,148 @@
+%YAML 1.2
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  Ec2Type:
+    Type: String
+    Default: t2.small
+    Description: The instance size, either m5a.large or t2.large
+  Ec2AMI:
+    Type: String
+    Default: ami-05654370f5b5eb0b0
+    Description: AMI to Ubuntu 18.04
+  Ec2PemKey:
+    Type: String
+    Default: ""
+    Description: PEM file used as the key to instance
+  Ec2AZ:
+    Type: String
+    Default: ap-southeast-2b
+    Description: Availability Zone
+  VpcCidr:
+    Type: String
+    Default: 172.10.0.0/16
+    Description: CIDR block for VPC
+  VpcSubnetCidr:
+    Type: String
+    Default: 172.10.0.0/24
+    Description: CIDR block for subnet inside the VPC
+  VpcNodeIp:
+    Type: String
+    Default: 172.10.0.4
+    Description: Private IP address assigned to its belonging subnet
+  UserData:
+    Type: String
+    Default: ""
+    Description: Path of initialization script to pass, which should be encoded in base64
+
+Resources:
+  DemoVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+      - Key: usage
+        Value: demo
+  DemoSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: ap-southeast-2b
+      VpcId: !Ref DemoVpc
+      CidrBlock: !Ref VpcSubnetCidr
+      Tags:
+      - Key: usage
+        Value: Demo
+  DemoRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref DemoVpc
+      Tags:
+      - Key: usage
+        Value: Demo
+  DemoInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: usage
+        Value: demo
+
+  DemoRoute:
+    Type: AWS::EC2::Route
+    DependsOn: DemoInternetGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref DemoInternetGateway
+      RouteTableId: !Ref DemoRouteTable
+  DemoSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DemoRouteTable
+      SubnetId: !Ref DemoSubnet
+  DemoVpcGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref DemoInternetGateway
+      VpcId: !Ref DemoVpc
+
+  DemoSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Used for Linux Foundation - K8S
+      GroupName: lf-k8s
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        CidrIp: 0.0.0.0/0
+        FromPort: 22
+        ToPort: 22
+        Description: for terminal connection
+      - IpProtocol: tcp
+        CidrIp: 0.0.0.0/0
+        FromPort: 9000
+        ToPort: 9000
+        Description: for shadowsocks
+      - IpProtocol: icmp
+        CidrIp:
+          Fn::GetAtt:
+            - DemoVpc
+            - CidrBlock
+        FromPort: -1
+        ToPort: -1
+        Description: for internal communication
+      SecurityGroupEgress:
+      - IpProtocol: -1
+        CidrIp: 0.0.0.0/0
+        Description: to all
+      VpcId: !Ref DemoVpc
+      Tags:
+      - Key: usage
+        Value: Demo
+
+  ProxyNode:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: !Ref Ec2AZ
+      ImageId: !Ref Ec2AMI
+      InstanceType: !Ref Ec2Type
+      KeyName: !Ref Ec2PemKey
+      UserData: !Ref UserData
+      NetworkInterfaces:
+        - SubnetId: !Ref DemoSubnet
+          AssociatePublicIpAddress: true
+          PrivateIpAddress: !Ref VpcNodeIp
+          DeviceIndex: 0
+          GroupSet:
+          - !Ref DemoSecurityGroup
+      Tags:
+      - Key: usage
+        Value: Demo
+
+Outputs:
+  PublicIp1:
+    Value:
+      Fn::GetAtt:
+        - ProxyNode
+        - PublicIp
+    Description: Proxy's Public IP
