@@ -42,6 +42,19 @@ brew install pyenv-virtualenv
 brew list
 ```
 
+Then copy commands below to current user's ".bashrc", ".bash_profile" or other related one for the shell to get it activated:
+```sh
+# initialize pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init --path)"
+if [ -n "$PS1" -a -n "$BASH_VERSION" ]; then source ~/.bashrc; fi
+eval "$(pyenv init -)"
+
+# initialize virtualenv
+eval "$(pyenv virtualenv-init -)"
+```
+
 #### Linux
 For Linux user, follow steps below for the installation:
 ```sh
@@ -57,6 +70,7 @@ echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
 # install pyenv-virtualenv (https://github.com/pyenv/pyenv-virtualenv#installing-as-a-pyenv-plugin)
 git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
 
+echo 'eval "$(pyenv init --path)"' >> ~/.bashrc
 echo 'eval "$(pyenv init -)"' >> ~/.bashrc
 echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
 ```
