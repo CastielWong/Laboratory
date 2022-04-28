@@ -3,14 +3,19 @@
 
 ```sh
 kubectl version
+
+kubectl describe nodes <node>
+
 kubectl get pods --all-namespaces
 kubectl get namespaces
-kubectl get deployments, rs, po -l {label_key}={label_value}
+kubectl get deployments,rs,po -l <label_key>=<label_value>
 kubectl get endpoints
 kubectl get configmaps
 kubectl get secret
-kubectl get pod {pod} -o yaml
+kubectl get pod <pod> -o [yaml|wide]
 
+
+kubectl create -f <template>
 
 kubectl cluster-info
 
@@ -25,7 +30,7 @@ kubectl -n {namespace} get roles
 
 kubectl logs -f --tail 200 {pod}
 
-kubectl exec -it {pod} -- bash
+kubectl exec -it <pod> -c <container> -- /bin/bash
 
 # access to http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
 kubectl proxy
