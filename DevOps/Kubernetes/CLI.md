@@ -1,29 +1,56 @@
 
-## Common Command
+- [Recommended Setup](#recommended-setup)
+- [Common Command](#common-command)
+- [API](#api)
 
+## Recommended Setup
+Below is the recommended setup to initialize shell environment, for which can be placed to somewhere like "~/.bashrc":
+```sh
+# enable kubectl command auto completion
+source <(kubectl completion bash)
+
+# make alias and enable completion the same time
+alias k="kubectl"
+complete -F __start_kubectl k
+
+alias kn="kubectl config set-context --current --namespace"
+alias ktmp_chk="kubectl run tmp --image=nginx:alpine --restart=Never --rm -i -- wget -O- -T 5 -t 2"
+
+export now="--force --grace-period 0"
+export do="--dry-run=client -o yaml"
+```
+
+
+## Common Command
 ```sh
 kubectl version
 
 kubectl describe nodes <node>
 
-kubectl get pods --all-namespaces
+kubectl get all
 kubectl get namespaces
-kubectl get deployments,rs,po -l <label_key>=<label_value>
-kubectl get endpoints
-kubectl get configmaps
-kubectl get secret
-kubectl get pod <pod> -o [yaml|wide]
+kubectl get quota
+kubectl get events --all-namespaces
 
+kubectl get pods --all-namespaces
+kubectl get pods --show-labels
+kubectl get pod <pod> -o [yaml|wide]
+kubectl get deployments,svc,rs,po -l <label_key>=<label_value>
+
+kubectl api-resources
 
 kubectl create -f <template>
+
+kubectl label pod -l <existed_key>=<existed_val> <new_key>=<new_val>
+kubectl annotate po -l <label_key>=<label_val> <annotate_key>=<annotate_val>
 
 kubectl cluster-info
 
 kubectl config view
 kubectl config use-context {user}@{host}
-kubectl config set-context --current --namespace={space}
+kubectl config set-context --current --namespace={namespace}
 
-kubectl get [sts | pvc | cm | configmap | statefulset | statefulsets]
+kubectl get [cm | configmap | networkpolicy | secret | pv | pvc | statefulset | sts]
 
 kubectl -n {namespace} get roles
 
@@ -42,10 +69,10 @@ jobs fg
 watch kubectl get pods -o wide
 
 kubectl create deployment {name} --{container}={image}
-kubectl scale deploy {name} --replicas={n}
 kubectl describe deployment {name}
+kubectl scale deployment {name} --replicas={n}
 kubectl set image deployment {name} {container}={image}
-kubectl rollout history deploy {name} --revision={i}
+kubectl rollout history deployment {name} --revision={i}
 kubectl rollout undo deployment {name} --to-revision={i}
 
 kubectl expose deployment {deployment-name} --name={service-name} --type={service-type}
@@ -73,7 +100,6 @@ Usual path to explore:
 
 
 ## API
-
 Get the authentication:
 
 ```sh

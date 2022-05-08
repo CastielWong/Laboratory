@@ -21,8 +21,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: demo_pvc
 spec:
-  storageClassName: ""
-  volumeName: demo_pv
+  storageClassName: <>
+  volumeName: demo_pv   # map to an existing PV
   resources:
     requests:
       storage: <size>
@@ -50,7 +50,7 @@ spec:
       volumes:
       - name: demo-pv-storage
         persistentVolumeClaim:
-          claimName: demo_pvc
+          claimName: demo_pvc   # map to an existing PVC
       containers:
       - name: lab-pod
         image: nginx

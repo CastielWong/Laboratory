@@ -8,10 +8,13 @@ spec:
   containers:
   - name: demo
     image: <image>
+    command: ['sh', '-c', 'echo "checking" > /tmp/healthy && echo done']
     ports:  # port(s) used by the application(s)
     - containerPort: <port_p>
       name: demo-port-pod
     readinessProbe:
+      exec:
+        command: ['cat', '/tmp/healthy']
       tcpSocket:
         port: 8080
       initialDelaySeconds: 5

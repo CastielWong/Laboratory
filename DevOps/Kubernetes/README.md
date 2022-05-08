@@ -406,3 +406,8 @@ Each configuration has three parts:
 - Glossary: https://kubernetes.io/docs/reference/glossary
 - Introduction to Kubernetes: https://learning.edx.org/course/course-v1:LinuxFoundationX+LFS158x+3T2020/
 - Kubernetes Tutorial for Beginners: https://www.youtube.com/watch?v=X48VuDVv0do
+- CKAD:
+  - exercise: https://github.com/dgkanatsios/CKAD-exercises
+  - challenge: https://codeburst.io/kubernetes-ckad-weekly-challenges-overview-and-tips-7282b36a2681
+  - network: https://editor.cilium.io
+- Illustrated Guide To Kubernetes Networking: https://speakerdeck.com/thockin/illustrated-guide-to-kubernetes-networking
