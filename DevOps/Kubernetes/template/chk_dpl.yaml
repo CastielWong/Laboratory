@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo_dpl
+  labels:
+    demo: check
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      demo: check
+  template:
+    metadata:
+      labels:
+        demo: check
+    spec:
+      containers:
+      - name: demo_con
+        image: nginx:latest
+        ports:
+        - containerPort: 80

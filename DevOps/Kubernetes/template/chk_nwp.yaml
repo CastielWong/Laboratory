@@ -1,0 +1,14 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: lb-nw
+spec:
+  podSelector:
+    matchLabels: {}
+  policyTypes:
+  - Ingress # everything is blocked unless ingress is defined
+  # allow incoming traffic from port 80
+  # ingress:
+  # - ports:
+  #   - protocol: TCP
+  #     port: 80
