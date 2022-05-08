@@ -25,7 +25,7 @@ export do="--dry-run=client -o yaml"
 ```sh
 kubectl version
 
-kubectl describe nodes <node>
+kubectl describe nodes {node}
 
 kubectl get all
 kubectl get namespaces
@@ -34,15 +34,17 @@ kubectl get events --all-namespaces
 
 kubectl get pods --all-namespaces
 kubectl get pods --show-labels
-kubectl get pod <pod> -o [yaml|wide]
-kubectl get deployments,svc,rs,po -l <label_key>=<label_value>
+kubectl get pod {pod} -o [yaml|wide]
+kubectl get deployments,svc,rs,po -l {label_key}={label_value}
+
+kubectl edit deployment {name}
 
 kubectl api-resources
 
-kubectl create -f <template>
+kubectl create -f {template}
 
-kubectl label pod -l <existed_key>=<existed_val> <new_key>=<new_val>
-kubectl annotate po -l <label_key>=<label_val> <annotate_key>=<annotate_val>
+kubectl label pod -l {existed_key}={existed_val} {new_key}={new_val}
+kubectl annotate po -l {label_key}={label_val} {annotate_key}={annotate_val}
 
 kubectl cluster-info
 
@@ -57,7 +59,7 @@ kubectl -n {namespace} get roles
 
 kubectl logs -f --tail 200 {pod}
 
-kubectl exec -it <pod> -c <container> -- /bin/bash
+kubectl exec -it {pod} -c {container} -- /bin/bash
 
 # access to http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
 kubectl proxy
@@ -80,6 +82,7 @@ kubectl expose deployment {deployment-name} --name={service-name} --type={servic
 # watch the pod
 kubectl get pod {pod-name} -w
 
+kubectl apply -f <config>.yaml
 kubectl delete -f {config}.yaml
 
 kubectl create configmap {cm-name} \

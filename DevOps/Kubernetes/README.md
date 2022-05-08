@@ -5,27 +5,28 @@
   - [etcd](#etcd)
   - [Container Runtime](#container-runtime)
 - [Object Model / Component](#object-model--component)
+  - [Skeleton](#skeleton)
+  - [Namespace](#namespace)
   - [Pod](#pod)
     - [Multi-Container Pod](#multi-container-pod)
   - [Label](#label)
   - [ReplicaSet](#replicaset)
   - [Deployment](#deployment)
-  - [Namespace](#namespace)
   - [Service](#service)
   - [Volume](#volume)
     - [Persistent Volume](#persistent-volume)
     - [Persistent Volume Claims](#persistent-volume-claims)
-  - [Ingress](#ingress)
+  - [NetworkPolicy](#networkpolicy)
+    - [Ingress](#ingress)
 - [Access Control](#access-control)
   - [Authentication](#authentication)
   - [Authorization](#authorization)
 - [Configuration](#configuration)
 - [Reference](#reference)
 
+
 "Kubernetes is an open-source system for automating deployment, scaling, and management of containerized applications."
 It's an open source container orchestration framework/tool.
-
-
 
 ## Concept
 
@@ -53,8 +54,8 @@ Container orchestration tool:
 Kubernetes as-a-Service solution:
 - Amazon Elastic Kubernetes Service (EKS)
 - Azure Kubernetes Service (AKS)
-- Digital Ocean Kubernetes
 - Google Kubernetes Engine (GKE)
+- Digital Ocean Kubernetes
 - IBM Cloud Kubernetes Service
 - Oracle Container Engine for Kubernetes
 - VMware Tanzu Kubernetes Grid
@@ -92,17 +93,19 @@ Node Processes:
 - Container runtime
 
 ### etcd
-To persist the Kubernetes cluster's state, all cluster configuration data is saved to etcd.
-etcd is a distributed key-value store which only holds cluster state related data, no client workload data.
-etcd may be configured on the master node (stacked topology), or on its dedicated host (external topology) to help reduce the chances of data store loss by decoupling it from the other control plane agents.
+To persist the Kubernetes cluster's state, all cluster configuration data is saved to __etcd__.
+__etcd__ is a distributed key-value store which only holds cluster state related data, no client workload data.
+__etcd__ may be configured on the master node (stacked topology), or on its dedicated host (external topology) to help reduce the chances of data store loss by decoupling it from the other control plane agents.
 
-With stacked etcd topology, High Availability (HA) master node replicas ensure the etcd data store's resiliency as well.
-However, that is not the case with external etcd topology, where the etcd hosts have to be separately replicated for HA, a configuration that introduces the need for additional hardware.
+With stacked __etcd__ topology, High Availability (HA) master node replicas ensure the __etcd__ data store's resiliency as well.
+However, that is not the case with external __etcd__ topology, where the __etcd__ hosts have to be separately replicated for HA, a configuration that introduces the need for additional hardware.
 
 ### Container Runtime
-A container runtime is the component which runs the containerized application upon request. Docker Engine remains the default for Kubernetes, though CRI-O and others are gaining community support.
+A container runtime is the component which runs the containerized application upon request.
+Docker Engine remains the default for Kubernetes, though CRI-O and others are gaining community support.
 Although Kubernetes is described as a "container orchestration engine", it does not have the capability to directly handle containers.
 In order to manage a container's lifecycle, Kubernetes requires a __container runtime__ on the node where a Pod and its containers are to be scheduled.
+
 Kubernetes supports many container runtimes:
 - Docker: although a container platform which uses "containerd" as a container runtime, it is the most popular container runtime used with Kubernetes
 - CRI-O: Container Runtime Interface, a lightweight OCI-compatible (Open Container Initiative)container runtime for Kubernetes, it also supports Docker image registries
@@ -111,7 +114,8 @@ Kubernetes supports many container runtimes:
 
 
 ## Object Model / Component
-Kubernetes has a very rich object model, representing different persistent entities in the Kubernetes cluster. Those entities describe:
+Kubernetes has a very rich object model, representing different persistent entities in the Kubernetes cluster.
+Those entities describe:
 - what containerized applications running
 - the nodes where the containerized applications are deployed
 - application resource consumption
@@ -132,45 +136,46 @@ __Layers of abstraction__:
 - ReplicateSet manages a Pod
 - Pod is an abstraction of Container
 
-Sample Code:
+### Skeleton
 ```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-deployment
-  labels:
-    app: nginx
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:1.15.11
-        ports:
-        - containerPort: 80
+apiVersion: ...
+kind: ...
+metadata: ...
+spec: ...
 ```
 
 The `apiVersion` field is the first required field, and it specifies the API endpoint on the API server which we want to connect to; it must match an existing version for the object type defined.
 
-The second required field is `kind`, specifying the object type - in our case it is `Deployment`, but it can be `Pod`, `Replicaset`, `Namespace`, `Service`, etc.
+The second required field is `kind`, specifying the object type - it can be `Deployment`, `Pod`, `Replicaset`, `Namespace`, `Service`, etc.
 
 The third required field `metadata`, holds the object's basic information, such as `name`, `labels`, `namespace`, etc.
-The example shows two `spec` fields (`spec` and `spec.template.spec`).
 
 The fourth required field `spec` marks the beginning of the block defining the desired state of the Deployment object.
-In the example, it's requesting that 3 replicas, or 3 instances of the Pod, are running at any given time.
-The Pods are created using the Pod Template defined in `spec.template`.
 
-A nested object, such as the `Pod` being part of a `Deployment`, retains its `metadata` and `spec` and loses the `apiVersion` and `kind` - both being replaced by `template`. In `spec.template.spec`, it defines the desired state of the `Pod`, for whose `Pod` creates a single container running the `nginx:1.15.11` image from Docker Hub.
+Take template "chk_dpl.yaml" for example, it's requesting that 3 replicas, or 3 instances of the Pod, are running at any given time.
+It shows two `spec` fields (`spec` and `spec.template.spec`), and the Pods are created using the Pod Template defined in `spec.template`.
+The nested object, such as the `Pod` being part of a `Deployment`, retains its `metadata` and `spec` and loses the `apiVersion` and `kind` - both being replaced by `template`.
+In `spec.template.spec`, it defines the desired state of the `Pod`, for whose `Pod` creates a single container running the `nginx:latest` image from Docker Hub.
 
 Once the Deployment object is created, the Kubernetes system attaches the `status` field to the object and populates it with all necessary status fields.
+
+
+### Namespace
+- names of the resources/objects created inside a `Namespace` are unique, but not across namespaces in the cluster
+- Kubernetes creates four namespaces out of the box generally:
+  - `kube-system` contains the objects created by the Kubernetes system, mostly the control plane agents
+  - `kube-public` is a special namespace, which is unsecured and readable by anyone, used for special purposes such as exposing public (non-sensitive) information about the cluster
+  - `kube-node-lease` is the newest, which holds node lease objects used for node heartbeat data
+  - `default` contains the objects and resources created by administrators and developers, and objects are assigned to it by default unless another namespace name is provided by the user
+- the good practice is to create additional namespaces, as desired, to virtualize the cluster and isolate users, developer teams, applications, or tiers
+- secures its lead against competitors, as it provides a solution to the multi-tenancy requirement of today's enterprise development teams
+
+Scenario when to use `Namespace`:
+1. Structure your components
+2. Avoid conflicts between teams
+3. Share services between different environments
+4. Access and Resource Limits on Namespace level
+
 
 ### Pod
 - the smallest and simplest Kubernetes object
@@ -195,11 +200,12 @@ Containers could be configured to write to different directories in the volume, 
 Without these protections, there would be no way to order containers writing to the storage.
 
 There are three terms often used for multi-container pods: _ambassador_, _adapter_, and _sidecar_.
-Each term is an expression of what a secondary pod is intended to do. All are just multi-container pods.
-- ambassador: it's used to communicate with outside resources, often outside the cluster.
+Each term is an expression of what a secondary pod is intended to do.
+All are just multi-container pods.
+- ambassador: It's used to communicate with outside resources, often outside the cluster.
   Using a proxy, like Envoy or other, to embed a proxy instead of using one provided by the cluster, which is helpful if one is unsure of the cluster configuration.
   It allows for access to the outside world without having to implement a service or another entry in an ingress controller: proxy local connection, reverse proxy, limits HTTP requests, re-route from the main container to the outside world.​
-- adapter: it's useful to modify the data generated by the primary container.
+- adapter: It's useful to modify the data generated by the primary container.
   The basic purpose of an adapter container is to modify data, either on ingress or egress, to match some other need.
   An adapter would be an efficient way to standardize the output of the main container to be ingested by the monitoring tool, without having to modify the monitor or the containerized application.
   An adapter container transforms multiple applications to singular view.
@@ -224,40 +230,27 @@ However, __Annotation__ is normally for arbitrary non-identifying metadata attac
 
  __Label__ can be used to select objects and to find collections of objects that satisfy certain conditions, while __Annotation__ is not used to identify and select objects.
 
+
 ### ReplicaSet
 - implements the replication and self-healing aspects of the ReplicationController
 - supports both equality- and set-based Selectors
 - detect and ensures that the current state matches the desired state
 - can be used independently as Pod controllers but they only offer a limited set of features
 
+
 ### Deployment
 - provides declarative updates to Pods and ReplicaSets
-- allows for seamless application updates and `rollbacks` through `rollouts` and `rollbacks`, and it directly manages its ReplicaSets for application scaling
+- allows for seamless application updates and rollbacks through `rollout`, and it directly manages its ReplicaSets for application scaling
 - abstraction over Pods
-- database can't be replicated by Deployment since it's stateful, which should be handled by StatefulSet
-- Deployment for stateLESS apps; while StatefulSet for stateFUL apps or databases
+- database can't be replicated by `Deployment` since it's stateful, which should be handled by `StatefulSet`
+- `Deployment` for stateLESS apps; while `StatefulSet` for stateFUL apps or databases
 
-### Namespace
-- names of the resources/objects created inside a Namespace are unique, but not across Namespaces in the cluster
-- Kubernetes creates four Namespaces out of the box generally:
-  - `kube-system` contains the objects created by the Kubernetes system, mostly the control plane agents
-  - `kube-public` is a special Namespace, which is unsecured and readable by anyone, used for special purposes such as exposing public (non-sensitive) information about the cluster
-  - `kube-node-lease` is the newest, which holds node lease objects used for node heartbeat data
-  - `default` contains the objects and resources created by administrators and developers, and objects are assigned to it by default unless another Namespace name is provided by the user
-- the good practice is to create additional Namespaces, as desired, to virtualize the cluster and isolate users, developer teams, applications, or tiers
-- secures its lead against competitors, as it provides a solution to the multi-tenancy requirement of today's enterprise development teams
-
-Scenario when to use Namespace:
-1. Structure your components
-2. Avoid conflicts between teams
-3. Share services between different environments
-4. Access and Resource Limits on Namespace level
 
 ### Service
-- can expose single Pods, ReplicaSets, Deployments, DaemonSets, and StatefulSets
+- can expose single `Pod`, `ReplicaSet`, `Deployment`, `DaemonSet`, and `StatefulSet`
 - stable IP address
-- lifecycle of Pod and Service are not connected
-- request goes into Ingress first then forwarding to Service
+- lifecycle of `Pod` and `Service` are not connected
+- request goes into `Ingress` first then forwarding to `Service`
 - load balancing
 - loose coupling
 - with & outside cluster
@@ -265,51 +258,56 @@ Scenario when to use Namespace:
 Types:
 - ClusterIP:
   The ClusterIP service type is the default, and only provides access internally (except if manually creating an external endpoint). The range of ClusterIP used is defined via an API server startup option.
-  The kubectl proxy command creates a local service to access a ClusterIP. This can be useful for troubleshooting or development work.
+  The `kubectl proxy` command creates a local service to access a ClusterIP. This can be useful for troubleshooting or development work.
 - NodePort:
   The NodePort type is great for debugging, or when a static IP address is necessary, such as opening a particular address through a firewall. The NodePort range is defined in the cluster configuration.
 - LoadBalancer:
   The LoadBalancer service was created to pass requests to a cloud provider like GKE or AWS. Private cloud solutions also may implement this service type if there is a cloud provider plugin, such as with CloudStack and OpenStack. Even without a cloud provider, the address is made available to public traffic, and packets are spread among the Pods in the deployment automatically.
-- Headless
+- Headless:
+  When no load-balancing or a single Service IP is needed, create a "headless" service by explicitly specifying "None" for the cluster IP.
+  For headless services, a cluster IP is not allocated, kube-proxy does not handle these services, and there is no load balancing or proxying done by the platform for them.
 - ExternalName:
-  A newer service is ExternalName, which is a bit different. It has no selectors, nor does it define ports or endpoints. It allows the return of an alias to an external service. The redirection happens at the DNS level, not via a proxy or forward. This object can be useful for services not yet brought into the Kubernetes cluster. A simple change of the type in the future would redirect traffic to the internal objects. As CoreDNS has become more stable, this service is not used as much.
+  It has no selectors, nor does it define ports or endpoints. It allows the return of an alias to an external service. The redirection happens at the DNS level, not via a proxy or forward. This object can be useful for services not yet brought into the Kubernetes cluster. A simple change of the type in the future would redirect traffic to the internal objects. As CoreDNS has become more stable, this service is not used as much.
+
 
 ### Volume
-A Volume is essentially a mount point on the container's file system backed by a storage medium.
-In Kubernetes, a Volume is linked to a Pod and can be shared among the containers of that Pod.
+A `Volume` is essentially a mount point on the container's file system backed by a storage medium.
+In Kubernetes, a `Volume` is linked to a Pod and can be shared among the containers of that Pod.
 
-For volume shared, note that one container wrote, and the other container had immediate access to the data. There is nothing to keep the containers from overwriting the other’s data. Locking or versioning considerations must be part of the application to avoid corruption.
+For volume shared, note that one container wrote, and the other container had immediate access to the data.
+There is nothing to keep the containers from overwriting the other’s data.
+Locking or versioning considerations must be part of the application to avoid corruption.
 
 Type:
 - "emptyDir":
-  an empty Volume is created for the Pod as soon as it is scheduled on the worker node, whose life is tightly coupled with the Pod (if the Pod is terminated, the content of emptyDir is deleted forever).
-  an empty directory that gets erased when the Pod dies, but is recreated when the container restarts
+  An empty Volume is created for the Pod as soon as it is scheduled on the worker node, whose life is tightly coupled with the Pod (if the Pod is terminated, the content of emptyDir is deleted forever).
+  An empty directory that gets erased when the Pod dies, but is recreated when the container restarts
 - "hostPath":
-  it shares a directory between the host and the Pod. If the Pod is terminated, the content of the Volume is still available on the host.
-  it mounts a resource from the host node filesystem. The resource could be a directory, file socket, character, or block device. These resources must already exist on the host to be used. There are two types, DirectoryOrCreate and FileOrCreate, which create the resources on the host, and use them if they don't already exist.
-- "gcePersistentDisk": it mounts a Google Compute Engine (GCE) persistent disk
-- "awsElasticBlockStore": it mounts an AWS EBS Volume
-- "azureDisk": it mounts a Microsoft Azure Data Disk
-- "azureFile": it mounts a Microsoft Azure File Volume
-- "cephfs": it mounts an existing CephFS volume, when a Pod terminates, the volume is unmounted and the contents of the volume are preserved
-- "nfs": it mounts an NFS (Network File System) share
-- "iscsi": it mounts an iSCSI (Internet Small Computer System Interface) share
-- "secret": it can pass sensitive information, such as passwords, to Pods
-- "configMap": it provides configuration data, or shell commands and arguments into a Pod
-- "persistentVolumeClaim": it can be used to attach a PersistentVolume to a Pod
+  It shares a directory between the host and the Pod. If the Pod is terminated, the content of the Volume is still available on the host.
+  It mounts a resource from the host node filesystem. The resource could be a directory, file socket, character, or block device. These resources must already exist on the host to be used. There are two types, DirectoryOrCreate and FileOrCreate, which create the resources on the host, and use them if they don't already exist.
+- "gcePersistentDisk": It mounts a Google Compute Engine (GCE) persistent disk
+- "awsElasticBlockStore": It mounts an AWS EBS Volume
+- "azureDisk": It mounts a Microsoft Azure Data Disk
+- "azureFile": It mounts a Microsoft Azure File Volume
+- "cephfs": It mounts an existing CephFS volume, when a Pod terminates, the volume is unmounted and the contents of the volume are preserved
+- "nfs": It mounts an NFS (Network File System) share
+- "iscsi": It mounts an iSCSI (Internet Small Computer System Interface) share
+- "secret": It can pass sensitive information, such as passwords, to Pods
+- "configMap": It provides configuration data, or shell commands and arguments into a Pod
+- "persistentVolumeClaim": It can be used to attach a PersistentVolume to a Pod
 
 #### Persistent Volume
 In a typical IT environment, storage is managed by the storage/system administrators.
 The end user will just receive instructions to use the storage but is not involved with the underlying storage management.
 
-Kubernetes resolves this problem with the PersistentVolume (PV) subsystem, which provides APIs for users and administrators to manage and consume persistent storage.
+Kubernetes resolves this problem with the `PersistentVolume` (PV) subsystem, which provides APIs for users and administrators to manage and consume persistent storage.
 
-`PersistentVolumes` can be dynamically provisioned based on the StorageClass resource.
-A StorageClass contains pre-defined provisioners and parameters to create a PersistentVolume.
-Using `PersistentVolumeClaims`, a user sends the request for dynamic PV creation, which gets wired to the StorageClass resource.
+`PersistentVolume` can be dynamically provisioned based on the `StorageClass` resource.
+A `StorageClass` contains pre-defined provisioners and parameters to create a `PersistentVolume`.
+Using `PersistentVolumeClaim`, a user sends the request for dynamic PV creation, which gets wired to the `StorageClass` resource.
 
-A PersistentVolume (PV) is a storage abstraction used to retain data longer than the Pod using it.
-Pods define a volume of type PersistentVolumeClaim (PVC) with various parameters for size and possibly the type of backend storage known as its StorageClass. The cluster then attaches the PersistentVolume.
+A `PersistentVolume` (PV) is a storage abstraction used to retain data longer than the `Pod` using it.
+Pods define a volume of type `PersistentVolumeClaim` (PVC) with various parameters for size and possibly the type of backend storage known as its `StorageClass`. The cluster then attaches the `PersistentVolume`.
 
 Kubernetes will dynamically use volumes that are available, irrespective of its storage type, allowing claims to any backend storage.
 
@@ -321,42 +319,45 @@ Phases of Persistent Storage:
 - Reclaiming
 
 #### Persistent Volume Claims
-A PersistentVolumeClaim (PVC) is a request for storage by a user.
-Users request for PersistentVolume resources based on type, access mode, and size.
+A `PersistentVolumeClaim` (PVC) is a request for storage by a user.
+Users request for `PersistentVolume` resources based on type, access mode, and size.
 There are three access modes:
 - ReadWriteOnce (read-write by a single node)
 - ReadOnlyMany (read-only by many nodes)
 - ReadWriteMany (read-write by many nodes)
 
-Once a suitable PersistentVolume is found, it is bound to a PersistentVolumeClaim.
-After a successful bound, the PersistentVolumeClaim resource can be used by the containers of the Pod.
+Once a suitable `PersistentVolume` is found, it is bound to a `PersistentVolumeClaim`.
+After a successful bound, the `PersistentVolumeClaim` resource can be used by the containers of the `Pod`.
 
-Once a user finishes its work, the attached PersistentVolumes can be released.
-The underlying PersistentVolumes can then be reclaimed (for an admin to verify and/or aggregate data), deleted (both data and volume are deleted), or recycled for future usage (only data is deleted), based on the configured persistentVolumeReclaimPolicy property.
+Once a user finishes its work, the attached `PersistentVolume`s can be released.
+The underlying `PersistentVolume`s can then be reclaimed (for an admin to verify and/or aggregate data), deleted (both data and volume are deleted), or recycled for future usage (only data is deleted), based on the configured `persistentVolumeReclaimPolicy` property.
 
-### Ingress
-An Ingress is a collection of rules that allow inbound connections to reach the cluster Services.
 
-To allow the inbound connection to reach the cluster Services, Ingress configures a Layer 7 HTTP/HTTPS load balancer for Services and provides the following:
+### NetworkPolicy
+#### Ingress
+An `Ingress` is a collection of rules that allow inbound connections to reach the cluster Services.
+
+To allow the inbound connection to reach the cluster services, `Ingress` configures a Layer 7 HTTP/HTTPS load balancer for Services and provides the following:
 - TLS (Transport Layer Security)
 - Name-based virtual hosting
 - Fanout routing
 - Loadbalancing
 - Custom rules
 
-The Ingress resource does not do any request forwarding by itself, it merely accepts the definitions of traffic routing rules.
-The ingress is fulfilled by an Ingress Controller, which is a reverse proxy responsible for traffic routing based on rules defined in the Ingress resource.
+The `Ingress` resource does not do any request forwarding by itself, it merely accepts the definitions of traffic routing rules.
+The ingress is fulfilled by an Ingress Controller, which is a reverse proxy responsible for traffic routing based on rules defined in the `Ingress` resource.
 
-An Ingress Controller is an application watching the Master Node's API server for changes in the Ingress resources and updates the Layer 7 Load Balancer accordingly.
+An Ingress Controller is an application watching the Master Node's API server for changes in the `Ingress` resources and updates the Layer 7 Load Balancer accordingly.
 Ingress Controllers are also know as Controllers, Ingress Proxy, Service Proxy, Revers Proxy, etc.
+
 
 
 ## Access Control
 To access and manage Kubernetes resources or objects in the cluster, it's needed to access a specific API endpoint on the API server.
 Each access request goes through the following access control stages, where:
-1. Authentication: Logs in a user
-2. Authorization: Authorizes the API requests submitted by the authenticated user
-3. Admission Control: Software modules that validate and/or modify user requests based
+1. __Authentication__: Logs in a user
+2. __Authorization__: Authorizes the API requests submitted by the authenticated user
+3. __Admission Control__: Software modules that validate and/or modify user requests based
 
 ### Authentication
 Kubernetes uses a series of authentication modules:
@@ -393,6 +394,7 @@ There are three main points to remember with authentication in Kubernetes:
   - ClusterRole: grants the same permissions as Role does, but its scope is cluster-wide
 
 
+
 ## Configuration
 Configuration file: Connecting Deployments to Service to Pod.
 
@@ -400,6 +402,7 @@ Each configuration has three parts:
 - metadata
 - specification
 - status, which is generated and added automatically by Kubernetes
+
 
 
 ## Reference
