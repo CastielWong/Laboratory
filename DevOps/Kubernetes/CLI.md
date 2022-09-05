@@ -25,6 +25,8 @@ export do="--dry-run=client -o yaml"
 ```sh
 kubectl version
 
+kubectl config get-contexts
+
 kubectl describe nodes {node}
 
 kubectl get all

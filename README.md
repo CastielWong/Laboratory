@@ -178,6 +178,9 @@ git remote set-head origin -a
 
 ### Permission
 ```sh
+# check configuration
+git config --list --show-origin
+
 # start the authentication agent with Bourne shell commands generated on "stdout"
 eval `ssh-agent -s`
 
