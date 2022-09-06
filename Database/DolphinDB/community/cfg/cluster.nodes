@@ -1,0 +1,5 @@
+localSite,mode
+80.5.0.11:8710:P1-agent,agent
+80.5.0.11:8711:P1-node,datanode
+80.5.0.12:8810:P2-agent,agent
+80.5.0.12:8811:P2-node,datanode
