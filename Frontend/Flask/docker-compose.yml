@@ -1,4 +1,4 @@
-version: "3"
+version: "3.9"
 
 services:
   web:
@@ -6,9 +6,21 @@ services:
     image: lab-flask:demo
     build:
       context: $PWD
-    ports:
-      - "5000:5000"
+      dockerfile: Dockerfile
     environment:
       DB_URI: sqlite:////database/data.sqlite
     volumes:
       - $PWD/restful/database/:/database/
+    ports:
+      - "5500:5000"
+    networks:
+      dev_flask:
+        ipv4_address: 10.10.0.2
+
+networks:
+  dev_flask:
+    name: dev_flask
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 10.10.0.0/16

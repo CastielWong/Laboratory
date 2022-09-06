@@ -1,5 +1,6 @@
 
 - [REST](#rest)
+  - [Check](#check)
 - [Reference](#reference)
 
 
@@ -49,16 +50,23 @@ RESTful API are developed, all API endpoints available are:
 | /store/<name> | POST | Authorization | | Create a store |
 | /store/<name> | DELETE | Authorization | | Delete a store |
 
-"http://127.00.1:5000" is the default URL.
+"http://127.0.0.1:5000" is the default URL.
 
 __Flask-JWT-Extended__ is applied to take care of the authentication.
 
-[Postman](https://www.postman.com/postman/) is a good tool for testing, which is used
-to check if the application is working properly.
+Note that if Docker Desktop is used on Mac, subnet IPs are [inaccessible](https://docs.docker.com/desktop/networking/#i-cannot-ping-my-containers):
+> Docker Desktop can’t route traffic to Linux containers. However if you’re a Windows user, you can ping the Windows containers.
+
+### Check
+There are ways to check if the application is working properly:
+- [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
+- [Postman](https://www.postman.com/postman/)
+
+VS Code's plugin - REST Client is recommended.
+File "api.test" is prepared for the checking.
 
 
 ## Reference
-
 - Flask Website: https://palletsprojects.com/p/flask/
 - REST APIs with Flask and Python: https://www.udemy.com/course/rest-api-flask-and-python/
 - General structure of the project: https://arac.tecladocode.com/1_structure_of_api/1_7_resources_user.html#userlogout
