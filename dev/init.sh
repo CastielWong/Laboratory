@@ -10,7 +10,7 @@ if [[ -z "${PYTHON_VERSION}" ]]; then
 fi
 
 if [[ -z "${PYENV_VENV}" ]]; then
-    PYENV_VENV="dev-demo"
+    PYENV_VENV="laboratory"
 fi
 
 if [[ -z "${IS_JUPYTER}" ]]; then
@@ -37,8 +37,10 @@ if ! command -v pyenv &> /dev/null; then
     export GIT_SSL_NO_VERIFY=${default_git_ssl_value}
 
     {
-        echo -e "\n\n# setup for pyenv"
-        echo 'export PYENV_ROOT=${HOME}/.pyenv'
+        echo -e "\n\n# Customization"
+        echo "export PS1=\"[\t \w]\$ \""
+        echo -e "\n# setup for pyenv"
+        echo "export PYENV_ROOT=${HOME}/.pyenv"
         echo 'export PATH="${PYENV_ROOT}/bin:${PATH}"'
         echo 'eval "$(pyenv init --path)"'
         echo 'eval "$(pyenv init -)"'
@@ -92,6 +94,8 @@ fi
 if ${IS_JUPYTER}; then
     echo "Installing package used to set Jupyter kernel...."
     pip install ipykernel
+    # jupyter kernelspec list
+
     # set venv to Jupyter kernel
     python -m ipykernel install --name=${PYENV_VENV} --user
 
@@ -101,6 +105,8 @@ fi
 git status &> /dev/null
 if [ $? -eq 0 ] ; then
     # set up pre-commit if it's a git repo
-    pre-commit install
-    echo "pre-commit is setup"
+    pre-commit install &> null
+    if [ $? == 0 ]; then
+        echo "pre-commit is setup"
+    fi
 fi
