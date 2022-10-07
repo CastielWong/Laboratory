@@ -1,6 +1,7 @@
 
 ## Usage
-Run `streamlit run demo.py` to kick it off.
+1. Run `docker-compose up -d` to kick it off
+2. Check if the server is up and running via `docker logs lab-streamlit | tail`, it's up when "Network URL" and "External URL" are shown at the end
 
 
 ## Reference
