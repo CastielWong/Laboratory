@@ -1,0 +1,5 @@
+# -*- coding: utf-8 -*-
+--index-url https://pypi.org/simple
+matplotlib~=3.6.0
+scipy~=1.9.1
+streamlit~=1.13.0
