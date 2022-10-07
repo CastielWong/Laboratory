@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  base:
+    container_name: docker-base
+    image: lab-docker:demo
+    build:
+      context: $PWD
+      dockerfile: Dockerfile
+    tty: true
+    volumes:
+      - ./init.sh:/root/init.sh
+    networks:
+      docker_demo:
+        ipv4_address: 172.2.0.2
+
+networks:
+  docker_demo:
+    name: docker_demo
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.2.0.0/16

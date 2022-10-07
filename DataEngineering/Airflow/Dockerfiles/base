@@ -52,7 +52,7 @@ RUN python${PYTHON_3_VERSION_MAJOR} -m pip install --upgrade \
     pip setuptools wheel
 
 # curtomize the bash prompt
-RUN echo 'export PS1="[\t \u@\h \w]\$ "'  >> /root/.bashrc
+RUN echo 'export PS1="[\t \u@\h \w]\$ "' >> /root/.bashrc
 
 WORKDIR /root
 
