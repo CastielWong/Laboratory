@@ -27,6 +27,9 @@ RUN (cd /data/ddb/ && unzip /data/ddb/${dolphindb_zip})
 RUN chmod 755 /data/ddb/server/dolphindb
 RUN mkdir -p /data/ddb/server/config
 
+# create a placeholder for the license
+# RUN touch /data/ddb/server/dolphindb.lic
+
 ADD Dockerbuild/default_cmd /root/
 RUN dos2unix /root/default_cmd
 RUN chmod 755 /root/default_cmd
