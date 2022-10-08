@@ -4,13 +4,12 @@ services:
   base:
     container_name: lab-streamlit
     image: python:3.8.14
-    # tty: true
     user: root
-    command: bash /root/running.sh
+    command: bash /root/init.sh
     volumes:
-    - ./running.sh:/root/running.sh
-    - ./demo.py:/root/demo.py
-    - ./requirements.txt:/root/requirements.txt
+    - ./volume/init.sh:/root/init.sh
+    - ./volume/demo.py:/root/demo.py
+    - ./volume/requirements.txt:/root/requirements.txt
     ports:
     - "8501:8501"
     networks:
