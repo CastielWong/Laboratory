@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  database:
+    container_name: lab-sql-server
+    # image: mcr.microsoft.com/mssql/server:2019-CU18-ubuntu-20.04
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    command: /opt/mssql/bin/sqlservr
+    restart: always
+    environment:
+    - ACCEPT_EULA=1 # accept license agreement
+    - SA_USER=sa
+    - SA_PASSWORD=DataBase1!
+    - DIR_CONFIG=/app/config
+    ports:
+    - 1433:1433
+    volumes:
+    - $PWD/config:/app/config
+    - $PWD/script:/app/script
