@@ -271,3 +271,4 @@ Most of labs are done in Docker. For convenience, common Docker commands are lis
 - SourceTree - Permission denied (publickey): https://community.atlassian.com/t5/Sourcetree-questions/Permission-denied-publickey/qaq-p/594966
 - ssh-agent(1) - Linux man page: https://linux.die.net/man/1/ssh-agent
 - Ubuntu 18.04 Pyenv Build Python 3.7 Common Error: https://code.luasoftware.com/tutorials/linux/ubuntu-pyenv-build-python-37-common-error/
+- Dotfiles – What is a Dotfile and How to Create it in Mac and Linux: https://www.freecodecamp.org/news/dotfiles-what-is-a-dot-file-and-how-to-create-it-in-mac-and-linux/
