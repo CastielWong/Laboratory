@@ -16,6 +16,7 @@
   - [Revert](#revert)
   - [Common Command](#common-command)
 - [Docker](#docker)
+- [Makefile](#makefile)
 - [Reference](#reference)
 
 
@@ -273,6 +274,7 @@ git worktree prune
 ```
 
 
+
 ## Docker
 Most of labs are done in Docker. For convenience, common Docker commands are listed below:
 - `docker run --rm -it {image} bash`: start a container and access it via bash, which would be removed when it's stopped
@@ -280,6 +282,11 @@ Most of labs are done in Docker. For convenience, common Docker commands are lis
 - `docker cp {container_id}:{dir_source}/{file} {dir_target}/{file}`: copy files from container to local directory
 - `docker-compose up --detached`: start containers via `docker-compose`, for whose configuration is usually set in "docker-compose.yml"
 - `docker-compose down`: stop and remove all containers `docker-compose` initiated
+
+
+
+## Makefile
+`make` is available to formalize and unify the way for development.
 
 
 
@@ -297,3 +304,4 @@ Most of labs are done in Docker. For convenience, common Docker commands are lis
 - ssh-agent(1) - Linux man page: https://linux.die.net/man/1/ssh-agent
 - Ubuntu 18.04 Pyenv Build Python 3.7 Common Error: https://code.luasoftware.com/tutorials/linux/ubuntu-pyenv-build-python-37-common-error/
 - Dotfiles – What is a Dotfile and How to Create it in Mac and Linux: https://www.freecodecamp.org/news/dotfiles-what-is-a-dot-file-and-how-to-create-it-in-mac-and-linux/
+- 3 Musketeers: https://3musketeers.io/
