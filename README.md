@@ -6,6 +6,7 @@
     - [Linux](#linux)
   - [Code Quality](#code-quality)
 - [Git](#git)
+  - [Worktree](#worktree)
   - [Permission](#permission)
   - [Branching Model](#branching-model)
     - [GitFlow](#gitflow)
@@ -13,6 +14,7 @@
   - [Tagging](#tagging)
   - [Submodule](#submodule)
   - [Revert](#revert)
+  - [Common Command](#common-command)
 - [Docker](#docker)
 - [Reference](#reference)
 
@@ -21,7 +23,7 @@ This repo is for experiments of any greenfield technologies or some quick catch-
 
 ## Development
 
-After complete a feature branch (after merged), run `bash ./dev/tag_feature.sh '{name}' '{tag description}'` to tag current commit then synchronize for remote.
+After complete a feature branch (after merged), run `bash ./dev/script/tag_feature.sh '{name}' '{tag description}'` to tag current commit then synchronize for remote.
 
 
 
@@ -176,6 +178,16 @@ git remote set-head origin -a
 ```
 
 
+### Worktree
+As Git provides `git worktree` feature since 2.5, it's easier to maintain changes or working between branches.
+
+Run
+`git worktree add -b <new_branch> worktree/<new_branch> main`
+or
+`sh dev/script/set_worktree.sh <feature_name>`
+to set up the new feature via worktree.
+
+
 ### Permission
 ```sh
 # check configuration
@@ -245,6 +257,19 @@ To revert a file to previous commit, run:
 git rev-list -n <n> HEAD <file>
 # revert the file to the specified commit softly
 git reset <commit> <file>
+```
+
+
+### Common Command
+Common commands used:
+```sh
+git stash
+git stash list
+git stash pop
+git stash drop
+
+git worktree list
+git worktree prune
 ```
 
 
