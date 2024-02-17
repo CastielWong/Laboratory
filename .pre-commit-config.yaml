@@ -18,7 +18,7 @@ repos:
   # - id: no-commit-to-branch
   #   args: [--branch, master]
 - repo: https://github.com/ambv/black
-  rev: 24.1.0
+  rev: 24.2.0
   hooks:
   - id: black
     language_version: python3.8
@@ -29,7 +29,7 @@ repos:
     args:
     - -m=VERTICAL_HANGING_INDENT
     # specify the directory for --from-first is mandatory
-    - --from-first=.
+    - --from-first
     - --only-sections
     # need the trailing comma to avoid the conflict with black's auto-formatting
     - --trailing-comma
