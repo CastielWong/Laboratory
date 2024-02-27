@@ -7,12 +7,12 @@ services:
     container_name: lab-sql-server
     deploy:
       resources:
-      limits:
-        cpus: "0.50"
-        memory: 1500M
-      reservations:
-        cpus: "0.25"
-        memory: 1000M
+        limits:
+          cpus: "0.50"
+          memory: 1500M
+        reservations:
+          cpus: "0.25"
+          memory: 1000M
     command: /opt/mssql/bin/sqlservr
     restart: always
     environment:

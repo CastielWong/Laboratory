@@ -22,53 +22,65 @@ repos:
   hooks:
   - id: black
     language_version: python3.8
-- repo: https://github.com/pycqa/isort
-  rev: 5.13.2
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.2.2
   hooks:
-  - id: isort
+  - id: ruff-format
     args:
-    - -m=VERTICAL_HANGING_INDENT
-    # specify the directory for --from-first is mandatory
-    - --from-first
-    - --only-sections
-    # need the trailing comma to avoid the conflict with black's auto-formatting
-    - --trailing-comma
-- repo: https://github.com/pycqa/flake8
-  rev: 7.0.0
-  hooks:
-  - id: flake8
+    - --config
+    - dev/ruff.toml
+  - id: ruff
     args:
-    - --max-line-length=88
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.8.0
-  hooks:
-  - id: mypy
-    args:
-    - --config-file=dev/mypy.ini
-    - --no-strict-optional
-    # - --ignore-missing-imports
-    # - --namespace-packages
-    # - --explicit-package-bases
-- repo: https://github.com/pre-commit/mirrors-pylint
-  rev: v3.0.0a5
-  hooks:
-  - id: pylint
-    args:
-    - --rcfile=dev/.pylintrc
-    - --disable=C0301 # (line-too-long)
-    - --disable=E0401 # (import-error)
-    # note that the pattern below is not feasible:
-    # "(?:(?P<custom>)|(?P<snake>([^\\W\\dA-Z][^\\WA-Z]{2,}|_[^\\WA-Z]*|__[^\\WA-Z\\d_][^\\WA-Z]+__)))$"
-    - --variable-rgx=(?:(?P<custom>(df|[^\W\dA-Z][^\WA-Z]{2,}|_[^\WA-Z]*|__[^\WA-Z\d_][^\WA-Z]+__)))$
-    - --include-naming-hint=y
-- repo: https://github.com/PyCQA/pydocstyle
-  rev: 6.3.0
-  hooks:
-  - id: pydocstyle
-    language_version: python3
-- repo: https://github.com/PyCQA/bandit
-  rev: 1.7.7
-  hooks:
-  - id: bandit
-    args:
-    - -c=dev/bandit.yaml
+    - --config
+    - dev/ruff.toml
+    - --fix
+# - repo: https://github.com/pycqa/isort
+#   rev: 5.13.2
+#   hooks:
+#   - id: isort
+#     args:
+#     - -m=VERTICAL_HANGING_INDENT
+#     # specify the directory for --from-first is mandatory
+#     - --from-first
+#     - --only-sections
+#     # need the trailing comma to avoid the conflict with black's auto-formatting
+#     - --trailing-comma
+# - repo: https://github.com/pycqa/flake8
+#   rev: 7.0.0
+#   hooks:
+#   - id: flake8
+#     args:
+#     - --max-line-length=88
+# - repo: https://github.com/pre-commit/mirrors-mypy
+#   rev: v1.8.0
+#   hooks:
+#   - id: mypy
+#     args:
+#     - --config-file=dev/mypy.ini
+#     - --no-strict-optional
+#     # - --ignore-missing-imports
+#     # - --namespace-packages
+#     # - --explicit-package-bases
+# - repo: https://github.com/pre-commit/mirrors-pylint
+#   rev: v3.0.0a5
+#   hooks:
+#   - id: pylint
+#     args:
+#     - --rcfile=dev/.pylintrc
+#     - --disable=C0301 # (line-too-long)
+#     - --disable=E0401 # (import-error)
+#     # note that the pattern below is not feasible:
+#     # "(?:(?P<custom>)|(?P<snake>([^\\W\\dA-Z][^\\WA-Z]{2,}|_[^\\WA-Z]*|__[^\\WA-Z\\d_][^\\WA-Z]+__)))$"
+#     - --variable-rgx=(?:(?P<custom>(df|[^\W\dA-Z][^\WA-Z]{2,}|_[^\WA-Z]*|__[^\WA-Z\d_][^\WA-Z]+__)))$
+#     - --include-naming-hint=y
+# - repo: https://github.com/PyCQA/pydocstyle
+#   rev: 6.3.0
+#   hooks:
+#   - id: pydocstyle
+#     language_version: python3
+# - repo: https://github.com/PyCQA/bandit
+#   rev: 1.7.7
+#   hooks:
+#   - id: bandit
+#     args:
+#     - -c=dev/bandit.yaml
