@@ -108,7 +108,7 @@ In order to manage a container's lifecycle, Kubernetes requires a __container ru
 
 Kubernetes supports many container runtimes:
 - Docker: although a container platform which uses "containerd" as a container runtime, it is the most popular container runtime used with Kubernetes
-- CRI-O: Container Runtime Interface, a lightweight OCI-compatible (Open Container Initiative)container runtime for Kubernetes, it also supports Docker image registries
+- CRI-O: Container Runtime Interface, a lightweight OCI-compatible (Open Container Initiative) container runtime for Kubernetes, it also supports Docker image registries
 - containerd: a simple and portable container runtime providing robustness
 - frakti: a hypervisor-based container runtime for Kubernetes
 
