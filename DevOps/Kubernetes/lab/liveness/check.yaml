@@ -13,14 +13,14 @@ spec:
     - -c
     - touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600
     livenessProbe:
-      # # checking command
-      # exec:
-      #   command:
-      #   - cat
-      #   - /tmp/healthy
-      # initialDelaySeconds: 3
-      # failureThreshold: 1
-      # periodSeconds: 5
+      # checking command
+      exec:
+        command:
+        - cat
+        - /tmp/healthy
+      initialDelaySeconds: 3
+      failureThreshold: 1
+      periodSeconds: 5
 
       # # checking HTTP request
       # httpGet:

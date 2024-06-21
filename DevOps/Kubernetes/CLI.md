@@ -84,7 +84,7 @@ kubectl expose deployment {deployment-name} --name={service-name} --type={servic
 # watch the pod
 kubectl get pod {pod-name} -w
 
-kubectl apply -f <config>.yaml
+kubectl apply -f {config}.yaml
 kubectl delete -f {config}.yaml
 
 kubectl create configmap {cm-name} \

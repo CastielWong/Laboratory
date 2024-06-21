@@ -13,6 +13,7 @@
 Minikube CLI is used for start/delete the cluster; while Kubectl CLI is used for configuring the Minikube cluster.
 
 ## Common Command
+To run Minikube with "hyperkit", Docker is needed to up and running.
 
 ```sh
 minikube addons list
@@ -31,7 +32,14 @@ minikube profile list
 minikube stop
 
 # access to http://localhost:{port}/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
-minkube dashboard
+minikube dashboard
+
+
+# check the external IP of minikube exposed
+minikube ip
+#  access service created
+minikube service {svc}
+
 
 
 ## delete all
@@ -112,6 +120,8 @@ sudo chmod u+s /usr/local/opt/docker-machine-driver-hyperkit/bin/docker-machine-
 # install the minikube
 brew install minikube
 
+# remove existing cluster in case conflict
+# minikube delete
 minikube start --vm-driver=hyperkit
 
 kubectl get nodes
@@ -139,3 +149,4 @@ By describing a running Kubernetes pod, it's feasible to extract the Container I
 ## Reference
 - How to Install VirtualBox on CentOS 7: https://linuxize.com/post/how-to-install-virtualbox-on-centos-7/
 - minikube start: https://minikube.sigs.k8s.io/docs/start/
+- Install Minikube: https://k8s-docs.netlify.app/en/docs/tasks/tools/install-minikube/
