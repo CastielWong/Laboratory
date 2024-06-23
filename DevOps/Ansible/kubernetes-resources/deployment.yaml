@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ansible-nginx-dpl
+  namespace: ansible-check
+  labels:
+    demo: ansible
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ansible-nginx
+  template:
+    metadata:
+      labels:
+        app: ansible-nginx
+    spec:
+      containers:
+      - name: ansible-nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+          name: nginx-port
