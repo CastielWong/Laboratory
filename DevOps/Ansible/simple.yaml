@@ -1,0 +1,10 @@
+---
+- name: Try the play
+  hosts: local_machine
+  tasks:
+  - name: Ping local server
+    ansible.builtin.ping:
+
+  - name: Print message
+    ansible.builtin.debug:
+      msg: Hello world

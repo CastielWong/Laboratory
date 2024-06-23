@@ -414,3 +414,4 @@ Each configuration has three parts:
   - challenge: https://codeburst.io/kubernetes-ckad-weekly-challenges-overview-and-tips-7282b36a2681
   - network: https://editor.cilium.io
 - Illustrated Guide To Kubernetes Networking: https://speakerdeck.com/thockin/illustrated-guide-to-kubernetes-networking
+- Graceful shutdown in Kubernetes: https://learnk8s.io/graceful-shutdown

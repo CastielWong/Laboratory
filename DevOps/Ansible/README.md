@@ -36,7 +36,10 @@ ansible-playbook -i inventory.ini playbook.yaml
 
 
 ## Local Check
-Utilize Minikube or similar to launch up containers to try the usage of Ansible.
+Utilize Minikube or similar to launch up K8S cluster to try the usage of Ansible, where:
+- Control Node: local machine
+- Managed Nodes: nodes set up by Minikube
+
 
 ```sh
 # set env to ensure the Python interpreter running Ansible is correct
@@ -44,12 +47,39 @@ export ANSIBLE_PYTHON_INTERPRETER={python_env}/bin/python
 
 # "kubernetes" is needed for Ansible to interact with K8S cluster
 pip install kubernetes
+ansible-galaxy collection install kubernetes.core
+
+# start Minikube cluster
+minikube start --vm-driver=hyperkit
 
 # run the playbook prepared
 ansible-playbook -i inventory.ini nginx-playbook.yaml
 ```
 
-Check the IP of Minikube via `minikube ip`, then access to "{IP}:30010" for verification.
+Check the IP of Minikube then access to "{IP}:30010" for verification:
+```sh
+# verify the temporary file is created
+cat /tmp/testing.txt
+
+kubectl get all --namespace=ansible-check
+
+minikube ip
+```
+
+
+To clean up after exploration:
+```sh
+rm /tmp/testing.txt
+
+# easiest way
+minikube delete
+
+# -------------------------------------------------------------------------------------
+
+# more formal way
+kubectl delete -f kubernetes-resources/deployment.yaml
+kubectl delete -f kubernetes-resources/service.yaml
+```
 
 
 ## Reference
