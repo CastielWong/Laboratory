@@ -1,0 +1,43 @@
+---
+application:
+  name: demo_helm # the name of the app, used as deployment name and in labels
+  role: backend # may be backend, middleware or something else, used in labels
+  port: 80 # port on which the main container listens
+  labels:
+    app: demo
+    role: developer
+    release: 0.1.0
+
+image:
+  name: nginx:1.27 # Name and tag of the image, e.g. alpine:latest
+  registry: docker.io # Docker registry for the image
+
+replicaCount: 3 # number of replicas for the deployment
+revisionHistoryLimit: 5 # number of revision history entries
+
+probes:
+  readiness:
+    path: "/" # path for http Get probe
+    initialDelay: 20 # initialDelay for the probe
+    timeoutSeconds: 120 # timeout for the probe
+    periodSeconds: 20 # how often the probe should be executed
+    failureThreshold: 3 # how many times it can fail before failing the whole probe
+  liveness:
+    path: "/" # path for http Get probe
+    initialDelay: 5 # initialDelay for the probe
+    timeoutSeconds: 60 # timeout for the probe
+    periodSeconds: 10 # how often the probe should be executed
+    failureThreshold: 3 # how many times it can fail before failing the whole probe
+
+resources:
+  memory:
+    request: "128Mi" # Memory request for the app container
+    limit: "256Mi" # Memory limit for the app container
+  cpu:
+    request: "250m" # CPU request for the app container
+    limit: "500m" # CPU limit for the app container
+
+env: # key-value definition of environment variables, example below
+  CUSTOM_VAR_1: 123
+  CUSTOM_VAR_2: some-value
+# ...

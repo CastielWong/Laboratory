@@ -1,6 +1,7 @@
 
 - [Concept](#concept)
 - [Common Command](#common-command)
+- [Template](#template)
 - [Reference](#reference)
 
 Helm helps to manage Kubernetes applications — Helm Charts help to define, install, and
@@ -47,6 +48,10 @@ helm install -f {config}.yaml {chart} --generate-name
 helm create {chart}
 helm package {chart}
 
+# note that it must be "Chart.yaml", and files inside "templates/"
+helm template {release} -f {values}.yaml --dry-run=client .
+
+
 # release
 helm list --all
 helm status {release}
@@ -59,6 +64,39 @@ helm rollback {RELEASE} {REVISION}
 # uninstall a release
 helm uninstall {release}
 ```
+
+
+## Template
+Helm provides templates for built-in objects, one of which is the __Values__.
+__Values__ provides access to values passed into the chart.
+
+Its contents come from multiple sources:
+- the "values.yaml" file in the chart
+- if this is a subchart, the "values.yaml" file of a parent chart
+- a values file if passed into `helm install` or `helm upgrade` with the `-f` flag,
+like `helm install -f {value}.yaml ./{chart}`
+- individual parameters passed with `--set`,
+like `helm install --set {key}={value} ./{chart}`
+
+The list above is in order of specificity: "values.yaml" is the default, which can be
+overridden by a parent chart's "values.yaml", which can in turn be overridden by a
+user-supplied values file, which can in turn be overridden by `--set` parameters.
+
+For instance:
+- values.yaml
+    ```yaml
+    a_key: a_value
+    ```
+- config_map.yaml:
+    ```yaml
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+        name: {{ .Release.Name }}-configmap
+    data:
+        demo: "Hello World"
+        key_value: {{ .Values.a_key }}
+    ```
 
 
 ## Reference

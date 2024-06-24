@@ -1,8 +1,8 @@
 
-Since the RDS is created inside a private subset, so it's needed to get into the provided instance so that to access the database.
+Since the RDS is created inside a private subset, it's needed to get into the
+provided instance for database accessing.
 
 Connect to the instance, then run:
-
 ```sh
 sudo apt-get install -y mysql-client
 

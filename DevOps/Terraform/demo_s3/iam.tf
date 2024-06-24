@@ -42,5 +42,4 @@ resource "aws_iam_role_policy" "demo-ec2-s3-policy" {
     ]
 }
 EOF
-
 }

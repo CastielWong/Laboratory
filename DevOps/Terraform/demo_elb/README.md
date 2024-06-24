@@ -1,6 +1,5 @@
 
-To generate load for testiing, run:
-
+To generate load for testing, run:
 ```sh
 sudo apt-get update
 sudo apt-get install stress

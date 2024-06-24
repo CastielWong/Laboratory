@@ -1,0 +1,56 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.application.name }}
+  labels:
+    app: {{ .Values.application.name }}
+    role: {{ .Values.application.role }}
+    release: {{ .Values.application.labels.release }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      app: {{ .Values.application.name }}
+      role: {{ .Values.application.role }}
+      release: {{ .Values.application.labels.release }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.application.name }}
+        role: {{ .Values.application.role }}
+        release: {{ .Values.application.labels.release }}
+    spec:
+      containers:
+      - name: probing
+        image: {{ .Values.image.registry }}/{{ .Values.image.name }}
+        resources:
+          requests:
+            memory: "{{ .Values.resources.memory.request }}"
+            cpu: "{{ .Values.resources.cpu.request }}"
+          limits:
+            memory: "{{ .Values.resources.memory.limit }}"
+            cpu: "{{ .Values.resources.cpu.limit }}"
+        env:
+        - name: CUSTOM_VAR_1
+          value: "{{ .Values.env.CUSTOM_VAR_1 }}"
+        - name: CUSTOM_VAR_2
+          value: "{{ .Values.env.CUSTOM_VAR_2 }}"
+        ports:
+        - containerPort: {{ .Values.application.port }}
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.application.port }}
+          initialDelaySeconds: {{ .Values.probes.readiness.initialDelay }}
+          timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+          periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+          failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.probes.liveness.path }}
+            port: {{ .Values.application.port }}
+          initialDelaySeconds: {{ .Values.probes.liveness.initialDelay }}
+          timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+          periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+          failureThreshold: {{ .Values.probes.liveness.failureThreshold }}

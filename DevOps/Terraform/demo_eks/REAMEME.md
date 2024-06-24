@@ -1,11 +1,11 @@
 
-See https://www.terraform.io/docs/providers/aws/guides/eks-getting-started.html for full guide.
+Check out https://www.terraform.io/docs/providers/aws/guides/eks-getting-started.html
+for full guide.
 
 It may take around 20 minutes to create/destroy all of the services.
 
 
 ## Setup
-
 ```sh
 # setup kubectl
 brew install kubernetes-cli
@@ -16,7 +16,6 @@ brew install aws-iam-authenticator
 
 
 ## Configuration
-
 ```sh
 # save or append output in ~/.kube/config
 terraform output kubeconfig >> ~/.kube/config
@@ -29,7 +28,6 @@ kubectl apply -f {config}.yaml
 
 
 ## Running
-
 ```sh
 kubectl get nodes
 
