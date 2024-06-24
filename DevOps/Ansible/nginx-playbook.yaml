@@ -1,0 +1,39 @@
+---
+- name: Create a temporary file for Ansible to test on local machine
+  hosts: local_machine
+  tasks:
+    - name: Create a temporary file
+      file:
+        path: /tmp/testing.txt
+        state: touch
+
+- name: Create namespace for Ansible's check
+  hosts: local_machine
+  vars:
+    ansible_python_interpreter: "{{ lookup('env', 'ANSIBLE_PYTHON_INTERPRETER') | default('/usr/bin/python3') }}"
+  tasks:
+    - name: Create a Kubernetes namespace
+      kubernetes.core.k8s:
+        kubeconfig: "{{ lookup('env', 'HOME') }}/.kube/config"
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: ansible-check
+
+- name: Deploy Nginx to Minikube
+  hosts: local_machine
+  vars:
+    ansible_python_interpreter: "{{ lookup('env', 'ANSIBLE_PYTHON_INTERPRETER') | default('/usr/bin/python3') }}"
+  tasks:
+    - name: Create Nginx deployment
+      kubernetes.core.k8s:
+        kubeconfig: "{{ lookup('env', 'HOME') }}/.kube/config"
+        state: present
+        definition: "{{ lookup('template', playbook_dir + '/kubernetes-resources/deployment.yaml') }}"
+    - name: Create Nginx service
+      kubernetes.core.k8s:
+        kubeconfig: "{{ lookup('env', 'HOME') }}/.kube/config"
+        state: present
+        definition: "{{ lookup('template', playbook_dir + '/kubernetes-resources/service.yaml') }}"

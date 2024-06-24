@@ -24,6 +24,7 @@ minikube start
 
 minikube status
 
+# get into minikube to install tool needed
 minikube ssh
 
 # get driver
@@ -39,7 +40,6 @@ minikube dashboard
 minikube ip
 #  access service created
 minikube service {svc}
-
 
 
 ## delete all
