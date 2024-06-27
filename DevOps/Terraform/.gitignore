@@ -7,6 +7,6 @@ demo.tf
 demo.log
 demo.json
 
-!demo_packer/sample/scripts/init.sh
-!demo_template_file/scripts/init.cfg
-!demo_template_file/scripts/volumes.sh
+!demo/packer/sample/scripts/init.sh
+!demo/template_file/scripts/init.cfg
+!demo/template_file/scripts/volumes.sh

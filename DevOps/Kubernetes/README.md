@@ -162,7 +162,7 @@ Once the Deployment object is created, the Kubernetes system attaches the `statu
 
 ### Namespace
 - names of the resources/objects created inside a `Namespace` are unique, but not across namespaces in the cluster
-- Kubernetes creates four namespaces out of the box generally:
+- Kubernetes creates 4 namespaces out of the box generally:
   - `kube-system` contains the objects created by the Kubernetes system, mostly the control plane agents
   - `kube-public` is a special namespace, which is unsecured and readable by anyone, used for special purposes such as exposing public (non-sensitive) information about the cluster
   - `kube-node-lease` is the newest, which holds node lease objects used for node heartbeat data
@@ -389,7 +389,7 @@ There are three main points to remember with authentication in Kubernetes:
 - Node
 - ABAC (Attribute-Based Access Control)
 - Webhook
-- RBAC (Role-BasedAccess Control)
+- RBAC (Role-Based Access Control)
   - Role: grants access to resources within a specific Namespace
   - ClusterRole: grants the same permissions as Role does, but its scope is cluster-wide
 
