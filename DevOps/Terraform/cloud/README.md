@@ -27,19 +27,33 @@ Ensure:
 Service provided:
 - EC2
   - Key Pair: need to generate it locally beforehand and have it updated
-- IAM
-- VPC
   - Security Group
+- IAM: User, Policy, Role
+- VPC: Subnet, Internet Gateway, Route Table
 - S3
+  - Bucket Policy
 
 ### Credential
 By default, its configuration directory is: "$HOME/.aws/"
 
 https://us-east-1.console.aws.amazon.com/iam/home#/security_credentials
 
-### Check
-Run `ssh -i ~/.ssh/<private_key> ec2-user@<public_ip>` to verify the instance is up and running.
-
+### Verification
+- EC2: check the instance is up and running
+    - access via `ssh -i ~/.ssh/<private_key> ec2-user@<public_ip>`
+    - verify associated components:
+        - Key Pair
+        - Security Group
+        - IAM Role
+        - VPC
+        - Subnet: public IP provided
+- VPC: verify connection between components
+    - Subnet, Route Table, Internet Gateway
+- S3: bucket is available
+- IAM: verify User is assumed by the Role via Policy
+    - User, Role, Policy
+    - Role with User has Policy (permission) attached
+    - User has Policy (assuming) attached with Role
 
 ## Azure
 Ensure Azure CLI is installed.
