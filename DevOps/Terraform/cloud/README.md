@@ -26,9 +26,20 @@ Ensure:
 
 Service provided:
 - EC2
+  - Key Pair: need to generate it locally beforehand and have it updated
 - IAM
-- VPN
+- VPC
+  - Security Group
 - S3
+
+### Credential
+By default, its configuration directory is: "$HOME/.aws/"
+
+https://us-east-1.console.aws.amazon.com/iam/home#/security_credentials
+
+### Check
+Run `ssh -i ~/.ssh/<private_key> ec2-user@<public_ip>` to verify the instance is up and running.
+
 
 ## Azure
 Ensure Azure CLI is installed.

@@ -1,11 +1,8 @@
 
-terraform.tfvars
-demo_tf_key*
+.terraform.lock*
 *.txt
+terraform.tfvars
 
-demo.tf
-demo.log
-demo.json
 
 !demo/packer/sample/scripts/init.sh
 !demo/template_file/scripts/init.cfg
