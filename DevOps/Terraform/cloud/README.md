@@ -72,5 +72,4 @@ Ensure gcloud CLI is installed.
 
 ```sh
 gcloud auth application-default login
-
 ```
