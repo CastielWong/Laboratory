@@ -1,9 +1,36 @@
+# -------------------------------------------------------------------------------------
+#
+# -------------------------------------------------------------------------------------
+# define default tags
+variable "default_tags" {
+  type        = map(string)
+  description = "Default tags to be applied to all resources"
+  default = {
+    DEMO = "Terraform"
+  }
+}
 
+variable "region" {
+  type     = string
+  nullable = false
+}
+
+variable "ssh_pub" {
+  type     = string
+  nullable = false
+}
+
+variable "bucket_name" {
+  type     = string
+  nullable = false
+}
+
+# -------------------------------------------------------------------------------------
 terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.0.2"
+      version = "~> 3.110.0"
     }
   }
 
@@ -13,79 +40,154 @@ terraform {
 provider "azurerm" {
   features {}
 
-  default_tags {
-    tags = {
-      DEMO = "Terraform"
-    }
-  }
+  # subscription_id = ""
+  # client_id = ""
+  # client_secret = ""
+  # tenant_id = ""
 }
 
-# resource "azurerm_resource_group" "rg" {
-#   name     = "myTFResourceGroup"
-#   location = "westus2"
 
-#   tags = {
-#     Name = "Terraform Demo"
-#   }
-# }
-
-# -----------------------------------------------------------------------------
+# # -----------------------------------------------------------------------------
 # Resource Group
-resource "azurerm_resource_group" "example" {
-  name     = "terraform-rg"
-  location = "Eastsouth Asia"
+resource "azurerm_resource_group" "terraform_rg" {
+  name     = "TerraformRG"
+  location = var.region
+
+  tags = merge(
+    var.default_tags,
+    {
+      Name = "TerraformRG"
+    }
+  )
+}
+
+# create NetworkWatcherRG explicitly, so that all services can be destroyed properly
+# https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-create
+resource "azurerm_resource_group" "network_watcher_rg" {
+  name     = "NetworkWatcherRG"
+  location = var.region
+
+  tags = merge(
+    var.default_tags,
+    {
+      Name = "DefaultWatcherRG"
+    }
+  )
 }
 
 # -----------------------------------------------------------------------------
 # IAM
-resource "azurerm_storage_account" "terraform" {
-  name                     = "terraformstorageacc"
-  resource_group_name      = azurerm_resource_group.example.name
-  location                 = azurerm_resource_group.example.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
+# resource "azurerm_storage_account" "terraform" {
+#   name                     = "terraformstorageacc"
+#   resource_group_name      = azurerm_resource_group.terraform_rg.name
+#   location                 = azurerm_resource_group.terraform_rg.location
+#   account_tier             = "Standard"
+#   account_replication_type = "LRS"
 
-  tags = {
-    Name = "TerraformStorageAccount"
-  }
+#   tags = merge(
+#     var.default_tags,
+#     {
+#       Name = "TerraformStorageAccount"
+#     }
+#   )
+# }
+
+# resource "azurerm_user_assigned_identity" "terraform" {
+#   name                = "terraform-identity"
+#   resource_group_name = azurerm_resource_group.terraform_rg.name
+#   location            = azurerm_resource_group.terraform_rg.location
+# }
+
+
+# resource "azurerm_role_assignment" "terraform_rg_role" {
+#   scope                = azurerm_resource_group.terraform_rg.id
+#   role_definition_name = "Contributor"
+#   principal_id         = azurerm_user_assigned_identity.terraform.principal_id
+# }
+
+# -----------------------------------------------------------------------------
+# Virtual Network
+resource "azurerm_virtual_network" "terraform_network" {
+  name                = "terraform-vnet"
+  address_space       = ["10.0.0.0/16"]
+  resource_group_name = azurerm_resource_group.terraform_rg.name
+  location            = azurerm_resource_group.terraform_rg.location
+
+  tags = merge(
+    var.default_tags,
+    {
+      Name = "DemoTerraformNetwork"
+    }
+  )
+
+  depends_on = [
+    azurerm_resource_group.network_watcher_rg
+  ]
 }
 
-resource "azurerm_user_assigned_identity" "terraform" {
-  resource_group_name = azurerm_resource_group.example.name
-  location            = azurerm_resource_group.example.location
-  name                = "terraform-identity"
+resource "azurerm_network_watcher" "terraform_network_watcher" {
+  name                = "terraform-nwwatcher"
+  location            = azurerm_resource_group.network_watcher_rg.location
+  resource_group_name = azurerm_resource_group.network_watcher_rg.name
+
+  tags = merge(
+    var.default_tags,
+    {
+      Name = "DefaultNetworkWatcher"
+    }
+  )
 }
 
-resource "azurerm_role_assignment" "example" {
-  scope                = azurerm_resource_group.example.id
-  role_definition_name = "Contributor"
-  principal_id         = azurerm_user_assigned_identity.terraform.principal_id
+resource "azurerm_subnet" "terraform_subnet" {
+  name                 = "terraform-subnet"
+  resource_group_name  = azurerm_resource_group.terraform_rg.name
+  virtual_network_name = azurerm_virtual_network.terraform_network.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
+
+resource "azurerm_public_ip" "terraform_ip" {
+  name                = "terraform-public-ip"
+  resource_group_name = azurerm_resource_group.terraform_rg.name
+  location            = azurerm_resource_group.terraform_rg.location
+  allocation_method   = "Dynamic"
+
+  tags = merge(
+    var.default_tags,
+    {
+      Name = "DemoTerraformPublicIP"
+    }
+  )
 }
 
 # -----------------------------------------------------------------------------
 # Compute Instance
-resource "azurerm_network_interface" "example" {
-  name                = "example-nic"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
+resource "azurerm_network_interface" "terraform_nic" {
+  name                = "terraform-nic"
+  resource_group_name = azurerm_resource_group.terraform_rg.name
+  location            = azurerm_resource_group.terraform_rg.location
 
   ip_configuration {
     name                          = "internal"
-    subnet_id                     = azurerm_subnet.example.id
+    subnet_id                     = azurerm_subnet.terraform_subnet.id
+    private_ip_address_version    = "IPv4"
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.example.id
+    public_ip_address_id          = azurerm_public_ip.terraform_ip.id
   }
 
-  tags = {
-    Name = "DemoTerraformNIC"
-  }
+  tags = merge(
+    var.default_tags,
+    {
+      Name = "TerraformNIC"
+    }
+  )
 }
 
-resource "azurerm_virtual_machine" "example" {
-  name                  = "example-machine"
-  location              = azurerm_resource_group.example.location
-  resource_group_name   = azurerm_resource_group.example.name
-  network_interface_ids = [azurerm_network_interface.example.id]
+resource "azurerm_virtual_machine" "terraform_vm" {
+  name                = "terraform-machine"
+  resource_group_name = azurerm_resource_group.terraform_rg.name
+  location            = azurerm_resource_group.terraform_rg.location
+
+  network_interface_ids = [azurerm_network_interface.terraform_nic.id]
   vm_size               = "Standard_B1s"
 
   storage_image_reference {
@@ -96,73 +198,69 @@ resource "azurerm_virtual_machine" "example" {
   }
 
   storage_os_disk {
-    name              = "myosdisk1"
+    name              = "terraform-os-disk"
     caching           = "ReadWrite"
     create_option     = "FromImage"
+    disk_size_gb      = "30"
     managed_disk_type = "Standard_LRS"
   }
 
   os_profile {
-    computer_name  = "hostname"
-    admin_username = "azureuser"
-    admin_password = "Password1234!"
+    computer_name  = "terraform"
+    admin_username = "developer"
   }
 
   os_profile_linux_config {
-    disable_password_authentication = false
+    disable_password_authentication = true
+    ssh_keys {
+        path     = "/home/developer/.ssh/authorized_keys"
+        key_data = var.ssh_pub
+      }
   }
 
-  identity {
-    type = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.terraform.id]
-  }
+  # identity {
+  #   type         = "UserAssigned"
+  #   identity_ids = [azurerm_user_assigned_identity.terraform.id]
+  # }
 
-  tags = {
-    Name = "DemoTerraformVM"
-  }
+  tags = merge(
+    var.default_tags,
+    {
+      Name = "DemoTerraformVM"
+    }
+  )
 }
 
-resource "azurerm_public_ip" "example" {
-  name                = "example-pip"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-  allocation_method   = "Dynamic"
+# create additional disk then attach
+resource "azurerm_managed_disk" "terraform_disk" {
+  name                = "${azurerm_virtual_machine.terraform_vm.name}-disk"
+  resource_group_name = azurerm_resource_group.terraform_rg.name
+  location            = azurerm_resource_group.terraform_rg.location
 
-  tags = {
-    Name = "DemoTerraformPublicIP"
-  }
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = 16
+
+  tags = merge(
+    var.default_tags,
+    {
+      Name = "TerraformDisk"
+    }
+  )
 }
-
-# -----------------------------------------------------------------------------
-# Virtual Network
-resource "azurerm_virtual_network" "example" {
-  name                = "example-vnet"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-
-  tags = {
-    Name = "DemoTerraformVNet"
-  }
-}
-
-resource "azurerm_subnet" "example" {
-  name                 = "example-subnet"
-  resource_group_name  = azurerm_resource_group.example.name
-  virtual_network_name = azurerm_virtual_network.example.name
-  address_prefixes     = ["10.0.1.0/24"]
-
-  tags = {
-    Name = "DemoTerraformSubnet"
-  }
+resource "azurerm_virtual_machine_data_disk_attachment" "vm_disk_attachment" {
+  managed_disk_id    = azurerm_managed_disk.terraform_disk.id
+  virtual_machine_id = azurerm_virtual_machine.terraform_vm.id
+  lun                = "10"
+  caching            = "ReadWrite"
 }
 
 # -----------------------------------------------------------------------------
 # Network Security Group
-resource "azurerm_network_security_group" "example" {
-  name                = "example-nsg"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
+resource "azurerm_network_security_group" "terraform_nw_sg" {
+  name                = "terraform-network-sg"
+  resource_group_name = azurerm_resource_group.terraform_rg.name
+  location            = azurerm_resource_group.terraform_rg.location
 
   security_rule {
     name                       = "SSH"
@@ -176,28 +274,35 @@ resource "azurerm_network_security_group" "example" {
     destination_address_prefix = "*"
   }
 
-  tags = {
-    Name = "DemoTerraformNSG"
-  }
+  tags = merge(
+    var.default_tags,
+    {
+      Name = "DemoTerraformNetworkSG"
+    }
+  )
 }
 
-resource "azurerm_subnet_network_security_group_association" "example" {
-  subnet_id                 = azurerm_subnet.example.id
-  network_security_group_id = azurerm_network_security_group.example.id
+resource "azurerm_subnet_network_security_group_association" "terraform_nw_sg_association" {
+  subnet_id                 = azurerm_subnet.terraform_subnet.id
+  network_security_group_id = azurerm_network_security_group.terraform_nw_sg.id
 }
 
 # -----------------------------------------------------------------------------
 # Storage
 resource "azurerm_storage_account" "terraform_storage" {
-  name                     = "terraformstorageacc"
-  resource_group_name      = azurerm_resource_group.example.name
-  location                 = azurerm_resource_group.example.location
+  name                = var.bucket_name
+  resource_group_name = azurerm_resource_group.terraform_rg.name
+  location            = azurerm_resource_group.terraform_rg.location
+
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
-  tags = {
-    Name = "TerraformStorageAccount"
-  }
+  tags = merge(
+    var.default_tags,
+    {
+      Name = "DemoTerraformStorageAccount"
+    }
+  )
 }
 
 resource "azurerm_storage_container" "terraform_container" {
@@ -206,13 +311,8 @@ resource "azurerm_storage_container" "terraform_container" {
   container_access_type = "private"
 }
 
-resource "azurerm_role_assignment" "example" {
-  scope                = azurerm_storage_account.terraform_storage.id
-  role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_user_assigned_identity.terraform.principal_id
-}
-
-
-
-
-# -----------------------------------------------------------------------------
+# resource "azurerm_role_assignment" "terraform_storage_role" {
+#   scope                = azurerm_storage_account.terraform_storage.id
+#   role_definition_name = "Storage Blob Data Contributor"
+#   principal_id         = azurerm_user_assigned_identity.terraform.principal_id
+# }

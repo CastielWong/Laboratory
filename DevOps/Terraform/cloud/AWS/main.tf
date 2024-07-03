@@ -11,7 +11,7 @@ variable "ssh_pub" {
 
 # must be a unique bucket name
 variable "bucket_name" {
-  type = string
+  type     = string
   nullable = false
 }
 

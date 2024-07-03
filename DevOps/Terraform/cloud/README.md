@@ -3,8 +3,9 @@
 - [AWS](#aws)
   - [Verification](#verification)
 - [Azure](#azure)
-- [GCP](#gcp)
   - [Verification](#verification-1)
+- [GCP](#gcp)
+  - [Verification](#verification-2)
 
 This directory to keep common infrastructure used among clouds.
 
@@ -38,6 +39,13 @@ chmod 400 "~/.ssh/id_demo_<vendor>"
 For AWS:
 - by default, credential is stored in: "$HOME/.aws/credentials"
 - generate the Access Key and Secret in https://us-east-1.console.aws.amazon.com/iam/home#/security_credentials
+
+For Azure:
+- by default, the subscription is stored in: "$HOME/.azure/clouds.config"
+- a Service Principal is required to create for
+  - `ARM_CLIENT_ID`
+  - `ARM_CLIENT_SECRET`
+  - `ARM_TENANT_ID`
 
 For GCP:
 - by default, credential is stored in: "$HOME/.config/gcloud/application_default_credentials.json"
@@ -86,16 +94,42 @@ export AWS_SECRET_ACCESS_KEY=""
 
 
 ## Azure
-Ensure Azure CLI is installed.
+Ensure:
+- Azure CLI `az` is installed
+
+Service provided:
+- Virtual Machine
 
 ```sh
-# find the id of subscription
+# find the subscription id
 az login
-
-az account set --subscription "<subscription_id>"
-
-az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/<subscription_id>"
+# set up with the subscription
+az account set --subscription "${ARM_SUBSCRIPTION_ID}"
+# create a Service Principal for Terraform to deploy services
+az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/${ARM_SUBSCRIPTION_ID}"
 ```
+
+### Verification
+Note that the storage attached (`storage_os_disk`) to VM OS would be required to
+delete manually as Azure would keep the storage even when its attached VM is destroyed.
+
+- Resource Group: two, one dedicated for the Network Watcher
+- Virtual Machine: check the instance is up and running
+    - access via `ssh -i ~/.ssh/<private_key> developer@<public_ip>`
+    - verify associated components:
+        - Identity?
+        - Managed Disk
+        - Network Interface: public IP provided
+- Virtual Network: verify connection between components
+    - linked with the Resource Group of Network Watcher
+    - Subnet, Public IP, Network Interface
+- Network Security Group: enable SSH connection
+- Storage Account: bucket is available
+
+- IAM: verify User is assumed by the Role via Policy
+    - User, Role, Policy
+    - Role with User has Policy (permission) attached
+    - User has Policy (assuming) attached with Role
 
 
 ## GCP
@@ -105,6 +139,7 @@ Ensure:
 Service provided:
 - Compute Instance
 - Compute Network: Subnetwork, Router, Router NAT, Firewall
+- Storage Bucket
 
 To enable Terraform to launch up GCP:
 ```sh

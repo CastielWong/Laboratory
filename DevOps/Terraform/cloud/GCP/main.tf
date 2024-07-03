@@ -27,6 +27,7 @@ variable "bucket_name" {
   nullable = false
 }
 
+
 # -------------------------------------------------------------------------------------
 terraform {
   required_providers {
