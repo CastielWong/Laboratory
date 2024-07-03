@@ -1,4 +1,10 @@
 
+- [Credential](#credential)
+- [AWS](#aws)
+  - [Verification](#verification)
+- [Azure](#azure)
+- [GCP](#gcp)
+
 This directory to keep common infrastructure used among clouds.
 
 
@@ -10,7 +16,7 @@ control — it's needed to initialize the directory with `terraform init`.
 terraform fmt
 terraform validate
 
-terraform apply
+terraform apply -var-file="<value>.tfvars"
 
 terraform show
 
@@ -18,6 +24,20 @@ terraform state list
 
 terraform destroy
 ```
+
+
+## Credential
+For AWS:
+- by default, credential is stored in: "$HOME/.aws/credentials"
+- generate the Access Key and Secret in https://us-east-1.console.aws.amazon.com/iam/home#/security_credentials
+
+For GCP:
+- by default, credential is stored in: "$HOME/.config/gcloud/application_default_credentials.json"
+- reset the whole configuration by removing "$HOME/.config/gcloud" then `gcloud init`
+- run `gcloud auth application-default login` for the credential
+- copy the default credential to elsewhere then set `GOOGLE_APPLICATION_CREDENTIALS` to it
+- set `gcloud auth application-default set-quota-project <project_id>`
+
 
 ## AWS
 Ensure:
@@ -32,11 +52,6 @@ Service provided:
 - VPC: Subnet, Internet Gateway, Route Table
 - S3
   - Bucket Policy
-
-### Credential
-By default, its configuration directory is: "$HOME/.aws/"
-
-https://us-east-1.console.aws.amazon.com/iam/home#/security_credentials
 
 ### Verification
 - EC2: check the instance is up and running
@@ -55,6 +70,7 @@ https://us-east-1.console.aws.amazon.com/iam/home#/security_credentials
     - Role with User has Policy (permission) attached
     - User has Policy (assuming) attached with Role
 
+
 ## Azure
 Ensure Azure CLI is installed.
 
@@ -62,12 +78,13 @@ Ensure Azure CLI is installed.
 # find the id of subscription
 az login
 
-az account set --subscription "{subscription_id}"
+az account set --subscription "<subscription_id>"
 
 az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/<subscription_id>"
 ```
 
-### GCP
+
+## GCP
 Ensure gcloud CLI is installed.
 
 ```sh
