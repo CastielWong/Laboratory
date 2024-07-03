@@ -4,6 +4,7 @@
   - [Verification](#verification)
 - [Azure](#azure)
 - [GCP](#gcp)
+  - [Verification](#verification-1)
 
 This directory to keep common infrastructure used among clouds.
 
@@ -27,6 +28,13 @@ terraform destroy
 
 
 ## Credential
+Generate SSH key:
+```sh
+ssh-keygen -t rsa -b 2048 -f "~/.ssh/id_demo_<vendor>"
+
+chmod 400 "~/.ssh/id_demo_<vendor>"
+```
+
 For AWS:
 - by default, credential is stored in: "$HOME/.aws/credentials"
 - generate the Access Key and Secret in https://us-east-1.console.aws.amazon.com/iam/home#/security_credentials
@@ -41,7 +49,7 @@ For GCP:
 
 ## AWS
 Ensure:
-- AWS CLI is installed
+- AWS CLI `aws` is installed
 - AWS account and associated credentials allowed to create resources
 
 Service provided:
@@ -85,8 +93,30 @@ az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/<subscrip
 
 
 ## GCP
-Ensure gcloud CLI is installed.
+Ensure:
+- GCP CLI `gcloud` is installed
+
+Service provided:
+- Compute Instance
+- Compute Network: Subnetwork, Router, Router NAT, Firewall
+
 
 ```sh
 gcloud auth application-default login
+```
+
+### Verification
+- Computer Instance: check the instance is up and running
+    - access via `ssh -i ~/.ssh/<private_key> dev@<public_ip>`
+
+
+`gcloud` is another way connecting to the VM:
+```sh
+# login GCP before any further operations
+gcloud auth login
+# set up project
+gcloud config set project "<project_id>"
+
+# ssh to the instance to verify the connection
+gcloud compute ssh "<instance-name>" --zone="<zone>"
 ```

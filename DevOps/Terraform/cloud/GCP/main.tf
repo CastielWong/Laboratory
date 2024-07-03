@@ -1,4 +1,23 @@
+# -------------------------------------------------------------------------------------
+variable "gcp_project_id" {
+  type     = string
+  nullable = false
+}
+# https://cloud.google.com/compute/docs/regions-zones/#identifying_a_region_or_zone
+variable "region" {
+  type    = string
+  default = "asia-east2"
+}
+variable "zone" {
+  type    = string
+  default = "asia-east2-a"
+}
+variable "ssh_pub" {
+  type     = string
+  nullable = false
+}
 
+# -------------------------------------------------------------------------------------
 terraform {
   required_providers {
     google = {
@@ -10,27 +29,17 @@ terraform {
   required_version = ">= 1.2.0"
 }
 
-variable "gcp_project_id" {
-    type = string
-    nullable = false
-}
-
 
 provider "google" {
   project = var.gcp_project_id
 
-  region = "ap-east2-a"
+  region = var.region
   default_labels = {
-    DEMO = "Terraform"
+    demo = "terraform"
   }
 }
 
-resource "google_compute_network" "vpc_network" {
-  name = "terraform-network"
-
-  # project = var.gcp_project_id
-}
-
+# -------------------------------------------------------------------------------------
 # This configuration sets up a service account with the necessary IAM roles,
 # creates a VPC network and subnet, launches a Compute Engine instance with
 # SSH access, and creates a Cloud Storage bucket with appropriate access controls.
@@ -58,100 +67,88 @@ resource "google_compute_network" "vpc_network" {
 #   ]
 # }
 
-# # -----------------------------------------------------------------------------
-# # Compute Instance
-# resource "google_compute_instance" "app_server" {
-#   name         = "terraform-instance"
-#   machine_type = "e2-micro"
-#   zone         = "ap-southeast-1-a"
+# -----------------------------------------------------------------------------
+# VM - Compute Instance
+resource "google_compute_instance" "app_server" {
+  name         = "terraform-instance"
+  machine_type = "e2-micro"
+  zone         = var.zone
 
-#   boot_disk {
-#     initialize_params {
-#       image = "debian-cloud/debian-10"
-#     }
-#   }
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+    auto_delete = true
+  }
 
-#   network_interface {
-#     network       = google_compute_network.vpc_network.id
-#     subnetwork    = google_compute_subnetwork.subnet.id
-#     access_config {}  # ephemeral public IP
-#   }
+  network_interface {
+    # network = "default"
+    network    = google_compute_network.vpc_network.id
+    subnetwork = google_compute_subnetwork.subnet.id
+    access_config {} # ephemeral public IP
+  }
 
-#   service_account {
-#     email  = google_service_account.terraform_service_account.email
-#     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-#   }
+  # service_account {
+  #   email  = google_service_account.terraform_service_account.email
+  #   scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  # }
 
-#   tags = ["allow-ssh"]
+  # https://developer.hashicorp.com/terraform/language/expressions/strings
+  metadata = {
+    "ssh-keys" = <<EOT
+    developer:${var.ssh_pub} developer
+  EOT
+  }
 
-#   labels = {
-#     Name = "DemoTerraform"
-#   }
-# }
+  tags = ["allow-ssh"]
+  labels = {
+    name = "demo_terraform"
+  }
+}
 
-# # -----------------------------------------------------------------------------
-# # VPC
-# resource "google_compute_network" "vpc_network" {
-#   name                    = "terraform-vpc"
-#   auto_create_subnetworks = false
+# -----------------------------------------------------------------------------
+# VPC - Computer Network
+# require "Compute Engingine API" to be enabled
+resource "google_compute_network" "vpc_network" {
+  name                    = "terraform-vpc"
+  auto_create_subnetworks = false
+}
 
-#   labels = {
-#     Name = "terraform-vpc"
-#   }
-# }
+resource "google_compute_subnetwork" "subnet" {
+  name          = "terraform-subnet"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = var.region
+  network       = google_compute_network.vpc_network.id
+}
 
-# resource "google_compute_subnetwork" "subnet" {
-#   name          = "terraform-subnet"
-#   ip_cidr_range = "10.0.1.0/24"
-#   region        = "ap-southeast-1"
-#   network       = google_compute_network.vpc_network.id
+resource "google_compute_router" "router" {
+  name    = "terraform-router"
+  network = google_compute_network.vpc_network.id
+  region  = var.region
+}
 
-#   labels = {
-#     Name = "terraform-subnet"
-#   }
-# }
+resource "google_compute_router_nat" "nat" {
+  name                               = "terraform-nat"
+  router                             = google_compute_router.router.name
+  region                             = var.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+}
 
-# resource "google_compute_router" "router" {
-#   name    = "terraform-router"
-#   network = google_compute_network.vpc_network.id
-#   region  = "ap-southeast-1"
+# Firewall needed to config to allow SSH
+resource "google_compute_firewall" "allow_ssh" {
+  name    = "terraform-ssh"
+  network = google_compute_network.vpc_network.name
 
-#   labels = {
-#     Name = "terraform-router"
-#   }
-# }
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
 
-# resource "google_compute_router_nat" "nat" {
-#   name     = "terraform-nat"
-#   router   = google_compute_router.router.name
-#   region   = "ap-southeast-1"
-#   nat_ip_allocate_option = "AUTO_ONLY"
-#   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+  source_ranges = ["0.0.0.0/0"] # Allow SSH from anywhere
 
-#   labels = {
-#     Name = "terraform-nat"
-#   }
-# }
-
-# # -----------------------------------------------------------------------------
-# # Firewall
-# resource "google_compute_firewall" "allow_ssh" {
-#   name    = "terraform-ssh"
-#   network = google_compute_network.vpc_network.name
-
-#   allow {
-#     protocol = "tcp"
-#     ports    = ["22"]
-#   }
-
-#   source_ranges = ["0.0.0.0/0"]  # Allow SSH from anywhere
-
-#   target_tags = ["allow-ssh"]
-
-#   labels = {
-#     Name = "DemoTerraform"
-#   }
-# }
+  target_tags = ["allow-ssh"]
+}
 
 # # -----------------------------------------------------------------------------
 # # Storage Bucket
