@@ -1,4 +1,22 @@
+# -------------------------------------------------------------------------------------
+# This configuration sets up a service account with the necessary IAM roles,
+# creates a VPC network and subnet, launches a VM instance with SSH access, and
+# creates a cloud storage bucket with appropriate access controls.
+# Adjust the values for SSH key, and any other specifics to fit with requirements.
+# -------------------------------------------------------------------------------------
+variable "ssh_pub" {
+  type     = string
+  nullable = false
+}
 
+# must be a unique bucket name
+variable "bucket_name" {
+  type = string
+  nullable = false
+}
+
+
+# -------------------------------------------------------------------------------------
 terraform {
   required_providers {
     aws = {
@@ -20,7 +38,7 @@ provider "aws" {
   }
 }
 
-# -----------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 # IAM
 resource "aws_iam_user" "terraform_user" {
   name = "terraform_user"
@@ -95,7 +113,7 @@ resource "aws_iam_instance_profile" "terraform_role" {
   role = aws_iam_role.terraform_role.name
 }
 
-# -----------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 # EC2
 resource "aws_instance" "app_server" {
   ami           = "ami-008c09a18ce321b3c"
@@ -113,7 +131,7 @@ resource "aws_instance" "app_server" {
 
 resource "aws_key_pair" "deployer" {
   key_name   = "terraform-key"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDQdXBlbQ+FBR5PIqj4PjpRKfxOZAOHelx+9erZn7iP/vZ4T6W/YTtlDShAS7FzXf1Km55vLrrK3S03c1gMrEcWy6HxxD0taB4h+M/nnNz4zsScmnCrZK36j8V5PszGkCf7vGNkyThHjLUcMWV9d7ts7LYe3hzDVJrdPsfeousu+GHfcqLOMDSkXv95DXG6NJVGGjdrz6qVDhjwAv61kzo0HtV4UZ1DTuCmZsgdTD4Uf3cqIVMXngp/A9m8xixx4eqFZVrkOGEbxSxlwKPDrHnJAY3OV0Sq3kJcpk5/I0hG6En8MWs1GiA0cCifZCQyz1ZcULJEmaifPhlV2OTBdVrN caswexp2024q2@gmail.com"
+  public_key = var.ssh_pub
 }
 
 resource "aws_security_group" "allow_ssh" {
@@ -140,7 +158,7 @@ resource "aws_security_group" "allow_ssh" {
   }
 }
 
-# -----------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 # VPC
 resource "aws_vpc" "deployer" {
   cidr_block = "10.0.0.0/16"
@@ -185,10 +203,10 @@ resource "aws_route_table_association" "deployer" {
   route_table_id = aws_route_table.deployer.id
 }
 
-# -----------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------
 # S3
 resource "aws_s3_bucket" "terraform_bucket" {
-  bucket = "terraform-caswexp2024q2" # must be a unique bucket name
+  bucket = var.bucket_name
 
   tags = {
     Name = "terraform_bucket"

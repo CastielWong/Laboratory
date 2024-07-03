@@ -61,6 +61,12 @@ Service provided:
 - S3
   - Bucket Policy
 
+To enable Terraform to launch up AWS:
+```sh
+export AWS_ACCESS_KEY_ID=""
+export AWS_SECRET_ACCESS_KEY=""
+```
+
 ### Verification
 - EC2: check the instance is up and running
     - access via `ssh -i ~/.ssh/<private_key> ec2-user@<public_ip>`
@@ -100,15 +106,21 @@ Service provided:
 - Compute Instance
 - Compute Network: Subnetwork, Router, Router NAT, Firewall
 
-
+To enable Terraform to launch up GCP:
 ```sh
 gcloud auth application-default login
 ```
 
 ### Verification
 - Computer Instance: check the instance is up and running
-    - access via `ssh -i ~/.ssh/<private_key> dev@<public_ip>`
-
+    - access via `ssh -i ~/.ssh/<private_key> developer@<public_ip>`
+    - verify associated components:
+        - Service Account
+        - Compute Network
+        - Compute Subnetwork: public IP provided
+- Compute Network: verify connection between components
+    - Compute Subnetwork, Compute Router, Compute NAT, Compute Firewall
+- Storage Bucket: bucket is available
 
 `gcloud` is another way connecting to the VM:
 ```sh

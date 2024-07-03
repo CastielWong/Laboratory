@@ -1,4 +1,9 @@
 # -------------------------------------------------------------------------------------
+# This configuration sets up a service account with the necessary IAM roles,
+# creates a VPC network and subnet, launches a VM instance with SSH access, and
+# creates a cloud storage bucket with appropriate access controls.
+# Adjust the values for SSH key, and any other specifics to fit with requirements.
+# -------------------------------------------------------------------------------------
 variable "gcp_project_id" {
   type     = string
   nullable = false
@@ -13,6 +18,11 @@ variable "zone" {
   default = "asia-east2-a"
 }
 variable "ssh_pub" {
+  type     = string
+  nullable = false
+}
+
+variable "bucket_name" {
   type     = string
   nullable = false
 }
@@ -39,33 +49,23 @@ provider "google" {
   }
 }
 
-# -------------------------------------------------------------------------------------
-# This configuration sets up a service account with the necessary IAM roles,
-# creates a VPC network and subnet, launches a Compute Engine instance with
-# SSH access, and creates a Cloud Storage bucket with appropriate access controls.
-# Adjust the values for your project, region, and any other specifics to
-# fit your requirements.
-
 # -----------------------------------------------------------------------------
-# # IAM
-# resource "google_service_account" "terraform_service_account" {
-#   account_id   = "terraform-service-account"
-#   display_name = "Terraform Service Account"
+# IAM - Service Account
+resource "google_service_account" "terraform_service_account" {
+  account_id   = "terraform-service-account"
+  display_name = "Terraform Service Account"
+  description  = "created for demo"
+}
 
-#   labels = {
-#     Name = "TerraformUser"
-#   }
-# }
+resource "google_project_iam_member" "service_account_role" {
+  project = var.gcp_project_id
+  role    = "roles/editor"
+  member  = "serviceAccount:${google_service_account.terraform_service_account.email}"
 
-# resource "google_project_iam_member" "service_account_role" {
-#   project = var.project
-#   role    = "roles/editor"
-#   member  = "serviceAccount:${google_service_account.terraform_service_account.email}"
-
-#   depends_on = [
-#     google_service_account.terraform_service_account
-#   ]
-# }
+  depends_on = [
+    google_service_account.terraform_service_account
+  ]
+}
 
 # -----------------------------------------------------------------------------
 # VM - Compute Instance
@@ -88,10 +88,10 @@ resource "google_compute_instance" "app_server" {
     access_config {} # ephemeral public IP
   }
 
-  # service_account {
-  #   email  = google_service_account.terraform_service_account.email
-  #   scopes = ["https://www.googleapis.com/auth/cloud-platform"]
-  # }
+  service_account {
+    email  = google_service_account.terraform_service_account.email
+    scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  }
 
   # https://developer.hashicorp.com/terraform/language/expressions/strings
   metadata = {
@@ -150,19 +150,20 @@ resource "google_compute_firewall" "allow_ssh" {
   target_tags = ["allow-ssh"]
 }
 
-# # -----------------------------------------------------------------------------
-# # Storage Bucket
-# resource "google_storage_bucket" "terraform_bucket" {
-#   name     = "terraform-caswexp2024q2"
-#   location = ""
+# -----------------------------------------------------------------------------
+# Storage Bucket
+# https://cloud.google.com/storage/docs/locations
+resource "google_storage_bucket" "terraform_bucket" {
+  name     = var.bucket_name
+  location = upper(var.region)
 
-#   labels = {
-#     Name = "terraform_bucket"
-#   }
-# }
+  labels = {
+    name = "terraform-bucket"
+  }
+}
 
-# resource "google_storage_bucket_iam_member" "bucket_policy" {
-#   bucket = google_storage_bucket.terraform_bucket.name
-#   role   = "roles/storage.admin"
-#   member = "serviceAccount:${google_service_account.terraform_service_account.email}"
-# }
+resource "google_storage_bucket_iam_member" "bucket_policy" {
+  bucket = google_storage_bucket.terraform_bucket.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:${google_service_account.terraform_service_account.email}"
+}
