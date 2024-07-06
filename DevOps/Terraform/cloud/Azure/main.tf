@@ -76,36 +76,6 @@ resource "azurerm_resource_group" "network_watcher_rg" {
 }
 
 # -----------------------------------------------------------------------------
-# IAM
-# resource "azurerm_storage_account" "terraform" {
-#   name                     = "terraformstorageacc"
-#   resource_group_name      = azurerm_resource_group.terraform_rg.name
-#   location                 = azurerm_resource_group.terraform_rg.location
-#   account_tier             = "Standard"
-#   account_replication_type = "LRS"
-
-#   tags = merge(
-#     var.default_tags,
-#     {
-#       Name = "TerraformStorageAccount"
-#     }
-#   )
-# }
-
-# resource "azurerm_user_assigned_identity" "terraform" {
-#   name                = "terraform-identity"
-#   resource_group_name = azurerm_resource_group.terraform_rg.name
-#   location            = azurerm_resource_group.terraform_rg.location
-# }
-
-
-# resource "azurerm_role_assignment" "terraform_rg_role" {
-#   scope                = azurerm_resource_group.terraform_rg.id
-#   role_definition_name = "Contributor"
-#   principal_id         = azurerm_user_assigned_identity.terraform.principal_id
-# }
-
-# -----------------------------------------------------------------------------
 # Virtual Network
 resource "azurerm_virtual_network" "terraform_network" {
   name                = "terraform-vnet"
@@ -218,10 +188,10 @@ resource "azurerm_virtual_machine" "terraform_vm" {
       }
   }
 
-  # identity {
-  #   type         = "UserAssigned"
-  #   identity_ids = [azurerm_user_assigned_identity.terraform.id]
-  # }
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.terraform.id]
+  }
 
   tags = merge(
     var.default_tags,
@@ -289,7 +259,7 @@ resource "azurerm_subnet_network_security_group_association" "terraform_nw_sg_as
 
 # -----------------------------------------------------------------------------
 # Storage
-resource "azurerm_storage_account" "terraform_storage" {
+resource "azurerm_storage_account" "terraform_bucket" {
   name                = var.bucket_name
   resource_group_name = azurerm_resource_group.terraform_rg.name
   location            = azurerm_resource_group.terraform_rg.location
@@ -307,12 +277,29 @@ resource "azurerm_storage_account" "terraform_storage" {
 
 resource "azurerm_storage_container" "terraform_container" {
   name                  = "content"
-  storage_account_name  = azurerm_storage_account.terraform_storage.name
+  storage_account_name  = azurerm_storage_account.terraform_bucket.name
   container_access_type = "private"
 }
 
-# resource "azurerm_role_assignment" "terraform_storage_role" {
-#   scope                = azurerm_storage_account.terraform_storage.id
-#   role_definition_name = "Storage Blob Data Contributor"
-#   principal_id         = azurerm_user_assigned_identity.terraform.principal_id
-# }
+# -----------------------------------------------------------------------------
+# IAM
+resource "azurerm_user_assigned_identity" "terraform" {
+  name                = "terraform-identity"
+  resource_group_name = azurerm_resource_group.terraform_rg.name
+  location            = azurerm_resource_group.terraform_rg.location
+}
+
+# assign user to the resource group
+resource "azurerm_role_assignment" "terraform_rg_role" {
+  principal_id         = azurerm_user_assigned_identity.terraform.principal_id
+  scope                = azurerm_resource_group.terraform_rg.id
+  role_definition_name = "Contributor"
+
+}
+
+# assign user to the bucket
+resource "azurerm_role_assignment" "terraform_storage_role" {
+  principal_id         = azurerm_user_assigned_identity.terraform.principal_id
+  scope                = azurerm_storage_account.terraform_bucket.id
+  role_definition_name = "Storage Blob Data Contributor"
+}

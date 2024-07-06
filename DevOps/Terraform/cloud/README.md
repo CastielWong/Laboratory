@@ -3,6 +3,7 @@
 - [AWS](#aws)
   - [Verification](#verification)
 - [Azure](#azure)
+  - [Service Principal](#service-principal)
   - [Verification](#verification-1)
 - [GCP](#gcp)
   - [Verification](#verification-2)
@@ -96,40 +97,55 @@ export AWS_SECRET_ACCESS_KEY=""
 ## Azure
 Ensure:
 - Azure CLI `az` is installed
+- a Service Principal is created for Terraform to deploy services
 
 Service provided:
 - Virtual Machine
 
+### Service Principal
+To manage the Service Principal on Azure portal:
+- search for "subscription"
+- select the corresponding subscription
+- check "Access control (IAM)"
+- select "Role assignments" tab to list roles available
+
+Create a proper [role](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator) to create services:
 ```sh
 # find the subscription id
 az login
+
 # set up with the subscription
 az account set --subscription "${ARM_SUBSCRIPTION_ID}"
-# create a Service Principal for Terraform to deploy services
-az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/${ARM_SUBSCRIPTION_ID}"
+
+# create RBAC as "Owner" is dangerous and not encouraged
+az ad sp create-for-rbac --role="Owner" --scopes="/subscriptions/${ARM_SUBSCRIPTION_ID}"
+
+# show the role created
+az ad sp show --id ${ARM_CLIENT_ID}
+# delete the role
+az ad sp delete --id ${ARM_CLIENT_ID}
 ```
 
 ### Verification
 Note that the storage attached (`storage_os_disk`) to VM OS would be required to
 delete manually as Azure would keep the storage even when its attached VM is destroyed.
 
-- Resource Group: two, one dedicated for the Network Watcher
+- Resource Group:
+  - Terraform, the one created to contain all services created
+  - Network Watcher, would be created by the system implicitly if not
 - Virtual Machine: check the instance is up and running
     - access via `ssh -i ~/.ssh/<private_key> developer@<public_ip>`
     - verify associated components:
-        - Identity?
-        - Managed Disk
+        - Disk: OS Disk, Managed Disk
         - Network Interface: public IP provided
-- Virtual Network: verify connection between components
-    - linked with the Resource Group of Network Watcher
-    - Subnet, Public IP, Network Interface
-- Network Security Group: enable SSH connection
+- Public IP: connect with Network Interface and the VM
+- Virtual Network: verify Subnet inclusion
+- Network Security Group: enable SSH connection with the Subnet
 - Storage Account: bucket is available
-
-- IAM: verify User is assumed by the Role via Policy
-    - User, Role, Policy
-    - Role with User has Policy (permission) attached
-    - User has Policy (assuming) attached with Role
+- User Assigned Identity:
+  - Role Assignment to Resource Group
+  - Role Assignment to Storage Account
+- Network Watcher: linked with the Resource Group of Network Watcher
 
 
 ## GCP
