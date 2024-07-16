@@ -1,21 +1,23 @@
 
+init_file = "../start_up.sh"
 bucket_name = ""
 
 # -------------------------------------------------------------------------------------
 # # AWS
-# ssh_pub = "ssh-rsa AAAA..."
+region = ""
+ssh_pub = "~/.ssh/<id_aws>.pub"
 
 
 # -------------------------------------------------------------------------------------
 # Azure
-# find the location in Azure portal
-region = ""
-ssh_pub = "ssh-rsa AAAA..."
+region = "" # find the location in Azure portal
+ssh_pub = "~/.ssh/<id_azure>.pub"
 
 
 # -------------------------------------------------------------------------------------
 # # GCP
-# gcp_project_id = ""
 # region = ""
+# ssh_pub = "~/.ssh/<id_gcp>.pub"
 # zone = ""
-# ssh_pub = "ssh-rsa AAAA..."
+
+# gcp_project_id = ""

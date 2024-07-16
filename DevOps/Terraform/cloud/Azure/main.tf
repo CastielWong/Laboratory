@@ -15,7 +15,15 @@ variable "region" {
   nullable = false
 }
 
+variable "user_name" {
+  type    = string
+  default = "developer"
+}
 variable "ssh_pub" {
+  type     = string
+  nullable = false
+}
+variable "init_file" {
   type     = string
   nullable = false
 }
@@ -152,6 +160,24 @@ resource "azurerm_network_interface" "terraform_nic" {
   )
 }
 
+
+# # define the template_file data source
+# # https://cloudinit.readthedocs.io/en/latest/index.html
+# data "template_file" "script" {
+#   template = file(var.init_file)
+# }
+# data "template_cloudinit_config" "config" {
+#   gzip          = true
+#   base64_encode = true
+
+#   # Main cloud-config configuration file.
+#   part {
+#     content_type = "text/cloud-config"
+#     content      = data.template_file.script.rendered
+#   }
+# }
+
+
 resource "azurerm_virtual_machine" "terraform_vm" {
   name                = "terraform-machine"
   resource_group_name = azurerm_resource_group.terraform_rg.name
@@ -161,9 +187,9 @@ resource "azurerm_virtual_machine" "terraform_vm" {
   vm_size               = "Standard_B1s"
 
   storage_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
+    publisher = "Debian"
+    offer     = "debian-10"
+    sku       = "10"
     version   = "latest"
   }
 
@@ -177,21 +203,28 @@ resource "azurerm_virtual_machine" "terraform_vm" {
 
   os_profile {
     computer_name  = "terraform"
-    admin_username = "developer"
+    admin_username = var.user_name
+
+    # custom_data = data.template_cloudinit_config.config.rendered
+    custom_data = file(var.init_file)
   }
 
   os_profile_linux_config {
     disable_password_authentication = true
     ssh_keys {
-        path     = "/home/developer/.ssh/authorized_keys"
-        key_data = var.ssh_pub
-      }
+      path     = "/home/${var.user_name}/.ssh/authorized_keys"
+      key_data = file(var.ssh_pub)
+    }
   }
+
 
   identity {
     type         = "UserAssigned"
     identity_ids = [azurerm_user_assigned_identity.terraform.id]
   }
+
+  # VM requires the port to be ready for package update downloading
+  depends_on = [azurerm_subnet_network_security_group_association.terraform_nw_sg_association]
 
   tags = merge(
     var.default_tags,
@@ -240,6 +273,29 @@ resource "azurerm_network_security_group" "terraform_nw_sg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "HTTP"
+    priority                   = 1002
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+  security_rule {
+    name                       = "HTTPS"
+    priority                   = 1003
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }

@@ -4,7 +4,21 @@
 # creates a cloud storage bucket with appropriate access controls.
 # Adjust the values for SSH key, and any other specifics to fit with requirements.
 # -------------------------------------------------------------------------------------
+variable "region" {
+  type    = string
+  default = "ap-southeast-1"
+}
+
+variable "user_name" {
+  type = string
+  # default = "ec2-user"
+  default = "admin" # default for debian image
+}
 variable "ssh_pub" {
+  type     = string
+  nullable = false
+}
+variable "init_file" {
   type     = string
   nullable = false
 }
@@ -29,7 +43,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "ap-southeast-1"
+  region = var.region
 
   default_tags {
     tags = {
@@ -116,13 +130,18 @@ resource "aws_iam_instance_profile" "terraform_role" {
 # -------------------------------------------------------------------------------------
 # EC2
 resource "aws_instance" "app_server" {
-  ami           = "ami-008c09a18ce321b3c"
+  ami           = "ami-0c185732ad1b6169b" # debian-12-amd64-20240702-1796
   instance_type = "t2.micro"
 
-  key_name               = aws_key_pair.deployer.key_name
-  subnet_id              = aws_subnet.deployer.id
-  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
-  iam_instance_profile   = aws_iam_instance_profile.terraform_role.name
+  key_name  = aws_key_pair.deployer.key_name
+  subnet_id = aws_subnet.deployer.id
+  vpc_security_group_ids = [
+    aws_security_group.allow_ssh.id,
+    aws_security_group.allow_http.id,
+  ]
+  iam_instance_profile = aws_iam_instance_profile.terraform_role.name
+
+  user_data = base64encode(file(var.init_file))
 
   tags = {
     Name = "DemoTerraform"
@@ -131,7 +150,7 @@ resource "aws_instance" "app_server" {
 
 resource "aws_key_pair" "deployer" {
   key_name   = "terraform-key"
-  public_key = var.ssh_pub
+  public_key = "${file(var.ssh_pub)} ${var.user_name}"
 }
 
 resource "aws_security_group" "allow_ssh" {
@@ -142,6 +161,35 @@ resource "aws_security_group" "allow_ssh" {
   ingress {
     from_port   = 22
     to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # for public access
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "DemoTerraform"
+  }
+}
+resource "aws_security_group" "allow_http" {
+  vpc_id      = aws_vpc.deployer.id
+  name        = "terraform_http"
+  description = "Allow HTTP and HTTPS inbound traffic"
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"] # for public access
+  }
+  ingress {
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"] # for public access
   }

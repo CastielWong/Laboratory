@@ -32,9 +32,9 @@ terraform destroy
 ## Credential
 Generate SSH key:
 ```sh
-ssh-keygen -t rsa -b 2048 -f "~/.ssh/id_demo_<vendor>"
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_demo_{vendor}
 
-chmod 400 "~/.ssh/id_demo_<vendor>"
+chmod 400 ~/.ssh/id_demo_{vendor}
 ```
 
 For AWS:
@@ -78,7 +78,12 @@ export AWS_SECRET_ACCESS_KEY=""
 
 ### Verification
 - EC2: check the instance is up and running
-    - access via `ssh -i ~/.ssh/<private_key> ec2-user@<public_ip>`
+    - access via `ssh -i ~/.ssh/<private_key> <user_name>@<public_ip>`
+        - when the `user_name` is wrong, error "Received disconnect from \<public_ip\> port 22:2: Too many authentication failures" would occur even the credential is correct
+        - the `user_name` for default AWS images is "ec2-user"
+        - for all the other images, need to check the image for more info
+        - popular `user_name` can be: "root", "admin", "ubuntu", etc.
+    - verify the Apache server is up with website via its IP address
     - verify associated components:
         - Key Pair
         - Security Group
@@ -135,6 +140,8 @@ delete manually as Azure would keep the storage even when its attached VM is des
   - Network Watcher, would be created by the system implicitly if not
 - Virtual Machine: check the instance is up and running
     - access via `ssh -i ~/.ssh/<private_key> developer@<public_ip>`
+    - verify the Apache server is up with website via its IP address
+        - note that Azure needs the start-up script to wait for VM get ready
     - verify associated components:
         - Disk: OS Disk, Managed Disk
         - Network Interface: public IP provided
@@ -147,6 +154,8 @@ delete manually as Azure would keep the storage even when its attached VM is des
   - Role Assignment to Storage Account
 - Network Watcher: linked with the Resource Group of Network Watcher
 
+Note that logs can be found "/var/log/cloud-init.log "or "/var/log/cloud-init-output.log"
+for investigation.
 
 ## GCP
 Ensure:
@@ -165,6 +174,7 @@ gcloud auth application-default login
 ### Verification
 - Computer Instance: check the instance is up and running
     - access via `ssh -i ~/.ssh/<private_key> developer@<public_ip>`
+    - verify the Apache server is up with website via its IP address
     - verify associated components:
         - Service Account
         - Compute Network

@@ -1,11 +1,15 @@
-DROP TABLE DemoData;
+CREATE DATABASE IF NOT EXISTS DEMO;
 
-CREATE TABLE DemoData (
-    A   NUMBER(4)       PRIMARY KEY,
-    B   VARCHAR2(10)
+USE DEMO;
+
+DROP TABLE IF EXISTS SampleDataset;
+
+CREATE TABLE SampleDataset (
+    a   INTEGER       PRIMARY KEY
+    , b   VARCHAR(10)
 );
 
-INSERT INTO DemoData    VALUES
+INSERT INTO SampleDataset    VALUES
 (1001, 'Something'),
 (1002, 'Anything'),
 (1003, 'Nothing');

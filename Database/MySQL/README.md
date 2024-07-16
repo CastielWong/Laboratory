@@ -35,7 +35,8 @@ Below is common administrative queries in MySQL:
 SHOW DATABASES;
 
 CREATE DATABASE IF NOT EXISTS {database};
-CONNECT {database};
+
+USE {database};
 
 SHOW TABLES;
 

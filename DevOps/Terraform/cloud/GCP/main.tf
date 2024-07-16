@@ -17,7 +17,16 @@ variable "zone" {
   type    = string
   default = "asia-east2-a"
 }
+
+variable "user_name" {
+  type    = string
+  default = "developer"
+}
 variable "ssh_pub" {
+  type     = string
+  nullable = false
+}
+variable "init_file" {
   type     = string
   nullable = false
 }
@@ -97,10 +106,36 @@ resource "google_compute_instance" "app_server" {
   # https://developer.hashicorp.com/terraform/language/expressions/strings
   metadata = {
     "ssh-keys" = <<EOT
-    developer:${var.ssh_pub} developer
+    ${var.user_name}:${file(var.ssh_pub)} ${var.user_name}
   EOT
   }
 
+  metadata_startup_script = file(var.init_file)
+
+  # # (last resort, less efficient) create website via provisioner with customization
+  # connection {
+  #   type        = "ssh"
+  #   host        = google_compute_instance.app_server.network_interface.0.access_config.0.nat_ip
+  #   port        = 22
+  #   user        = var.user_name
+  #   private_key = file("~/.ssh/<private_key>")
+  # }
+
+  # # provide file for initialization
+  # provisioner "file" {
+  #   source      = var.init_file
+  #   destination = "/tmp/init.sh"
+  # }
+
+  # # execute the initialization script
+  # provisioner "remote-exec" {
+  #   inline = [
+  #     "chmod +x /tmp/init.sh",
+  #     "/tmp/init.sh",
+  #   ]
+  # }
+
+  # firewall linked with tag for SSH traffic
   tags = ["allow-ssh"]
   labels = {
     name = "demo_terraform"
@@ -136,21 +171,33 @@ resource "google_compute_router_nat" "nat" {
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }
 
-# Firewall needed to config to allow SSH
+# set up traffic through Firewall
+# config to allow SSH, combined with HTTP with cause unexpected issue
 resource "google_compute_firewall" "allow_ssh" {
-  name    = "terraform-ssh"
-  network = google_compute_network.vpc_network.name
+  name        = "terraform-ssh"
+  network     = google_compute_network.vpc_network.name
+  description = "Allow SSH traffic"
 
   allow {
     protocol = "tcp"
     ports    = ["22"]
   }
-
-  source_ranges = ["0.0.0.0/0"] # Allow SSH from anywhere
+  source_ranges = ["0.0.0.0/0"] # allow from anywhere
 
   target_tags = ["allow-ssh"]
 }
+# config to allow HTTP and HTTPS
+resource "google_compute_firewall" "allow_http" {
+  name        = "terraform-http"
+  network     = google_compute_network.vpc_network.name
+  description = "Allow HTTP and HTTPS traffic"
 
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "443"]
+  }
+  source_ranges = ["0.0.0.0/0"] # allow from anywhere
+}
 # -----------------------------------------------------------------------------
 # Storage Bucket
 # https://cloud.google.com/storage/docs/locations
