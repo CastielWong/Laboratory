@@ -1,8 +1,6 @@
 
 .terraform.lock*
 *.txt
-terraform.tfvars
-
 
 !demo/packer/sample/scripts/init.sh
 !demo/template_file/scripts/init.cfg

@@ -9,9 +9,9 @@ ssh_pub = "~/.ssh/<id_aws>.pub"
 
 
 # -------------------------------------------------------------------------------------
-# Azure
-region = "" # find the location in Azure portal
-ssh_pub = "~/.ssh/<id_azure>.pub"
+# # Azure
+# region = "" # find the location in Azure portal
+# ssh_pub = "~/.ssh/<id_azure>.pub"
 
 
 # -------------------------------------------------------------------------------------
