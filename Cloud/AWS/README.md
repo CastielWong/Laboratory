@@ -1,5 +1,5 @@
 
-Keep the most commonly used script to launch AWS services.
+Keep the most commonly used script to launch Amazon Web Services.
 
 - [General](#general)
 - [Template](#template)
