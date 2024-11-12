@@ -19,7 +19,7 @@ brew install aws-iam-authenticator
 ```sh
 # save or append output in ~/.kube/config
 terraform output kubeconfig >> ~/.kube/config
-aws eks --region {region} update-kubeconfig --name terraform-eks-demo
+aws eks update-kubeconfig --region {region} --name {cluster-name}
 
 # save output for configuration in Kubernetes
 terraform output config-map-aws-auth > {config}.yml
