@@ -1,0 +1,31 @@
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Start') {
+            steps {
+                echo "Starting Jenkins pipeline"
+            }
+        }
+        stage('Check') {
+            steps {
+                sh 'chmod +x ./checking.sh'
+                sh './checking.sh'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh '''
+                whoami
+                ls -al
+                '''
+            }
+        }
+        stage('Finish') {
+            steps {
+                echo "Finishing Jenkins pipeline"
+            }
+        }
+    }
+}

@@ -1,0 +1,47 @@
+---
+services:
+  jenkins:
+    container_name: demo-jenkins
+    image: jenkins/jenkins:2.479.1-lts
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - ./interchange/:/home/
+    networks:
+      demo-jenkins:
+        ipv4_address: 180.2.11.1
+
+  gitlab:
+    container_name: demo-gitlab
+    image: gitlab/gitlab-ce:17.5.1-ce.0
+    restart: always
+    hostname: gitlab.example.com
+    environment:
+      GITLAB_OMNIBUS_CONFIG:
+        # Add any other gitlab.rb configuration here, each on its own line
+        external_url "http://gitlab.example.com"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "22:22"
+    volumes:
+      - ./gitlab/config:/etc/gitlab
+      - ./gitlab/logs:/var/log/gitlab
+      - ./gitlab/data:/var/opt/gitlab
+    shm_size: "256m"
+    networks:
+      demo-jenkins:
+        ipv4_address: 180.2.12.1
+
+
+networks:
+  demo-jenkins:
+    name: lab_jenkins
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 180.2.0.0/16
