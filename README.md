@@ -15,15 +15,15 @@
   - [Submodule](#submodule)
   - [Revert](#revert)
   - [Common Command](#common-command)
-- [Docker](#docker)
-- [Makefile](#makefile)
+- [Usage](#usage)
+  - [Docker](#docker)
+  - [Makefile](#makefile)
 - [Reference](#reference)
 
 
 This repo is for experiments of any greenfield technologies or some quick catch-ups.
 
 ## Development
-
 After complete a feature branch (after merged), run `bash ./dev/script/tag_feature.sh '{name}' '{tag description}'` to tag current commit then synchronize for remote.
 
 
@@ -143,7 +143,6 @@ pre-commit install
 cp ./dev/commit-msg .git/hooks/commit-msg
 chmod +x .git/hooks/commit-msg
 ```
-
 
 
 ## Git
@@ -274,8 +273,12 @@ git worktree prune
 ```
 
 
+## Usage
+If a new account, for admin or normal user, is needed to create, follow the suggested below:
+- username: demo, admin, root
+- password: admin, try4Lab, try4Laboratory
 
-## Docker
+### Docker
 Most of labs are done in Docker. For convenience, common Docker commands are listed below:
 - `docker run --rm -it {image} bash`: start a container and access it via bash, which would be removed when it's stopped
 - `docker rm $(docker ps -a -q -f status=exited)`: remove all containers with status existed
@@ -283,9 +286,7 @@ Most of labs are done in Docker. For convenience, common Docker commands are lis
 - `docker-compose up --detached`: start containers via `docker-compose`, for whose configuration is usually set in "docker-compose.yml"
 - `docker-compose down`: stop and remove all containers `docker-compose` initiated
 
-
-
-## Makefile
+### Makefile
 `make` is available to formalize and unify the way for development.
 
 
