@@ -1,5 +1,6 @@
 
 CONTAINER_CODER := lab-coder
+VOLUME_CODER := lab-coder-db
 
 start:
 	docker-compose --env-file env.sh up -d
@@ -12,3 +13,4 @@ stop:
 
 clean:
 	echo y | docker system prune
+	docker volume rm $(VOLUME_CODER)

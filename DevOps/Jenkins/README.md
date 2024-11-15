@@ -32,5 +32,16 @@ Regarding to "Jenkinsfile":
    - `git config --global user.name "demo"`
 5. Jenkins: Compile "Jenkinsfile", add to the repo then push
 
+
 ## Custom
 Refer to the README in the directory.
+
+
+## Link
+There are links that useful during development:
+- https://${JENKINS_SITE}/pipeline-syntax/globals
+
+
+Check:
+- how to set environment properly
+- Jenkins API？
