@@ -30,6 +30,51 @@ services:
       lab-keycloak:
         ipv4_address: 181.3.11.1
 
+  gitlab:
+    container_name: lab-kc-gitlab
+    image: gitlab/gitlab-ce:17.5.1-ce.0
+    restart: always
+    hostname: gitlab.example.com
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Add any other gitlab.rb configuration here, each on its own line
+        external_url "http://gitlab.example.com"
+        gitlab_rails["omniauth_enabled"] = true
+        # https://docs.gitlab.com/ee/administration/auth/oidc.html
+        gitlab_rails["omniauth_providers"] = [
+          {
+            name: "openid_connect",
+            label: "OpenID Connect",  # optial label for login button
+            args: {
+              name: "openid_connect",
+              scope: ["openid", "profile", "email", "groups"],
+              response_type: "code",
+              issuer: "https://localhost:8443/realms/demo",
+              client_auth_method: "query",
+              discovery: true,
+              uid_field: "preferred_username",
+              pkce: false,
+              client_options: {
+                identifier: "gitlab",
+                secret: "gitlab_secret",
+                refirect_uri: "http://localhost:80/users/auth/openid_connect/callback",
+              }
+            }
+          }
+        ]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "22:22"
+    volumes:
+      - ./gitlab/config:/etc/gitlab
+      - ./gitlab/logs:/var/log/gitlab
+      - ./gitlab/data:/var/opt/gitlab
+    shm_size: "256m"
+    networks:
+      lab-keycloak:
+        ipv4_address: 181.3.12.1
+
 networks:
   lab-keycloak:
     name: lab_keycloak

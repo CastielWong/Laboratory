@@ -3,6 +3,7 @@ This is the demo project for KeyCloak.
 
 - [Recipe](#recipe)
 - [Usage](#usage)
+  - [SSO](#sso)
 - [Reference](#reference)
 
 
@@ -16,20 +17,28 @@ Basic concepts:
 
 
 ## Recipe
-| Command    | Description                              |
-|------------|------------------------------------------|
-| make start | launch up container(s) for demo          |
-| make end   | stop all relative container(s)           |
-| make clean | clean up container(s), volume(s) created |
+| Command               | Description                              |
+|-----------------------|------------------------------------------|
+| make start            | launch up container(s) for demo          |
+| make fetch_gitlab_pwd | fetch the initial password for GitLab    |
+| make end              | stop all relative container(s)           |
+| make clean            | clean up container(s), volume(s) created |
 
 
 ## Usage
-After containers are up, access to KeyCloak via "http://localhost:7080"
+After containers are up, access
+- KeyCloak: https://localhost:8080
+- GitLab: https://localhost:80
+  - username: root
+  - password: can be found at "/etc/gitlab/initial_root_password"
 
 Follow official guides below for more details:
 - Docker: https://www.keycloak.org/getting-started/getting-started-docker
   - create realm, user
   - create client to secure application
+
+### SSO
+GitLab is deployed to demo Single Sign-On authentication scheme.
 
 
 ## Reference
