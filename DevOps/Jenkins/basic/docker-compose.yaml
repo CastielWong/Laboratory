@@ -1,7 +1,7 @@
 ---
 services:
   jenkins:
-    container_name: demo-jenkins
+    container_name: lab-jenkins
     image: jenkins/jenkins:2.479.1-lts
     ports:
       - "8080:8080"
@@ -12,11 +12,11 @@ services:
     volumes:
       - ./interchange/:/home/
     networks:
-      demo-jenkins:
+      lab-jenkins:
         ipv4_address: 180.2.11.1
 
   gitlab:
-    container_name: demo-gitlab
+    container_name: lab-jk-gitlab
     image: gitlab/gitlab-ce:17.5.1-ce.0
     restart: always
     hostname: gitlab.example.com
@@ -34,12 +34,12 @@ services:
       - ./gitlab/data:/var/opt/gitlab
     shm_size: "256m"
     networks:
-      demo-jenkins:
+      lab-jenkins:
         ipv4_address: 180.2.12.1
 
 
 networks:
-  demo-jenkins:
+  lab-jenkins:
     name: lab_jenkins
     driver: bridge
     ipam:

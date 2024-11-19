@@ -25,7 +25,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      demo-coder:
+      lab-coder:
         ipv4_address: 181.2.11.1
     depends_on:
       database:
@@ -54,15 +54,15 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      demo-coder:
+      lab-coder:
         ipv4_address: 181.2.12.1
 
 volumes:
   coder-data:
-    name: lab-coder-db
+    name: lab_coder_db
 
 networks:
-  demo-coder:
+  lab-coder:
     name: lab_coder
     driver: bridge
     ipam:
