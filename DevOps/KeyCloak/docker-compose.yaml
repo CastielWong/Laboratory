@@ -1,14 +1,23 @@
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:26.0.5
     container_name: lab-keycloak
+    image: lab-keycloak:demo
+    build:
+      context: $PWD
+      dockerfile: Dockerfile
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       KC_HEALTH_ENABLED: "true"
       KC_METRICS_ENABLED: "true"
+      # KC_LOG_LEVEL: info
+      # KC_HOSTNAME: localhost
+      # KC_HOSTNAME_PORT: 7080
+      # KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
+      # KEYCLOAK_ADMIN: admin
+      # KEYCLOAK_ADMIN_PASSWORD: admin
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/health/ready"]
+      test: ["CMD", "curl", "-f", "https://localhost:9000/health/ready"]
       interval: 15s
       timeout: 2s
       retries: 15
@@ -17,14 +26,14 @@ services:
       - 8080:8080
       - 8443:8443
       - 9000:9000
-#     networks:
-#       lab-keycloak:
-#         ipv4_address: 181.3.11.1
+    networks:
+      lab-keycloak:
+        ipv4_address: 181.3.11.1
 
-# networks:
-#   lab-keycloak:
-#     name: lab_keycloak
-#     driver: bridge
-#     ipam:
-#       config:
-#         - subnet: 181.3.0.0/16
+networks:
+  lab-keycloak:
+    name: lab_keycloak
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 181.3.0.0/16

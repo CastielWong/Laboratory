@@ -2,7 +2,7 @@
 start:
 	docker-compose up -d
 
-stop:
+end:
 	docker-compose down
 
 clean:
