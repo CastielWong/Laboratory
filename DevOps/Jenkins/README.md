@@ -9,7 +9,7 @@ The demo is derived from https://www.jenkins.io/doc/pipeline/tour/hello-world/.
 After containers are up:
 - Jenkins
   - access it via "localhost:8080"
-  - the initial password can be found at "/var/jenkins_home/secrets/"
+  - initial password can be found at "/var/jenkins_home/secrets/initialAdminPassword"
   - install the plugin:
     1. "Manage Jenkins"
     2. -> "Plugins"
