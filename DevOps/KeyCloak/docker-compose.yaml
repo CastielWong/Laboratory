@@ -1,0 +1,30 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.5
+    container_name: lab-keycloak
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health/ready"]
+      interval: 15s
+      timeout: 2s
+      retries: 15
+    command: ["start-dev"]
+    ports:
+      - 8080:8080
+      - 8443:8443
+      - 9000:9000
+#     networks:
+#       lab-keycloak:
+#         ipv4_address: 181.3.11.1
+
+# networks:
+#   lab-keycloak:
+#     name: lab_keycloak
+#     driver: bridge
+#     ipam:
+#       config:
+#         - subnet: 181.3.0.0/16
