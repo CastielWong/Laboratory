@@ -14,3 +14,4 @@ end:
 
 clean:
 	echo y | docker system prune
+	rm -rf ./gitlab

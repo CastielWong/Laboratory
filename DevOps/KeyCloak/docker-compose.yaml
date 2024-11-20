@@ -38,18 +38,19 @@ services:
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         # Add any other gitlab.rb configuration here, each on its own line
-        external_url "http://gitlab.example.com"
-        gitlab_rails["omniauth_enabled"] = true
+        external_url "https://gitlab.example.com"
         # https://docs.gitlab.com/ee/administration/auth/oidc.html
+        gitlab_rails["omniauth_enabled"] = true
+        gitlab_rails["omniauth_allow_single_sign_on"] = ["openid_connect"]
         gitlab_rails["omniauth_providers"] = [
           {
             name: "openid_connect",
-            label: "OpenID Connect",  # optial label for login button
+            label: "OpenID Connect - KeyCloak",
             args: {
+              issuer: "https://181.3.11.1:8443/realms/demo",
               name: "openid_connect",
               scope: ["openid", "profile", "email", "groups"],
               response_type: "code",
-              issuer: "https://localhost:8443/realms/demo",
               client_auth_method: "query",
               discovery: true,
               uid_field: "preferred_username",
@@ -57,7 +58,8 @@ services:
               client_options: {
                 identifier: "gitlab",
                 secret: "gitlab_secret",
-                refirect_uri: "http://localhost:80/users/auth/openid_connect/callback",
+                refirect_uri: "https://181.3.12.1/users/auth/openid_connect/callback"
+                # refirect_uri: "https://.../users/auth/openid_connect/callback"
               }
             }
           }
