@@ -1,1 +1,18 @@
 FROM gitlab/gitlab-ce:17.5.1-ce.0 AS builder
+
+WORKDIR /etc/gitlab
+# RUN mkdir -p /etc/gitlab/trusted-certs
+RUN mkdir -p /etc/gitlab/ssl
+
+
+FROM gitlab/gitlab-ce:17.5.1-ce.0
+
+COPY --from=builder /etc/gitlab /etc/gitlab
+COPY --from=builder /var/opt/gitlab/ /var/opt/gitlab/
+COPY --from=builder /var/log/gitlab/ /var/log/gitlab/
+
+# COPY ./ca.crt /etc/gitlab/trusted-certs/ca.crt
+COPY ./ssl/server.crt /etc/gitlab/ssl/gitlab.crt
+COPY ./ssl/server.key /etc/gitlab/ssl/gitlab.key
+
+# RUN sed -i 's/Port 22/Port 222/g' /assets/sshd_config

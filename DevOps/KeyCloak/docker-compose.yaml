@@ -61,8 +61,7 @@ services:
               client_options: {
                 identifier: "gitlab",
                 secret: "gitlab_secret",
-                refirect_uri: "https://181.3.12.1/users/auth/openid_connect/callback"
-                # refirect_uri: "https://.../users/auth/openid_connect/callback"
+                refirect_uri: "https://.../users/auth/openid_connect/callback"
               }
             }
           }

@@ -28,6 +28,7 @@ Basic concepts:
 |-----------------------|------------------------------------------|
 | make start            | launch up container(s) for demo          |
 | make fetch_gitlab_pwd | fetch the initial password for GitLab    |
+| make gen_cert         | generate self-signed SSL certificate     |
 | make end              | stop all relative container(s)           |
 | make destroy          | destroy custom built images              |
 | make clean            | clean up container(s), volume(s) created |
@@ -95,23 +96,8 @@ contained within, such as:
 - often paired with a ".crt" or ".cer" file for complete SSL/TLS certificate configuration
 
 #### Generation
-Generate self-signed certificate for KeyCloak and GitLab to use HTTPS:
-```sh
-mkdir ./ssl/
-
-openssl genrsa -out ./ssl/server.key 2048
-
-openssl req -new -x509 \
-    -key ./ssl/server.key \
-    -out ./ssl/server.crt \
-    -subj "/C=HK/CN=localhost"
-
-# verify the certificate
-openssl x509 -in ./ssl/server.crt -text -noout
-
-cp ./ssl/server.crt ./ssl/server.pem
-cat ./ssl/server.key >> ./ssl/server.pem
-```
+Generate self-signed certificate for KeyCloak and GitLab to use HTTPS via:
+`source generate_ssl_cert.sh`
 
 SSL/TLS certificates are essential for establishing secure connections over HTTPS.
 
