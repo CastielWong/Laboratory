@@ -12,6 +12,9 @@ fetch_gitlab_pwd:
 end:
 	docker-compose down
 
+destroy:
+	docker rmi lab-keycloak:demo lab-kc-gitlab:demo
+
 clean:
 	echo y | docker system prune
 	rm -rf ./gitlab

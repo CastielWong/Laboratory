@@ -4,7 +4,7 @@ services:
     image: lab-keycloak:demo
     build:
       context: $PWD
-      dockerfile: Dockerfile
+      dockerfile: dockerfiles/keycloak
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
@@ -32,7 +32,10 @@ services:
 
   gitlab:
     container_name: lab-kc-gitlab
-    image: gitlab/gitlab-ce:17.5.1-ce.0
+    image: lab-kc-gitlab:demo
+    build:
+      context: $PWD
+      dockerfile: dockerfiles/gitlab
     restart: always
     hostname: gitlab.example.com
     environment:
@@ -58,12 +61,20 @@ services:
               client_options: {
                 identifier: "gitlab",
                 secret: "gitlab_secret",
+                ssl: {
+                  verify: false
+                },
                 refirect_uri: "https://181.3.12.1/users/auth/openid_connect/callback"
                 # refirect_uri: "https://.../users/auth/openid_connect/callback"
               }
             }
           }
         ]
+        nginx["listen_port"] = 443
+        nginx["listen_https"] = true
+        nginx["redirect_http_to_https"] = false
+        nginx["ssl_certificate"] = "/etc/gitlab/ssl/gitlab.crt"
+        nginx["ssl_certificate_key"] = "/etc/gitlab/ssl/gitlab.key"
     ports:
       - "80:80"
       - "443:443"
