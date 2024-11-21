@@ -36,7 +36,7 @@ Basic concepts:
 ## Usage
 After containers are up, access
 - KeyCloak: https://localhost:8443
-- GitLab: https://localhost:43
+- GitLab: https://localhost:443
   - username: root
   - password: can be found at "/etc/gitlab/initial_root_password"
 
