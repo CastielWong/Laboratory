@@ -3,6 +3,10 @@ This is the demo project for KeyCloak.
 
 - [Recipe](#recipe)
 - [Usage](#usage)
+  - [SSL Certificate](#ssl-certificate)
+    - [Concept](#concept)
+    - [Cryptographic File](#cryptographic-file)
+    - [Generation](#generation)
   - [SSO](#sso)
 - [Troubleshoot](#troubleshoot)
   - [Localhost](#localhost)
@@ -25,6 +29,7 @@ Basic concepts:
 | make start            | launch up container(s) for demo          |
 | make fetch_gitlab_pwd | fetch the initial password for GitLab    |
 | make end              | stop all relative container(s)           |
+| make destroy          | destroy custom built images              |
 | make clean            | clean up container(s), volume(s) created |
 
 
@@ -39,6 +44,76 @@ Follow official guides below for more details:
 - Docker: https://www.keycloak.org/getting-started/getting-started-docker
   - create realm, user
   - create client to secure application
+
+### SSL Certificate
+SSL (Secure Sockets Layer) and TLS (Transport Layer Security) are often used
+interchangeably.
+
+#### Concept
+An SSL certificate is a digital certificate that authenticate the identity
+of a website and enables an encrypted connection.
+
+How SSL certificate works:
+- Public Key Infrastructure: SSL certificates rely on PKI for encryption and decryption
+- Encryption: When a browser connects to a secure server, the server sends its SSL
+certificate, the browser verifies the certificate and uses the public key to establish
+a secure session
+- Handshake Process: The SSL/TLS handshake is the process that initiates a secure
+session, which involves the exchange of keys and the establishment of encryption methods
+
+#### Cryptographic File
+A ".pem" file is a file format that stands for "Privacy Enhanced Mail", which is used
+to store and transmit cryptographic keys/certificates and typically contain data that
+is encoded in Base64, including SSL/TLS for securing communications over the internet.
+
+A ".pem" file includes specific header and footer lines that indicate the type of data
+contained within, such as:
+- header
+  - `-----BEGIN CERTIFICATE-----`
+  - `-----BEGIN PRIVATE KEY-----`
+  - `-----BEGIN PUBLIC KEY-----`
+  - `-----BEGIN RSA PRIVATE KEY-----`
+- footer
+  - `-----END CERTIFICATE-----`
+  - `-----END PRIVATE KEY-----`
+  - `-----END PUBLIC KEY-----`
+  - `-----END RSA PRIVATE KEY-----`
+
+".crt" file
+- is a certificate file that typically contains and SSL/TLS certificate:
+- can be in PEM (base64 encoded) or DER (binary) format
+- can contain a public key, the certificate holder info, the CA, and validity period
+
+".cer" file
+- is a certificate, which is similar to a ".crt" file
+- it is commonly used in Windows
+- may contain a single certificate or a chian of certificates
+
+".key" file
+- typically contains a private key associated with an SSL/TLS certificate:
+- usually in PEM format
+- often paired with a ".crt" or ".cer" file for complete SSL/TLS certificate configuration
+
+#### Generation
+Generate self-signed certificate for KeyCloak and GitLab to use HTTPS:
+```sh
+mkdir ./ssl/
+
+openssl genrsa -out ./ssl/server.key 2048
+
+openssl req -new -x509 \
+    -key ./ssl/server.key \
+    -out ./ssl/server.crt \
+    -subj "/C=HK/CN=localhost"
+
+# verify the certificate
+openssl x509 -in ./ssl/server.crt -text -noout
+
+cp ./ssl/server.crt ./ssl/server.pem
+cat ./ssl/server.key >> ./ssl/server.pem
+```
+
+SSL/TLS certificates are essential for establishing secure connections over HTTPS.
 
 ### SSO
 GitLab is deployed to demo Single Sign-On authentication scheme.
@@ -63,7 +138,7 @@ To have SSO up and functioning:
     - client_options
       - identifier: <keycloak_client_id>
       - secret:  <keycloak_client_cred>
-  3. enable
+  3.
 
 
 ## Troubleshoot

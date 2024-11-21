@@ -4,7 +4,7 @@ services:
     image: lab-keycloak:demo
     build:
       context: $PWD
-      dockerfile: Dockerfile
+      dockerfile: dockerfiles/keycloak
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
@@ -32,7 +32,10 @@ services:
 
   gitlab:
     container_name: lab-kc-gitlab
-    image: gitlab/gitlab-ce:17.5.1-ce.0
+    image: lab-kc-gitlab:demo
+    build:
+      context: $PWD
+      dockerfile: dockerfiles/gitlab
     restart: always
     hostname: gitlab.example.com
     environment:

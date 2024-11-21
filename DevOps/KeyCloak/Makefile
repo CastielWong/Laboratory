@@ -9,6 +9,9 @@ fetch_gitlab_pwd:
 		bash -c \
 		"cat /etc/gitlab/initial_root_password | grep 'Password:'"
 
+destroy:
+	docker rmi lab-keycloak:demo lab-kc-gitlab:demo
+
 end:
 	docker-compose down
 
