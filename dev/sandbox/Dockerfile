@@ -1,4 +1,9 @@
-FROM centos:7.9.2009
+FROM ubuntu:24.04
 
-RUN yum install -y \
-        vim git
+# install common tools
+RUN apt-get update
+RUN apt install -y \
+    sudo \
+    wget \
+    telnet \
+    vim

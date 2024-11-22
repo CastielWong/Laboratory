@@ -1,12 +1,23 @@
-version: "3.9"
-
+---
 services:
   check:
-    image: sandbox:0.0.1
+    image: sandbox:lab
+    container_name: sandbox
     build:
       context: $PWD
       dockerfile: Dockerfile
-    container_name: sandbox
+    working_dir: /sandbox
     volumes:
-      - ../init.sh:/root/init.sh
+      - ./sandbox_vol:/sandbox
     tty: true   # keep container up and running
+    networks:
+      lab-sandbox:
+        ipv4_address: 180.1.1.1
+
+networks:
+  lab-sandbox:
+    name: lab_sandbox
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 180.1.0.0/16

@@ -1,0 +1,45 @@
+---
+services:
+  frontend:
+    container_name: lab-<tech>
+    image: <image>:demo
+    build:
+      context: $PWD
+      dockerfile: Dockerfile
+    ports:
+      - "<host_port>:<container_port>"
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - ./<dir_host>:<dir_container>
+    networks:
+      lab-<tech>:
+        ipv4_address: <ip>
+
+  backend:
+    container_name: lab-<tech>
+    image: <image>:demo
+    restart: always
+    environment:
+      ENV_A: <string>
+    ports:
+      - "<host_port>:<container_port>"
+    volumes:
+      - <tech>-data:<dir_container>
+    shm_size: "256m"
+    networks:
+      lab-<tech>:
+        ipv4_address: <ip>
+
+volumes:
+  <tech>-data:
+    name: lab_<tech>
+
+networks:
+  lab-<tech>:
+    name: lab_<tech>
+    driver: bridge
+    ipam:
+      config:
+        - subnet: <a.b.c.d>/16
