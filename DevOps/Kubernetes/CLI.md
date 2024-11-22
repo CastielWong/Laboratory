@@ -25,12 +25,15 @@ export do="--dry-run=client -o yaml"
 ```sh
 kubectl version
 
+kubectl config view --minify
 kubectl config get-contexts
+kubectl config current-contexts
+kubectl config set-contexts --current --namespace=<namespace>
 
 kubectl describe nodes {node}
 
-kubectl get all
 kubectl get namespaces
+kubectl get all
 kubectl get quota
 kubectl get events --all-namespaces
 

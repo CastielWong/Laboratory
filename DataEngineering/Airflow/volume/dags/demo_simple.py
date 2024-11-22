@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Simple DAG to demonstrate Airflow workflow."""
+
 from datetime import datetime, timedelta
 import logging
 
@@ -20,7 +22,7 @@ default_args = {
 
 dag = DAG(
     dag_id="demo_simple",
-    description="This is a DAG for simple demo",
+    description="This is a simple DAG for demo",
     catchup=False,
     max_active_runs=1,
     schedule_interval=timedelta(days=1),
