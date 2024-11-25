@@ -3,6 +3,8 @@ This is the demo project for KeyCloak.
 
 - [Recipe](#recipe)
 - [Usage](#usage)
+- [Development](#development)
+  - [Configuration](#configuration)
   - [SSL Certificate](#ssl-certificate)
     - [Concept](#concept)
     - [Cryptographic File](#cryptographic-file)
@@ -46,9 +48,30 @@ Follow official guides below for more details:
   - create realm, user
   - create client to secure application
 
+
+## Development
+"kc.sh" is under "${HOME}/bin"
+
+### Configuration
+According to KeyCloak's [configuration](https://www.keycloak.org/server/configuration),
+the priority on configuration loading is:
+Command-line Parameters
+-> Environment Variables
+-> Configuration File (default "${HOME}/conf/keycloak.conf")
+-> User-Created Java KeyStore File
+
 ### SSL Certificate
 SSL (Secure Sockets Layer) and TLS (Transport Layer Security) are often used
 interchangeably.
+
+To check what info the certificate includes, run
+`openssl x509 -in ./ssl/server.crt -text -noout`
+
+Though there is CN (Common Name) defined in the certificate, it doesn't necessarily
+the same as the configuration.
+
+Remember to add record in like "127.0.0.1 keycloak.lab" in "/etc/hosts" to access
+KeyCloak via common name ("https://keycloak.lab").
 
 #### Concept
 An SSL certificate is a digital certificate that authenticate the identity

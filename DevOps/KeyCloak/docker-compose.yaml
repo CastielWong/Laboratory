@@ -6,22 +6,25 @@ services:
       context: $PWD
       dockerfile: dockerfiles/keycloak
     environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       KC_HEALTH_ENABLED: "true"
       KC_METRICS_ENABLED: "true"
       # KC_LOG_LEVEL: info
-      # KC_HOSTNAME: localhost
-      # KC_HOSTNAME_PORT: 7080
+      KC_HOSTNAME: keycloak.lab
+      # KC_HOSTNAME_PORT: 8443
       # KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
-      # KEYCLOAK_ADMIN: admin
-      # KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
     healthcheck:
       test: ["CMD", "curl", "-f", "https://localhost:9000/health/ready"]
       interval: 15s
       timeout: 2s
       retries: 15
-    command: ["start-dev"]
+    command: [
+      "--verbose",
+      "start-dev",
+      "--https-certificate-file=/opt/keycloak/conf/tls.pem",
+      "--https-certificate-key-file=/opt/keycloak/conf/tls.key",
+    ]
     ports:
       - 8080:8080
       - 8443:8443
