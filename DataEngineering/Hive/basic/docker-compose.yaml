@@ -1,0 +1,47 @@
+---
+services:
+  hive-server:
+    image: apache/hive:4.0.0
+    container_name: lab-hive-basic
+    depends_on:
+    - metastore
+    restart: unless-stopped
+    environment:
+      - SERVICE_NAME=hiveserver2
+    volumes:
+    # - warehouse:/opt/hive/data/warehouse
+    - ./warehouse:/opt/hive/data/warehouse
+    ports:
+    - "10000:10000"
+    - "10002:10002"
+    networks:
+      lab-hive-basic:
+        ipv4_address: 181.5.1.11
+
+  metastore:
+    image: apache/hive:4.0.0
+    container_name: lab-hive-basic-metastore
+    restart: unless-stopped
+    hostname: metastore
+    environment:
+      - SERVICE_NAME=metastore
+    volumes:
+    # - warehouse:/opt/hive/data/warehouse
+    - ./warehouse:/opt/hive/data/warehouse
+    ports:
+    - "9083:9083"
+    networks:
+      lab-hive-basic:
+        ipv4_address: 181.5.1.12
+
+# volumes:
+#   warehouse:
+#     name: lab-hive-basic
+
+networks:
+  lab-hive-basic:
+    name: lab_hive
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 181.5.0.0/16
