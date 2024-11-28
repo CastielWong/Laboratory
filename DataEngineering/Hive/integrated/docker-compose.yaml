@@ -1,0 +1,54 @@
+---
+services:
+  mariadb:
+    image: mariadb:11.6-rc
+    container_name: lab-hive-mariadb
+    ports:
+    - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_DATABASE: metastore_db
+    networks:
+      lab-hive:
+        ipv4_address: 181.5.2.10
+
+  hive-metastore:
+    image: apache/hive:4.0.0
+    container_name: lab-hive-metastore
+    depends_on:
+    - mariadb
+    restart: unless-stopped
+    ports:
+    - "9083:9083"
+    networks:
+      lab-hive:
+        ipv4_address: 181.5.2.11
+
+  minio:
+    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    container_name: lab-hive-minio
+    environment:
+      MINIO_ACCESS_KEY: access_key
+      MINIO_SECRET_KEY: secret_key
+    command: server /data
+    ports:
+    - "9000:9000"
+    volumes:
+    - ./lab_hive_minio:/data
+    networks:
+      lab-hive:
+        ipv4_address: 181.5.2.12
+
+volumes:
+  minio_data:
+    name: lab_hive_minio
+
+networks:
+  lab-hive:
+    name: lab_hive
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 181.5.0.0/16
