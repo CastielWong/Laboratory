@@ -8,13 +8,14 @@ from metadata import (
     PATH_STORAGE,
     TABLE_NAME,
 )
-from pyiceberg.catalog.sql import SqlCatalog
+from pyiceberg.catalog import load_catalog
 from pyiceberg.schema import NestedField, Schema
 from pyiceberg.types import DoubleType, LongType, StringType
 import pyarrow as pa
 import util
 
-# REST_URL = "http://localhost:8181"
+IP_REST = "181.4.11.11"
+REST_URL = f"http://{IP_REST}:8181"
 LOCAL_CONFIG = {
     "endpoint": "http://minio:9000",
     "access-id": "admin",
@@ -43,7 +44,8 @@ DIR_NAMESPACE = "ns_sqlite"
 
 def init_catalog():
     """Initialize catalog."""
-    catalog = SqlCatalog(
+    # store metadata in SQLite
+    catalog = load_catalog(
         CATALOG_NAME,
         **{
             "uri": f"sqlite:///{WH_SQLITE}/pyiceberg_catalog_sqlite.db",
@@ -106,6 +108,7 @@ def run_with_pyiceberg(catalog, namespace: str, table_name: str) -> None:
             db_table,
             schema=DATA_SCHEMA,
             location=f"{WH_SQLITE}/{DIR_NAMESPACE}",
+            # location="s3a://warehouse",
         )
 
     # append data

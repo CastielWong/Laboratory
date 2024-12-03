@@ -15,6 +15,20 @@ from pyspark.sql.types import DoubleType, LongType, StringType, StructField, Str
 import util
 
 _SPARK_APP = "demo_spark_iceberg"
+_CONF_HADOOP = {
+    # config for using iceberg standardized zone datalake
+    "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",  # noqa: E501
+    "spark.sql.defaultCatalog": CATALOG_NAME,
+    "spark.sql.catalog.spark_catalog": "org.apache.iceberg.spark.SparkSessionCatalog",  # noqa: E501
+    f"spark.sql.catalog.{CATALOG_NAME}": "org.apache.iceberg.spark.SparkCatalog",
+    f"spark.sql.catalog.{CATALOG_NAME}.type": "hadoop",
+    f"spark.sql.catalog.{CATALOG_NAME}.warehouse": PATH_STORAGE,
+    # # configure for Spark authentication
+    # "spark.authenticate": "true",
+    # "spark.authenticate.secret": spark_secret_key,
+    # "spark.authenticate.enableSaslEncryption": "true",
+}
+
 
 DATA_SCHEMA = StructType(
     [
@@ -36,25 +50,7 @@ def init_spark_session() -> SparkSession:
     """Initialize the Spark session."""
     spark = (
         SparkSession.builder.appName(_SPARK_APP)
-        # config
-        .config(
-            "spark.sql.extensions",
-            "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
-        )
-        .config("spark.sql.defaultCatalog", CATALOG_NAME)
-        .config(
-            "spark.sql.catalog.spark_catalog",
-            "org.apache.iceberg.spark.SparkSessionCatalog",
-        )
-        .config(
-            f"spark.sql.catalog.{CATALOG_NAME}", "org.apache.iceberg.spark.SparkCatalog"
-        )
-        .config(f"spark.sql.catalog.{CATALOG_NAME}.type", "hadoop")
-        .config(f"spark.sql.catalog.{CATALOG_NAME}.warehouse", PATH_STORAGE)
-        # # configure for Spark authentication
-        # .config("spark.authenticate", "true")
-        # .config("spark.authenticate.secret", spark_secret_key)
-        # .config("spark.authenticate.enableSaslEncryption", "true")
+        .config(map=_CONF_HADOOP)
         # # enable Hive support
         # .enableHiveSupport()
         # # set timezone
@@ -135,6 +131,7 @@ def run_with_spark(spark: SparkSession, db_table: str, choice: str) -> None:
     spark.table(db_table).show()
 
     if choice == "dataframe":
+        # not iceberg format?
         df = spark.createDataFrame(SAMPLE_DATA, DATA_SCHEMA)
         df.writeTo(db_table).append()
     else:
@@ -181,4 +178,4 @@ if __name__ == "__main__":
 
     # clean_up(spark=spark)
 
-    main(spark=spark, choice="dataframe", clean=True)
+    main(spark=spark, choice="sql", clean=True)
