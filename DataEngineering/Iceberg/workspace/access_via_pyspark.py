@@ -121,12 +121,12 @@ def run_with_spark(spark: SparkSession, db_table: str, choice: str) -> None:
     else:
         spark.sql(
             f"""
-        CREATE TABLE IF NOT EXISTS {db_table} (
-            identifier INT
-            , fruit STRING
-            , price DOUBLE
-        ) USING iceberg
-        """
+            CREATE TABLE IF NOT EXISTS {db_table} (
+                identifier INT
+                , fruit STRING
+                , price DOUBLE
+            ) USING iceberg
+            """
         )
 
     spark.sql(f"SHOW TABLES IN {CATALOG_NAME}.{DB_NAMESPACE}").show()

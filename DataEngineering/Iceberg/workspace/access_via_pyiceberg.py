@@ -118,16 +118,12 @@ def run_with_pyiceberg(catalog, namespace: str, table_name: str) -> None:
 
 
 @util.enclose_info
-def main(catalog, clean: bool = True) -> None:
+def main(catalog) -> None:
     """Run the main.
 
     Args:
         catalog: the catalog
-        clean: clean up database
     """
-    if clean:
-        clean_up(catalog=catalog)
-
     print("List existing namespaces:")
     for ns in catalog.list_namespaces():
         print(ns)
@@ -140,4 +136,6 @@ def main(catalog, clean: bool = True) -> None:
 if __name__ == "__main__":
     catalog = init_catalog()
 
-    main(catalog=catalog, clean=True)
+    clean_up(catalog=catalog)
+
+    main(catalog=catalog)

@@ -1,16 +1,16 @@
 
-CONTAINER_HIVE := demo-iceberg
-VOLUME := warehouse
+CONTAINER_NAME := lab-iceberg-spark
 
 start:
 	docker-compose up -d
 
 run:
-	docker exec -it -w /home/workspace spark-iceberg bash
+	docker exec -it -w /home/workspace $(CONTAINER_NAME) bash
 
-stop:
+end:
 	docker-compose down
 
-clean:
+clean: end
 	echo y | docker system prune
-	# docker volume rm $(VOLUME)
+	# docker volume rm warehouse notebooks
+	rm -rf warehouse/ notebooks/ workspace/__pycache__/
