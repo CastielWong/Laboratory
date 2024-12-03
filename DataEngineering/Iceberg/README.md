@@ -3,6 +3,7 @@ This is the demo project for Apache Iceberg, which is a high-performance format 
 huge analytic tables.
 
 - [Recipe](#recipe)
+- [Concept](#concept)
 - [Usage](#usage)
 - [Reference](#reference)
 
@@ -14,6 +15,13 @@ huge analytic tables.
 | make run   | access into the primary container        |
 | make end   | stop all relative container(s)           |
 | make clean | clean up container(s), volume(s) created |
+
+
+## Concept
+Note that there are 2 aspects here: Metadata and Data.
+
+The Metadata not only specify where the data is stored, but also point where itself
+is stored and managed.
 
 
 ## Usage

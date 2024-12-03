@@ -36,7 +36,7 @@ SAMPLE_DATA = pa.Table.from_pylist(
     ]
 )
 
-
+CATALOG_NAME = "default"
 WH_SQLITE = PATH_STORAGE
 DIR_NAMESPACE = "ns_sqlite"
 
@@ -44,7 +44,7 @@ DIR_NAMESPACE = "ns_sqlite"
 def init_catalog():
     """Initialize catalog."""
     catalog = SqlCatalog(
-        "default",
+        CATALOG_NAME,
         **{
             "uri": f"sqlite:///{WH_SQLITE}/pyiceberg_catalog_sqlite.db",
             "warehouse": f"file://{WH_SQLITE}",
@@ -136,6 +136,6 @@ def main(catalog) -> None:
 if __name__ == "__main__":
     catalog = init_catalog()
 
-    clean_up(catalog=catalog)
+    # clean_up(catalog=catalog)
 
     main(catalog=catalog)

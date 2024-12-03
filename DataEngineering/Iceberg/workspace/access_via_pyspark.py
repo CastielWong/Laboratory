@@ -14,6 +14,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import DoubleType, LongType, StringType, StructField, StructType
 import util
 
+_SPARK_APP = "demo_spark_iceberg"
+
 DATA_SCHEMA = StructType(
     [
         StructField("identifier", LongType(), True),
@@ -33,7 +35,7 @@ SAMPLE_DATA = [
 def init_spark_session() -> SparkSession:
     """Initialize the Spark session."""
     spark = (
-        SparkSession.builder.appName("demo_spark_iceberg")
+        SparkSession.builder.appName(_SPARK_APP)
         # config
         .config(
             "spark.sql.extensions",
@@ -136,7 +138,7 @@ def run_with_spark(spark: SparkSession, db_table: str, choice: str) -> None:
         df = spark.createDataFrame(SAMPLE_DATA, DATA_SCHEMA)
         df.writeTo(db_table).append()
     else:
-        insert_data = f"INSERT INTO {db_table} VALUES "
+        insert_data = f"INSERT INTO {db_table} VALUES "  # noqa: S608
         for record in SAMPLE_DATA:
             insert_data += f"{record}, "
         insert_data = f"{insert_data[:-2]};"
