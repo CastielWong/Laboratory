@@ -13,4 +13,8 @@ end:
 clean: end
 	echo y | docker system prune
 	# docker volume rm warehouse notebooks
-	rm -rf warehouse/ notebooks/ workspace/__pycache__/
+	rm -rf notebooks/ warehouse_fs/ warehouse_s3/
+	rm -rf workspace/__pycache__/ \
+		workspace/metastore_db/ \
+		workspace/spark-warehouse \
+		workspace/derby.log

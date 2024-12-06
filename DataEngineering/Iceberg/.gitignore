@@ -1,3 +1,6 @@
 
 notebooks/
-warehouse/
+warehouse_*/
+
+workspace/metastore_db/
+workspace/spark-warehouse/

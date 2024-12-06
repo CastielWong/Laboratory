@@ -14,9 +14,15 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import DoubleType, LongType, StringType, StructField, StructType
 import util
 
+S3_CONFIG = {
+    "endpoint": "http://minio:9000",
+    "access-id": "admin",
+    "secret-key": "password",
+}
+
+
 _SPARK_APP = "demo_spark_iceberg"
 _CONF_HADOOP = {
-    # config for using iceberg standardized zone datalake
     "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",  # noqa: E501
     "spark.sql.defaultCatalog": CATALOG_NAME,
     "spark.sql.catalog.spark_catalog": "org.apache.iceberg.spark.SparkSessionCatalog",  # noqa: E501
@@ -27,6 +33,30 @@ _CONF_HADOOP = {
     # "spark.authenticate": "true",
     # "spark.authenticate.secret": spark_secret_key,
     # "spark.authenticate.enableSaslEncryption": "true",
+}
+_CONF_S3 = {
+    # for iceberg standardized zone datalake
+    "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",  # noqa: E501
+    "spark.sql.defaultCatalog": CATALOG_NAME,
+    f"spark.sql.catalog.{CATALOG_NAME}": "org.apache.iceberg.spark.SparkCatalog",
+    f"spark.sql.catalog.{CATALOG_NAME}.type": "hive",
+    f"spark.sql.catalog.{CATALOG_NAME}.warehouse": "s3a://warehouse/",
+    f"spark.sql.catalog.{CATALOG_NAME}.io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
+    # for reading data from S3
+    "spark.hadoop.fs.AbstractFileSystem.s3a.impl": "org.apache.hadoop.fs.s3a.S3A",
+    "com.amazonaws.services.s3.enableV4": "true",
+    "spark.hadoop.fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",  # noqa: E501
+    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+    "spark.hadoop.fs.s3a.path.style.access": "true",
+    "spark.hadoop.fs.s3a.endpoint": S3_CONFIG["endpoint"],
+    "spark.hadoop.fs.s3a.access.key": S3_CONFIG["access-id"],
+    "spark.hadoop.fs.s3a.secret.key": S3_CONFIG["secret-key"],
+    # # for authenticating the Spark worker
+    # "spark.authenticate": "true",
+    # "spark.authenticate.secret": spark_secret_key,
+    # "spark.authenticate.enableSaslEncryption": "true",
+    # allow DataNucleus to create table
+    "datanucleus.schema.autoCreateTables": "true",
 }
 
 
@@ -50,7 +80,8 @@ def init_spark_session() -> SparkSession:
     """Initialize the Spark session."""
     spark = (
         SparkSession.builder.appName(_SPARK_APP)
-        .config(map=_CONF_HADOOP)
+        # .config(map=_CONF_HADOOP)
+        .config(map=_CONF_S3)
         # # enable Hive support
         # .enableHiveSupport()
         # # set timezone
@@ -130,20 +161,20 @@ def run_with_spark(spark: SparkSession, db_table: str, choice: str) -> None:
     spark.sql(f"SHOW TABLES IN {CATALOG_NAME}.{DB_NAMESPACE}").show()
     spark.table(db_table).show()
 
-    if choice == "dataframe":
-        # not iceberg format?
-        df = spark.createDataFrame(SAMPLE_DATA, DATA_SCHEMA)
-        df.writeTo(db_table).append()
-    else:
-        insert_data = f"INSERT INTO {db_table} VALUES "  # noqa: S608
-        for record in SAMPLE_DATA:
-            insert_data += f"{record}, "
-        insert_data = f"{insert_data[:-2]};"
+    # if choice == "dataframe":
+    #     # not iceberg format?
+    #     df = spark.createDataFrame(SAMPLE_DATA, DATA_SCHEMA)
+    #     df.writeTo(db_table).append()
+    # else:
+    #     insert_data = f"INSERT INTO {db_table} VALUES "  # noqa: S608
+    #     for record in SAMPLE_DATA:
+    #         insert_data += f"{record}, "
+    #     insert_data = f"{insert_data[:-2]};"
 
-        spark.sql(insert_data)
+    #     spark.sql(insert_data)
 
-    print("Table after data appended:")
-    spark.table(db_table).show()
+    # print("Table after data appended:")
+    # spark.table(db_table).show()
     return
 
 
@@ -158,9 +189,6 @@ def main(spark: SparkSession, choice: str = "dataframe", clean: bool = True) -> 
             - "sql", Spark SQL
         clean: _description_. Defaults to True
     """
-    if clean:
-        clean_up(spark=spark)
-
     db_table = f"{DB_NAMESPACE}.{TABLE_NAME}"
 
     print("Show existing databases")

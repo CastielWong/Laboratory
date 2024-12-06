@@ -1,15 +1,18 @@
 ---
 services:
   spark-iceberg:
-    image: tabulario/spark-iceberg:3.5.1_1.5.0
     container_name: lab-iceberg-spark
+    image: lab-iceberg:demo
+    build:
+      context: $PWD
+      dockerfile: image/Dockerfile
     depends_on:
     - rest
     - minio
     volumes:
     - ./workspace:/home/workspace
-    - ./warehouse:/home/iceberg/warehouse
     - ./notebooks:/home/iceberg/notebooks/notebooks
+    - ./warehouse_fs:/home/iceberg/warehouse
     environment:
     - AWS_ACCESS_KEY_ID=admin
     - AWS_SECRET_ACCESS_KEY=password
@@ -46,6 +49,8 @@ services:
     - MINIO_ROOT_USER=admin
     - MINIO_ROOT_PASSWORD=password
     - MINIO_DOMAIN=minio
+    volumes:
+    - ./warehouse_s3:/data
     ports:
     - 9001:9001
     - 9000:9000
