@@ -4,6 +4,9 @@ huge analytic tables.
 
 - [Recipe](#recipe)
 - [Concept](#concept)
+  - [Metadata](#metadata)
+  - [PyIceberg](#pyiceberg)
+  - [PySpark](#pyspark)
 - [Usage](#usage)
 - [Reference](#reference)
 
@@ -22,6 +25,39 @@ Note that there are 2 aspects here: Metadata and Data.
 
 The Metadata not only specify where the data is stored, but also point where itself
 is stored and managed.
+
+### Metadata
+Catalog is at the top of metadata hierarchy.
+
+The hierarchy for Iceberg data format is as:
+Catalog -> Namespace -> Table
+
+Mapping the concept from database to Iceberg:
+| General  | Iceberg   |
+|----------|-----------|
+| database | catalog   |
+| schema   | namespace |
+| table    | table     |
+
+### PyIceberg
+There are several ways to configure PyIceberg for Catalog:
+- SQLite
+- S3
+
+### PySpark
+To configure PySpark for Catalog:
+- name: name of the Catalog
+- type: what type of Catalog it is
+- warehouse: where the Catalog is kept
+
+For instance:
+```py
+{
+  f"spark.sql.catalog.{catalog}": "org.apache.iceberg.spark.SparkCatalog",
+  f"spark.sql.catalog.{catalog}.type": "hadoop",
+  f"spark.sql.catalog.{catalog}.warehouse": "/home/iceberg/warehouse",
+}
+```
 
 
 ## Usage

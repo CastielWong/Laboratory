@@ -9,19 +9,9 @@ import boto3
 import metadata
 import util
 
-IP_REST = "181.4.11.11"
-REST_URL = f"http://{IP_REST}:8181"
-S3_CONFIG = {
-    "endpoint": "http://minio:9000",
-    "access-id": "admin",
-    "secret-key": "password",
-}
-
-
 CATALOG_NAME = "default"
 WH_SQLITE = metadata.FS_LOCAL_PATH
 DIR_NAMESPACE = "ns_sqlite"
-BUCKET_NAME = "warehouse"
 DIR_NAME = "pyiceberg"
 
 
@@ -39,10 +29,10 @@ def init_catalog():
     catalog = load_catalog(
         CATALOG_NAME,
         **{
-            "uri": REST_URL,
-            "s3.endpoint": S3_CONFIG["endpoint"],
-            "s3.access-key-id": S3_CONFIG["access-id"],
-            "s3.secret-access-key": S3_CONFIG["secret-key"],
+            "uri": metadata.REST_URL,
+            "s3.endpoint": metadata.S3_CONFIG["endpoint"],
+            # "s3.access-key-id": metadata.S3_CONFIG["admin_username"],
+            # "s3.secret-access-key": metadata.S3_CONFIG["admin_password"],
             "hive.hive2-compatible": True,
         },
     )
@@ -87,7 +77,7 @@ def delete_data_in_s3(s3_client, bucket_name: str, dir_name: str) -> None:
     return
 
 
-def drop_metadata(catalog):
+def drop_metadata(catalog) -> None:
     """Drop metadata in the catalog.
 
     Args:
@@ -142,8 +132,7 @@ def run_with_pyiceberg(catalog, namespace: str, table_name: str) -> None:
             db_table,
             schema=metadata.PYICEBERG_DATA_SCHEMA,
             # location=f"{WH_SQLITE}/{DIR_NAMESPACE}",
-            location=f"s3a://{BUCKET_NAME}/{DIR_NAME}",
-            # location=f"s3a://warehouse",
+            location=f"s3a://{metadata.BUCKET_NAME}/{DIR_NAME}",
         )
 
     # append data
@@ -178,17 +167,17 @@ if __name__ == "__main__":
 
     s3_client = boto3.client(
         "s3",
-        endpoint_url=S3_CONFIG["endpoint"],
-        aws_access_key_id=S3_CONFIG["access-id"],
-        aws_secret_access_key=S3_CONFIG["secret-key"],
+        endpoint_url=metadata.S3_CONFIG["endpoint"],
+        # aws_access_key_id=metadata.S3_CONFIG["admin_username"],
+        # aws_secret_access_key=metadata.S3_CONFIG["admin_password"],
         use_ssl=False,
     )
 
     main(catalog=catalog)
 
-    # clean_up(
-    #     catalog=catalog,
-    #     s3_client=s3_client,
-    #     bucket_name=BUCKET_NAME,
-    #     dir_name=DIR_NAME,
-    # )
+    clean_up(
+        catalog=catalog,
+        s3_client=s3_client,
+        bucket_name=metadata.BUCKET_NAME,
+        dir_name=DIR_NAME,
+    )

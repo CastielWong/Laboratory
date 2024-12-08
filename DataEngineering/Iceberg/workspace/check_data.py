@@ -3,12 +3,10 @@
 """Read data for verification."""
 
 from pyiceberg.catalog import load_catalog
+import metadata
 import run_with_pyspark as spark_conn
 
 _SUPPORT_WAYS = ("pyiceberg", "pyspark")
-
-
-IP_REST = "181.4.11.11"
 
 
 def read_via_pyiceberg() -> None:
@@ -17,14 +15,8 @@ def read_via_pyiceberg() -> None:
     # path_storage = "/home/iceberg/warehouse"
     # db_fs_name = "pyiceberg_catalog_sqlite.db"
 
-    s3_config = {
-        "endpoint": "http://minio:9000",
-        "access-id": "admin",
-        "secret-key": "password",
-    }
-
-    db_namespace = "db_demo"
-    table_name = "sample"
+    db_namespace = metadata.DB_NAMESPACE
+    table_name = metadata.TABLE_NAME
 
     # catalog = SqlCatalog(
     #     catalog_name,
@@ -36,10 +28,10 @@ def read_via_pyiceberg() -> None:
     catalog = load_catalog(
         catalog_name,
         **{
-            "uri": f"http://{IP_REST}:8181",
-            "s3.endpoint": s3_config["endpoint"],
-            "s3.access-key-id": s3_config["access-id"],
-            "s3.secret-access-key": s3_config["secret-key"],
+            "uri": f"http://{metadata.IP_REST}:8181",
+            "s3.endpoint": metadata.S3_CONFIG["endpoint"],
+            "s3.access-key-id": metadata.S3_CONFIG["admin_username"],
+            "s3.secret-access-key": metadata.S3_CONFIG["admin_password"],
             "hive.hive2-compatible": True,
         },
     )
@@ -106,6 +98,6 @@ def main(way: str = "pyiceberg") -> None:
 
 
 if __name__ == "__main__":
-    # main(way="pyiceberg")
+    main(way="pyiceberg")
 
-    main(way="pyspark")
+    # main(way="pyspark")

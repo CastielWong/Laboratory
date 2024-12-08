@@ -148,7 +148,8 @@ def main(spark: SparkSession, choice: str = "dataframe", clean: bool = True) -> 
 
 
 if __name__ == "__main__":
-    spark = init_spark_session(config="fs")
+    # spark = init_spark_session(config="fs")
+    spark = init_spark_session(config="s3")
 
     main(spark=spark, choice="sql", clean=True)
 
