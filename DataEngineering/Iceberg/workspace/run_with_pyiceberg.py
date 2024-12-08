@@ -4,16 +4,9 @@
 
 # from pyiceberg.catalog.hive import HiveCatalog
 from botocore.exceptions import ClientError, NoCredentialsError
-from metadata import (
-    DB_NAMESPACE,
-    PATH_STORAGE,
-    TABLE_NAME,
-)
 from pyiceberg.catalog import load_catalog
-from pyiceberg.schema import NestedField, Schema
-from pyiceberg.types import DoubleType, LongType, StringType
 import boto3
-import pyarrow as pa
+import metadata
 import util
 
 IP_REST = "181.4.11.11"
@@ -24,23 +17,9 @@ S3_CONFIG = {
     "secret-key": "password",
 }
 
-DATA_SCHEMA = Schema(
-    NestedField(field_id=1, name="identifier", field_type=LongType(), required=False),
-    NestedField(field_id=2, name="fruit", field_type=StringType(), required=False),
-    NestedField(field_id=3, name="price", field_type=DoubleType(), required=False),
-)
-SAMPLE_DATA = pa.Table.from_pylist(
-    [
-        {"identifier": 1, "fruit": "Apple", "price": 1.89},
-        {"identifier": 2, "fruit": "Berry", "price": 3.33},
-        {"identifier": 3, "fruit": "Cherry", "price": 2.99},
-        {"identifier": 4, "fruit": "Date", "price": 0.88},
-        {"identifier": 5, "fruit": "Fig", "price": 5.55},
-    ]
-)
 
 CATALOG_NAME = "default"
-WH_SQLITE = PATH_STORAGE
+WH_SQLITE = metadata.FS_LOCAL_PATH
 DIR_NAMESPACE = "ns_sqlite"
 BUCKET_NAME = "warehouse"
 DIR_NAME = "pyiceberg"
@@ -114,13 +93,13 @@ def drop_metadata(catalog):
     Args:
         catalog: catalog connected via pyiceberg
     """
-    db_table = f"{DB_NAMESPACE}.{TABLE_NAME}"
+    db_table = f"{metadata.DB_NAMESPACE}.{metadata.TABLE_NAME}"
 
     print(f"Dropping table '{db_table}'")
     catalog.purge_table(identifier=db_table)
 
     print(f"Dropping namespace '{db_table}'")
-    catalog.drop_namespace(namespace=DB_NAMESPACE)
+    catalog.drop_namespace(namespace=metadata.DB_NAMESPACE)
     return
 
 
@@ -161,7 +140,7 @@ def run_with_pyiceberg(catalog, namespace: str, table_name: str) -> None:
         print(f"Creating table '{table_name}'")
         catalog.create_table(
             db_table,
-            schema=DATA_SCHEMA,
+            schema=metadata.PYICEBERG_DATA_SCHEMA,
             # location=f"{WH_SQLITE}/{DIR_NAMESPACE}",
             location=f"s3a://{BUCKET_NAME}/{DIR_NAME}",
             # location=f"s3a://warehouse",
@@ -169,7 +148,7 @@ def run_with_pyiceberg(catalog, namespace: str, table_name: str) -> None:
 
     # append data
     table = catalog.load_table(db_table)
-    table.append(SAMPLE_DATA)
+    table.append(metadata.PYICEBERG_SAMPLE_DATA)
     print(f"Showing data in '{db_table}'")
     print(table.scan().to_pandas())
 
@@ -187,7 +166,9 @@ def main(catalog) -> None:
     for ns in catalog.list_namespaces():
         print(ns)
 
-    run_with_pyiceberg(catalog=catalog, namespace=DB_NAMESPACE, table_name=TABLE_NAME)
+    run_with_pyiceberg(
+        catalog=catalog, namespace=metadata.DB_NAMESPACE, table_name=metadata.TABLE_NAME
+    )
 
     return
 
@@ -205,9 +186,9 @@ if __name__ == "__main__":
 
     main(catalog=catalog)
 
-    clean_up(
-        catalog=catalog,
-        s3_client=s3_client,
-        bucket_name=BUCKET_NAME,
-        dir_name=DIR_NAME,
-    )
+    # clean_up(
+    #     catalog=catalog,
+    #     s3_client=s3_client,
+    #     bucket_name=BUCKET_NAME,
+    #     dir_name=DIR_NAME,
+    # )

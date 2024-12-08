@@ -3,11 +3,10 @@
 """Read data for verification."""
 
 from pyiceberg.catalog import load_catalog
-from pyspark.sql import SparkSession
+import run_with_pyspark as spark_conn
 
 _SUPPORT_WAYS = ("pyiceberg", "pyspark")
 
-_SPARK_APP = "demo_spark_iceberg"
 
 IP_REST = "181.4.11.11"
 
@@ -57,8 +56,12 @@ def read_via_pyiceberg() -> None:
     return
 
 
-def read_via_pyspark() -> None:
-    """Retrieve data via `pyspark`."""
+def read_via_pyspark(config: str = "fs") -> None:
+    """Retrieve data via `pyspark`.
+
+    Args:
+        config: which configuration to use, ["fs", "s3"]
+    """
     catalog_name = "local"
     # path_storage = "/home/iceberg/warehouse"
 
@@ -67,33 +70,7 @@ def read_via_pyspark() -> None:
 
     db_table = f"{db_namespace}.{table_name}"
 
-    # conf_hadoop = {
-    #     # config for using iceberg standardized zone datalake
-    #     "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",  # noqa: E501
-    #     "spark.sql.catalog.spark_catalog": "org.apache.iceberg.spark.SparkSessionCatalog",  # noqa: E501
-    #     "spark.sql.defaultCatalog": catalog_name,
-    #     f"spark.sql.catalog.{catalog_name}": "org.apache.iceberg.spark.SparkCatalog",
-    #     f"spark.sql.catalog.{catalog_name}.type": "hadoop",
-    #     f"spark.sql.catalog.{catalog_name}.warehouse": path_storage,
-    # }
-    conf_s3 = {
-        "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",  # noqa: E501
-        "spark.sql.defaultCatalog": catalog_name,
-        f"spark.sql.catalog.{catalog_name}": "org.apache.iceberg.spark.SparkCatalog",
-        f"spark.sql.catalog.{catalog_name}.type": "hive",
-        f"spark.sql.catalog.{catalog_name}.warehouse": "s3a://warehouse/",
-        f"spark.sql.catalog.{catalog_name}.io-impl": "org.apache.iceberg.aws.s3.S3FileIO",  # noqa: E501
-    }
-
-    spark = (
-        SparkSession.builder.appName(_SPARK_APP)
-        .config(map=conf_s3)
-        # # enable Hive support
-        # .enableHiveSupport()
-        # # set timezone
-        # .config("spark.sql.session.timeZone", timezone)
-        .getOrCreate()
-    )
+    spark = spark_conn.init_spark_session(config)
 
     print("List catalogs:")
     print(spark.catalog.listCatalogs())
@@ -123,12 +100,12 @@ def main(way: str = "pyiceberg") -> None:
     if way == "pyiceberg":
         read_via_pyiceberg()
     elif way == "pyspark":
-        read_via_pyspark()
+        read_via_pyspark(config="fs")
 
     return
 
 
 if __name__ == "__main__":
-    main(way="pyiceberg")
+    # main(way="pyiceberg")
 
-    # main(way="pyspark")
+    main(way="pyspark")
