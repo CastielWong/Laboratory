@@ -4,6 +4,9 @@ CONTAINER_NAME := lab-kc-gitlab
 start:
 	docker-compose up -d
 
+end:
+	docker-compose down
+
 fetch_gitlab_pwd:
 	docker exec -it $(CONTAINER_NAME) \
 		bash -c \
@@ -12,12 +15,10 @@ fetch_gitlab_pwd:
 gen_cert:
 	bash generate_ssl_cert.sh
 
-destroy:
+destroy: end
 	docker rmi lab-keycloak:demo lab-kc-gitlab:demo
 
-end:
-	docker-compose down
-
-clean:
+clean: destroy
+	docker builder prune -a -f
 	echo y | docker system prune
 	rm -rf ./gitlab

@@ -9,8 +9,9 @@ This is the demo project for KeyCloak.
     - [Concept](#concept)
     - [Cryptographic File](#cryptographic-file)
     - [Generation](#generation)
+    - [Certificate Check](#certificate-check)
   - [SSO](#sso)
-- [Troubleshoot](#troubleshoot)
+- [Troubleshoot - GitLab](#troubleshoot---gitlab)
   - [Localhost](#localhost)
   - [Self Connect](#self-connect)
 - [Reference](#reference)
@@ -38,8 +39,11 @@ Basic concepts:
 
 ## Usage
 After containers are up, access
-- KeyCloak: https://localhost:8443
-- GitLab: https://localhost:43
+- KeyCloak:
+  - https://keycloak.lab:8443
+  - https://localhost:8443
+  - not working: https://[<host_name>|localhost]
+- GitLab: https://localhost:443
   - username: root
   - password: can be found at "/etc/gitlab/initial_root_password"
 
@@ -50,7 +54,15 @@ Follow official guides below for more details:
 
 
 ## Development
-"kc.sh" is under "${HOME}/bin"
+"kc.sh" is under "${HOME}/bin".
+
+Remember to add record in like "127.0.0.1 keycloak.lab" in "/etc/hosts" to access
+KeyCloak via common name ("https://keycloak.lab").
+
+When HTTPS mode is enabled and the host name set, it must access via the hostname
+but not "https://localhost:8443".
+Otherwise, the KeyCloak would be hold with “Loading to Admin UI” page without further
+responding when try to access "Administration Console".
 
 ### Configuration
 According to KeyCloak's [configuration](https://www.keycloak.org/server/configuration),
@@ -69,9 +81,6 @@ To check what info the certificate includes, run
 
 Though there is CN (Common Name) defined in the certificate, it doesn't necessarily
 the same as the configuration.
-
-Remember to add record in like "127.0.0.1 keycloak.lab" in "/etc/hosts" to access
-KeyCloak via common name ("https://keycloak.lab").
 
 #### Concept
 An SSL certificate is a digital certificate that authenticate the identity
@@ -124,6 +133,20 @@ Generate self-signed certificate for KeyCloak and GitLab to use HTTPS via:
 
 SSL/TLS certificates are essential for establishing secure connections over HTTPS.
 
+#### Certificate Check
+When a client (such as a web browser or another service) connects to a server using
+HTTPS, it checks the certificate presented by the server.
+One of the checks it performs is to verify that the hostname in the URL matches the
+CN (or Subject Alternative Name, SAN) in the certificate.
+If there is a mismatch, the client will typically reject the connection and display
+a warning or error message.
+
+Using a certificate with a matching CN helps prevent man-in-the-middle (MITM) attacks,
+where an attacker could intercept the connection and present a different certificate.
+By ensuring that the CN matches the expected hostname, it helps ensuring that clients
+are communicating with the intended server.
+
+
 ### SSO
 GitLab is deployed to demo Single Sign-On authentication scheme.
 
@@ -150,7 +173,7 @@ To have SSO up and functioning:
   3.
 
 
-## Troubleshoot
+## Troubleshoot - GitLab
 All issues related to OpenID Connect would start with
 > "Could not authenticate you from OpenIDConnect because ..."
 
@@ -163,8 +186,10 @@ Since GitLab and KeyCloak are in different containers, IP or hostname is needed 
 To fix it, ensure the IPs in `GITLAB_OMNIBUS_CONFIG` is correct.
 
 ### Self Connect
+The common prefix of each error message:
 > ... "Ssl connect returned=1 errno=0 peeraddr=181.3.11.1:8443 state=error: ..."
 
+-------------------------------------------------------------------------------
 Problem:
 > "... wrong version number"
 
@@ -172,6 +197,7 @@ Answer:
 Check which container gets the IP, it's possible that it uses incorrect protocol,
 like KeyCloak should use HTTPS instead of HTTP.
 
+-------------------------------------------------------------------------------
 Problem:
 > "... certificate verify failed (self signed certificate)"
 
@@ -183,6 +209,52 @@ There are 3 possible solutions:
 - moderate: add the self-signed certificate to the trusted certificates in GitLab
 - simplest: but not recommended one is to disable SSL verification in GitLab
 
+Ensure the "/etc/gitlab/trusted-certs/<name>.crt" certificate exists.
+
+-------------------------------------------------------------------------------
+Problem:
+> "Hostname "<ip>/<host_name>" does not match the server certificate".
+
+Answer:
+Update the hostname at `gitlab_rails["omniauth_providers"]` -> `args` -> "issuer".
+
+-------------------------------------------------------------------------------
+Problem:
+> "Connection refused - connection refused - connect(2) for '<host>' port <port> (<host>:<port>)"
+
+Answer:
+It's possibly because the GitLab container failed to resolve KeyCloak container's
+host name.
+Like resolving "keycloak.lab" to "127.0.0.1", which causes loopback address and
+resolve that to the GitLab container itself.
+
+Other than the host name like "keycloak.lab", use "keycloak" the service name set
+in the compose file.
+
+Run commands in GitLab container to see if it resolves correctly:
+- `ping <service_name>`
+- `curl -k https://<service_name>:8443/realms/demo`
+
+-------------------------------------------------------------------------------
+Problem:
+> "Hostname '<host_name>' does not match the server certificate"
+
+Answer:
+Check if the common name specified in the SSL certificate matched the host name.
+Update the SSL certificate with the matched host name.
+
+-------------------------------------------------------------------------------
+Problem:
+> "Not found"
+
+Answer:
+Ensure the Realm is created
+
+-------------------------------------------------------------------------------
+Problem:
+> "Issuer mismatch"
+
+Answer:
 
 
 ## Reference

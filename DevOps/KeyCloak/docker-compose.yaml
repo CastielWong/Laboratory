@@ -10,7 +10,7 @@ services:
       KC_METRICS_ENABLED: "true"
       # KC_LOG_LEVEL: info
       KC_HOSTNAME: keycloak.lab
-      # KC_HOSTNAME_PORT: 8443
+      KC_HOSTNAME_PORT: 8443
       # KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -48,12 +48,14 @@ services:
         # https://docs.gitlab.com/ee/administration/auth/oidc.html
         gitlab_rails["omniauth_enabled"] = true
         gitlab_rails["omniauth_allow_single_sign_on"] = ["openid_connect"]
+        # disable SSL verification
+        gitlab_rails["omniauth_ssl_verify"] = false
         gitlab_rails["omniauth_providers"] = [
           {
             name: "openid_connect",
             label: "OpenID Connect - KeyCloak",
             args: {
-              issuer: "https://181.3.11.1:8443/realms/demo",
+              issuer: "https://keycloak:8443/realms/demo",
               name: "openid_connect",
               scope: ["openid", "profile", "email", "groups"],
               response_type: "code",
@@ -61,6 +63,7 @@ services:
               discovery: true,
               uid_field: "preferred_username",
               pkce: false,
+              # ssl_verify: false,
               client_options: {
                 identifier: "gitlab",
                 secret: "gitlab_secret",
@@ -74,7 +77,6 @@ services:
       - "443:443"
       - "22:22"
     volumes:
-      - ./gitlab/config:/etc/gitlab
       - ./gitlab/logs:/var/log/gitlab
       - ./gitlab/data:/var/opt/gitlab
     shm_size: "256m"
