@@ -1,7 +1,7 @@
 FROM gitlab/gitlab-ce:16.5.8-ce.0 AS builder
 
 WORKDIR /etc/gitlab
-# RUN mkdir -p /etc/gitlab/trusted-certs
+RUN mkdir -p /etc/gitlab/trusted-certs
 RUN mkdir -p /etc/gitlab/ssl
 
 
@@ -10,9 +10,6 @@ FROM gitlab/gitlab-ce:16.5.8-ce.0
 COPY --from=builder /etc/gitlab /etc/gitlab
 COPY --from=builder /var/opt/gitlab/ /var/opt/gitlab/
 COPY --from=builder /var/log/gitlab/ /var/log/gitlab/
-
-# COPY ../ca.crt /etc/gitlab/trusted-certs/ca.crt
-# COPY ./tmp_ssl/server.crt /etc/gitlab/trusted-certs/gitlab.crt
 
 COPY ./ssl/server.crt /etc/gitlab/trusted-certs/gitlab.crt
 
