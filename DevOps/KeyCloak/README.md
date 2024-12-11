@@ -213,6 +213,13 @@ Ensure the "/etc/gitlab/trusted-certs/<name>.crt" certificate exists.
 
 -------------------------------------------------------------------------------
 Problem:
+> "... certificate verify failed (unable to get local issuer certificate)"
+
+Answer:
+Maybe it's because there is a valid certificate under "/etc/gitlab/trusted-cert"
+
+-------------------------------------------------------------------------------
+Problem:
 > "Hostname "<ip>/<host_name>" does not match the server certificate".
 
 Answer:
@@ -255,6 +262,11 @@ Problem:
 > "Issuer mismatch"
 
 Answer:
+Check if the "issuer" in `args` of `gitlab_rails["omniauth_providers"]` is
+following the format: "https://<keycloak-host>:<port>/auth/realms/<name>".
+
+If not sure, go to the link below to test OpenID COnnect configuration:
+"https://<keycloak-host>:<port>/auth/realms/<name>/.well-known/openid-configuration".
 
 
 ## Reference

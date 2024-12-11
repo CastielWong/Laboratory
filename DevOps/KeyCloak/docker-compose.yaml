@@ -14,6 +14,8 @@ services:
       # KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+    - ./script/init_keycloak.sh:/tmp/init_keycloak.sh
     healthcheck:
       test: ["CMD", "curl", "-f", "https://localhost:9000/health/ready"]
       interval: 15s
@@ -55,7 +57,7 @@ services:
             name: "openid_connect",
             label: "OpenID Connect - KeyCloak",
             args: {
-              issuer: "https://keycloak:8443/realms/demo",
+              issuer: "https://keycloak:8443/auth/realms/demo",
               name: "openid_connect",
               scope: ["openid", "profile", "email", "groups"],
               response_type: "code",
