@@ -11,6 +11,6 @@ run:
 end:
 	docker-compose down
 
-clean:
+clean: end
 	echo y | docker system prune
 	rm -rf $(DIR_VOLUME)/

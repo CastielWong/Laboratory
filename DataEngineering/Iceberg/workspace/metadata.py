@@ -9,7 +9,8 @@ import pyiceberg.schema as pi_type
 import pyspark.sql.types as ps_type
 
 FS_LOCAL_PATH = "/home/iceberg/warehouse"
-CATALOG_NAME = "local"
+# CATALOG_NAME = "local"
+CATALOG_NAME = "remote"
 DB_NAMESPACE = "db_demo"
 TABLE_NAME = "sample"
 
@@ -26,17 +27,19 @@ S3_CONFIG = {
     "read_secret_key": os.getenv("S3_READ_SECRET_KEY", "Not Set"),
 }
 
-print(S3_CONFIG)
-
 # ==============================PySpark==============================
 _CONF_FILESYSTEM = {
     # for iceberg
-    # "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",  # noqa: E501
-    # "spark.sql.catalog.spark_catalog": "org.apache.iceberg.spark.SparkSessionCatalog",  # noqa: E501
+    # "spark.sql.extensions": (
+    #     "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions"
+    # ),
+    # "spark.sql.catalog.spark_catalog":(
+    #     "org.apache.iceberg.spark.SparkSessionCatalog"
+    # ),
     "spark.sql.defaultCatalog": CATALOG_NAME,
     f"spark.sql.catalog.{CATALOG_NAME}": "org.apache.iceberg.spark.SparkCatalog",
     f"spark.sql.catalog.{CATALOG_NAME}.type": "hadoop",
-    f"spark.sql.catalog.{CATALOG_NAME}.warehouse": FS_LOCAL_PATH,
+    f"spark.sql.catalog.{CATALOG_NAME}.warehouse": f"file://{FS_LOCAL_PATH}",
     # # configure for Spark authentication
     # "spark.authenticate": "true",
     # "spark.authenticate.secret": spark_secret_key,
@@ -49,31 +52,34 @@ _CONF_S3 = {
     "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",  # noqa: E501
     "spark.sql.defaultCatalog": CATALOG_NAME,
     f"spark.sql.catalog.{CATALOG_NAME}": "org.apache.iceberg.spark.SparkCatalog",
-    f"spark.sql.catalog.{CATALOG_NAME}.type": "hive",
+    f"spark.sql.catalog.{CATALOG_NAME}.type": "rest",
+    # f"spark.sql.catalog.{CATALOG_NAME}.type": "hadoop",
+    # f"spark.sql.catalog.{CATALOG_NAME}.type": "hive",
     f"spark.sql.catalog.{CATALOG_NAME}.warehouse": f"s3a://{S3_BUCKET}/{S3_DIR_NAME}/",
+    # f"spark.sql.catalog.{CATALOG_NAME}.uri": "thrift://spark-master:9083",
     f"spark.sql.catalog.{CATALOG_NAME}.io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
     # # for data writing
-    # f"spark.sql.catalog.{CATALOG_NAME}.uri": "standardised_zone_hive_metastore_uri",
+    f"spark.sql.catalog.{CATALOG_NAME}.uri": REST_URL,
     f"spark.sql.catalog.{CATALOG_NAME}.s3.endpoint": S3_CONFIG["endpoint"],
     f"spark.sql.catalog.{CATALOG_NAME}.s3.access-key-id": S3_CONFIG["read_access_id"],
     f"spark.sql.catalog.{CATALOG_NAME}.s3.secret-access-key": S3_CONFIG[
         "read_secret_key"
     ],
     # for reading data from S3
-    "spark.hadoop.fs.AbstractFileSystem.s3a.impl": "org.apache.hadoop.fs.s3a.S3A",
-    "com.amazonaws.services.s3.enableV4": "true",
-    "spark.hadoop.fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",  # noqa: E501
-    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
-    "spark.hadoop.fs.s3a.path.style.access": "true",
     "spark.hadoop.fs.s3a.endpoint": S3_CONFIG["endpoint"],
     "spark.hadoop.fs.s3a.access.key": S3_CONFIG["read_access_id"],
     "spark.hadoop.fs.s3a.secret.key": S3_CONFIG["read_secret_key"],
+    "spark.hadoop.fs.s3a.path.style.access": "true",
+    "spark.hadoop.fs.AbstractFileSystem.s3a.impl": "org.apache.hadoop.fs.s3a.S3A",
+    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+    "com.amazonaws.services.s3.enableV4": "true",
+    "spark.hadoop.fs.s3a.aws.credentials.provider": "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider",  # noqa: E501
     # # for authenticating the Spark worker
     # "spark.authenticate": "true",
     # "spark.authenticate.secret": spark_secret_key,
     # "spark.authenticate.enableSaslEncryption": "true",
-    # allow DataNucleus to create table
-    "datanucleus.schema.autoCreateTables": "true",
+    # # allow DataNucleus to create table
+    # "datanucleus.schema.autoCreateTables": "true",
     # # set timezone
     # "spark.sql.session.timeZone": "HongKong",
 }

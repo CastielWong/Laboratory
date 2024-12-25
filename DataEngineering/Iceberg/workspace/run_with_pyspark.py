@@ -125,7 +125,7 @@ def run_with_spark(spark: SparkSession, db_table: str, choice: str) -> None:
 
 
 @util.enclose_info
-def main(spark: SparkSession, choice: str = "dataframe", clean: bool = True) -> None:
+def main(spark: SparkSession, choice: str = "dataframe") -> None:
     """Run the main.
 
     Args:
@@ -133,7 +133,6 @@ def main(spark: SparkSession, choice: str = "dataframe", clean: bool = True) -> 
         choice: either "dataframe" or "sql",
             - "dataframe", pure Python in spark
             - "sql", Spark SQL
-        clean: _description_. Defaults to True
     """
     db_table = f"{metadata.DB_NAMESPACE}.{metadata.TABLE_NAME}"
 
@@ -151,6 +150,10 @@ if __name__ == "__main__":
     # spark = init_spark_session(config="fs")
     spark = init_spark_session(config="s3")
 
-    main(spark=spark, choice="sql", clean=True)
+    print("=" * 100)
+    print("Displaying the version of Iceberg:")
+    spark.sql("SELECT iceberg_version()").show()
+
+    main(spark=spark, choice="sql")
 
     # clean_up(spark=spark)
