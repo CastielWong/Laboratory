@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 """Read data for verification."""
 
+from colorama import Fore
 from pyiceberg.catalog import load_catalog
+import colorama
 import metadata
-import run_with_pyspark as spark_conn
+import util
 
 _SUPPORT_WAYS = ("pyiceberg", "pyspark")
 
@@ -55,6 +57,7 @@ def read_via_pyspark(config: str = "fs") -> None:
         config: which configuration to use, ["fs", "s3"]
     """
     catalog_name = "local"
+    catalog_name = metadata.CATALOG_NAME
     # path_storage = "/home/iceberg/warehouse"
 
     db_namespace = "db_demo"
@@ -62,17 +65,27 @@ def read_via_pyspark(config: str = "fs") -> None:
 
     db_table = f"{db_namespace}.{table_name}"
 
-    spark = spark_conn.init_spark_session(config)
+    print(Fore.BLUE + "*" * 100)
+    spark = util.init_spark_session(config)
 
-    print("List catalogs:")
+    print(Fore.BLUE + "Configuration - Spark")
+    print(Fore.BLUE + "List catalogs:")
     print(spark.catalog.listCatalogs())
+    print(Fore.BLUE + f"Current catalog: {spark.catalog.currentCatalog()}")
 
-    query = f"SHOW TABLES IN {catalog_name}.{db_namespace}"
-    print(f"Run SQL '{query}'")
-    spark.sql(query).show()
+    print(Fore.BLUE + "*" * 100)
+    print(Fore.BLUE + "Configuration - Iceberg")
+    util.print_sql_then_run(spark, "SHOW DATABASES")
 
-    print(f"Data inside table '{db_table}':")
-    spark.table(db_table).show()
+    if not spark.catalog.databaseExists(db_namespace):
+        print(f"The database {db_namespace} doesn't exist yet")
+        return
+
+    util.print_sql_then_run(spark, f"SHOW TABLES IN {catalog_name}.{db_namespace}")
+
+    util.print_sql_then_run(spark, f"SELECT *   FROM {db_table}")  # noqa: S608
+
+    print("*" * 100)
 
     return
 
@@ -92,12 +105,15 @@ def main(way: str = "pyiceberg") -> None:
     if way == "pyiceberg":
         read_via_pyiceberg()
     elif way == "pyspark":
-        read_via_pyspark(config="fs")
+        # read_via_pyspark(config="fs")
+        read_via_pyspark(config="s3")
 
     return
 
 
 if __name__ == "__main__":
-    main(way="pyiceberg")
+    colorama.init(autoreset=True)
 
-    # main(way="pyspark")
+    # main(way="pyiceberg")
+
+    main(way="pyspark")

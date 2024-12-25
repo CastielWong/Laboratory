@@ -4,34 +4,11 @@
 
 import shutil
 
+from colorama import Fore
 from pyspark.sql import SparkSession
+import colorama
 import metadata
 import util
-
-_SPARK_APP = "demo_spark_iceberg"
-
-
-def init_spark_session(config: str = "fs") -> SparkSession:
-    """Initialize the Spark session.
-
-    Args:
-        config: which configuration to use, ["fs", "s3"]
-
-    Returns:
-        A new Spark session
-    """
-    if config not in metadata.SPARK_CONFIG.keys():
-        raise ValueError(f"Configuration for '{config}' is not supported.")
-
-    spark = (
-        SparkSession.builder.appName(_SPARK_APP)
-        .config(map=metadata.SPARK_CONFIG[config])
-        # # enable Hive support
-        # .enableHiveSupport()
-        .getOrCreate()
-    )
-
-    return spark
 
 
 def drop_db(spark: SparkSession, namespace: str) -> None:
@@ -125,37 +102,6 @@ def run_with_spark(spark: SparkSession, db_table: str, choice: str) -> None:
 
 
 @util.enclose_info
-def check_data(spark: SparkSession, namespace: str, table_name: str) -> None:
-    """Check data in the table.
-
-    Args:
-        spark: spark session
-        namespace: namespace to access
-        table_name: name of the table
-    """
-    print("Show existing databases")
-    spark.sql("SHOW DATABASES").show()
-
-    if not spark.catalog.databaseExists(namespace):
-        print(f"The database {namespace} doesn't exist yet")
-        return
-
-    print(f"List tables inside '{namespace}'")
-    spark.sql(f"SHOW TABLES IN {namespace}").show()
-
-    db_table = f"{namespace}.{table_name}"
-    print(f"Displaying data in '{db_table}'")
-    spark.sql(
-        f"""
-        SELECT  *
-        FROM    {db_table}
-    """
-    ).show()
-
-    return
-
-
-@util.enclose_info
 def main(spark: SparkSession, choice: str = "dataframe") -> None:
     """Run the main.
 
@@ -167,8 +113,9 @@ def main(spark: SparkSession, choice: str = "dataframe") -> None:
     """
     db_table = f"{metadata.DB_NAMESPACE}.{metadata.TABLE_NAME}"
 
-    print(f"Create database '{metadata.DB_NAMESPACE}' if not existed")
-    spark.sql(f"CREATE DATABASE IF NOT EXISTS {metadata.DB_NAMESPACE}")
+    util.print_sql_then_run(
+        spark, f"CREATE DATABASE IF NOT EXISTS {metadata.DB_NAMESPACE}"
+    )
 
     run_with_spark(spark=spark, db_table=db_table, choice=choice)
 
@@ -176,17 +123,19 @@ def main(spark: SparkSession, choice: str = "dataframe") -> None:
 
 
 if __name__ == "__main__":
-    # spark = init_spark_session(config="fs")
-    spark = init_spark_session(config="s3")
+    colorama.init(autoreset=True)
 
-    print("*" * 100)
+    # spark = util.init_spark_session(config="fs")
+    spark = util.init_spark_session(config="s3")
+
+    print(Fore.BLUE + "*" * 100)
     print("Displaying the version of Iceberg:")
     spark.sql("SELECT iceberg_version()").show()
 
-    # main(spark=spark, choice="sql")
+    print(Fore.BLUE + "List catalogs:")
+    print(spark.catalog.listCatalogs())
+    print(Fore.BLUE + f"Current catalog: {spark.catalog.currentCatalog()}")
 
-    check_data(
-        spark=spark, namespace=metadata.DB_NAMESPACE, table_name=metadata.TABLE_NAME
-    )
+    main(spark=spark, choice="sql")
 
     # clean_up(spark=spark)

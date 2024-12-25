@@ -79,4 +79,5 @@ mc alias ls
 
 
 ## Reference
-- https://iceberg.apache.org/spark-quickstart/#docker-compose
+- Iceberg - quickstart: https://iceberg.apache.org/spark-quickstart/#docker-compose
+- Iceberg - Spark Configuration: https://iceberg.apache.org/docs/1.6.0/spark-configuration/#catalogs

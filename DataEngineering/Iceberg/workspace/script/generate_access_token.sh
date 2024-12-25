@@ -1,7 +1,7 @@
 #/bin/bash
 FILE_ENV="/home/.env"
 
-export MINIO_ALIAS="demo_user"
+export MINIO_ALIAS="demo_service_account"
 
 touch ${FILE_ENV}
 
