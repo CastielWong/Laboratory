@@ -4,8 +4,10 @@
 
 # from pyiceberg.catalog.hive import HiveCatalog
 from botocore.exceptions import ClientError, NoCredentialsError
-from pyiceberg.catalog import load_catalog
+from colorama import Fore
+from pyiceberg.catalog import Catalog, load_catalog
 import boto3
+import colorama
 import metadata
 import util
 
@@ -15,27 +17,38 @@ DIR_NAMESPACE = "ns_sqlite"
 DIR_NAME = "pyiceberg"
 
 
-def init_catalog():
-    """Initialize catalog."""
-    # # store metadata in SQLite
-    # catalog = load_catalog(
-    #     CATALOG_NAME,
-    #     **{
-    #         "uri": f"sqlite:///{WH_SQLITE}/pyiceberg_catalog_sqlite.db",
-    #         "warehouse": f"file://{WH_SQLITE}",
-    #     },
-    # )
+def init_catalog(config: str = "s3") -> Catalog:
+    """Initialize catalog.
 
-    catalog = load_catalog(
-        CATALOG_NAME,
-        **{
-            "uri": metadata.REST_URL,
-            "s3.endpoint": metadata.S3_CONFIG["endpoint"],
-            # "s3.access-key-id": metadata.S3_CONFIG["admin_username"],
-            # "s3.secret-access-key": metadata.S3_CONFIG["admin_password"],
-            "hive.hive2-compatible": True,
-        },
-    )
+    Args:
+        config: which configuration to use, ["fs", "s3"]
+
+    Returns:
+        Catalog for PyIceberg
+    """
+    if config not in metadata.SPARK_CONFIG.keys():
+        raise ValueError(f"Configuration for '{config}' is not supported.")
+
+    if config == "fs":
+        # store metadata in SQLite
+        catalog = load_catalog(
+            CATALOG_NAME,
+            **{
+                "uri": f"sqlite:///{WH_SQLITE}/pyiceberg_catalog_sqlite.db",
+                "warehouse": f"file://{WH_SQLITE}",
+            },
+        )
+    else:
+        catalog = load_catalog(
+            CATALOG_NAME,
+            **{
+                "uri": metadata.REST_URL,
+                "s3.endpoint": metadata.S3_CONFIG["endpoint"],
+                # "s3.access-key-id": metadata.S3_CONFIG["read_access_id"],
+                # "s3.secret-access-key": metadata.S3_CONFIG["read_secret_key"],
+                "hive.hive2-compatible": True,
+            },
+        )
 
     return catalog
 
@@ -121,24 +134,24 @@ def run_with_pyiceberg(catalog, namespace: str, table_name: str) -> None:
 
     # create namespace
     if namespace not in (x[0] for x in catalog.list_namespaces()):
-        print(f"Creating namespace '{namespace}'")
+        print(Fore.BLUE + f"Creating namespace '{namespace}'")
         catalog.create_namespace(namespace)
 
     # create table
-    print(f"Tables in '{namespace}' are: {catalog.list_tables(namespace)}")
+    print(Fore.BLUE + f"Tables in '{namespace}' are: {catalog.list_tables(namespace)}")
     if table_name not in (x[1] for x in catalog.list_tables(namespace)):
         print(f"Creating table '{table_name}'")
         catalog.create_table(
             db_table,
             schema=metadata.PYICEBERG_DATA_SCHEMA,
             # location=f"{WH_SQLITE}/{DIR_NAMESPACE}",
-            location=f"s3a://{metadata.BUCKET_NAME}/{DIR_NAME}",
+            location=f"s3a://{metadata.S3_BUCKET}/{metadata.S3_DIR_NAME}",
         )
 
     # append data
     table = catalog.load_table(db_table)
     table.append(metadata.PYICEBERG_SAMPLE_DATA)
-    print(f"Showing data in '{db_table}'")
+    print(Fore.BLUE + f"Showing data in '{db_table}'")
     print(table.scan().to_pandas())
 
     return
@@ -151,7 +164,7 @@ def main(catalog) -> None:
     Args:
         catalog: the catalog
     """
-    print("List existing namespaces:")
+    print(Fore.BLUE + "List existing namespaces:")
     for ns in catalog.list_namespaces():
         print(ns)
 
@@ -163,21 +176,26 @@ def main(catalog) -> None:
 
 
 if __name__ == "__main__":
-    catalog = init_catalog()
+    colorama.init(autoreset=True)
+
+    # config = "fs"
+    config = "s3"
+
+    catalog = init_catalog(config=config)
 
     s3_client = boto3.client(
         "s3",
         endpoint_url=metadata.S3_CONFIG["endpoint"],
-        # aws_access_key_id=metadata.S3_CONFIG["admin_username"],
-        # aws_secret_access_key=metadata.S3_CONFIG["admin_password"],
+        # aws_access_key_id=metadata.S3_CONFIG["read_access_id"],
+        # aws_secret_access_key=metadata.S3_CONFIG["read_secret_key"],
         use_ssl=False,
     )
 
     main(catalog=catalog)
 
-    clean_up(
-        catalog=catalog,
-        s3_client=s3_client,
-        bucket_name=metadata.BUCKET_NAME,
-        dir_name=DIR_NAME,
-    )
+    # clean_up(
+    #     catalog=catalog,
+    #     s3_client=s3_client,
+    #     bucket_name=metadata.S3_BUCKET,
+    #     dir_name=metadata.S3_DIR_NAME,
+    # )

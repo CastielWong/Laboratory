@@ -97,7 +97,8 @@ def run_with_spark(spark: SparkSession, db_table: str, choice: str) -> None:
         spark.sql(insert_data)
 
     print("Table after data appended:")
-    spark.table(db_table).show()
+    util.print_sql_then_run(spark, f"SELECT *   FROM {db_table}")  # noqa: S608
+
     return
 
 
@@ -125,8 +126,10 @@ def main(spark: SparkSession, choice: str = "dataframe") -> None:
 if __name__ == "__main__":
     colorama.init(autoreset=True)
 
-    # spark = util.init_spark_session(config="fs")
-    spark = util.init_spark_session(config="s3")
+    # config = "fs"
+    config = "s3"
+
+    spark = util.init_spark_session(config=config)
 
     print(Fore.BLUE + "*" * 100)
     print("Displaying the version of Iceberg:")
@@ -138,4 +141,5 @@ if __name__ == "__main__":
 
     main(spark=spark, choice="sql")
 
-    # clean_up(spark=spark)
+    if config == "fs":
+        clean_up(spark=spark)

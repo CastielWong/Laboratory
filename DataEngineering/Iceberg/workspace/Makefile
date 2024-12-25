@@ -10,5 +10,5 @@ pyiceberg:
 pyspark: gen_token
 	export $$(grep -v '^#' ${ENV_FILE} | xargs) && python run_with_pyspark.py
 
-check:
-	python check_data.py
+check: gen_token
+	export $$(grep -v '^#' ${ENV_FILE} | xargs) && python check_data.py

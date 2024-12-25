@@ -4,6 +4,7 @@
 
 from colorama import Fore
 from pyiceberg.catalog import load_catalog
+from pyiceberg.catalog.sql import SqlCatalog
 import colorama
 import metadata
 import util
@@ -11,37 +12,58 @@ import util
 _SUPPORT_WAYS = ("pyiceberg", "pyspark")
 
 
-def read_via_pyiceberg() -> None:
-    """Retrieve data via `pyicerberg`."""
-    catalog_name = "default"
-    # path_storage = "/home/iceberg/warehouse"
-    # db_fs_name = "pyiceberg_catalog_sqlite.db"
+def read_via_pyiceberg(config: str = "s3") -> None:
+    """Retrieve data via `pyicerberg`.
+
+    Args:
+        config: which configuration to use, ["fs", "s3"]
+    """
+    if config not in metadata.SPARK_CONFIG.keys():
+        print(Fore.RED + f"Configuration for '{config}' is not supported.")
+        return
+
+    catalog_name = "optional"  # not mandatory
 
     db_namespace = metadata.DB_NAMESPACE
     table_name = metadata.TABLE_NAME
 
-    # catalog = SqlCatalog(
-    #     catalog_name,
-    #     **{
-    #         "uri": f"sqlite:///{path_storage}/{db_fs_name}",
-    #         "warehouse": f"file://{path_storage}",
-    #     },
-    # )
-    catalog = load_catalog(
-        catalog_name,
-        **{
-            "uri": f"http://{metadata.IP_REST}:8181",
-            "s3.endpoint": metadata.S3_CONFIG["endpoint"],
-            "s3.access-key-id": metadata.S3_CONFIG["admin_username"],
-            "s3.secret-access-key": metadata.S3_CONFIG["admin_password"],
-            "hive.hive2-compatible": True,
-        },
-    )
+    if config == "fs":
+        path_storage = "/home/iceberg/warehouse"
+        db_fs_name = "pyiceberg_catalog_sqlite.db"
+        catalog = SqlCatalog(
+            catalog_name,
+            **{
+                "uri": f"sqlite:///{path_storage}/{db_fs_name}",
+                "warehouse": f"file://{path_storage}",
+            },
+        )
+    else:
+        catalog = load_catalog(
+            catalog_name,
+            **{
+                "uri": metadata.REST_URL,
+                "s3.endpoint": metadata.S3_CONFIG["endpoint"],
+                # "s3.access-key-id": metadata.S3_CONFIG["read_access_id"],
+                # "s3.secret-access-key": metadata.S3_CONFIG["read_secret_key"],
+                "hive.hive2-compatible": True,
+            },
+        )
     db_table = f"{db_namespace}.{table_name}"
 
-    print("List existing namespaces:")
+    print(Fore.BLUE + "*" * 100)
+    print(Fore.BLUE + "Configuration - PyIceberg")
+    print(Fore.BLUE + f"Catalog setting: {catalog.__dict__}")
+
+    print(Fore.BLUE + "*" * 100)
+    print(Fore.BLUE + "Configuration - Iceberg")
+    print(Fore.BLUE + "List existing namespaces:")
     for ns in catalog.list_namespaces():
-        print(ns)
+        print(
+            Fore.BLUE
+            + f"Tables in '{ns}' namespace are: \n\t("
+            + ",".join(f"'{x[1]}'" for x in catalog.list_tables(ns))
+            + ")"
+        )
 
     table = catalog.load_table(db_table)
     print(f"Showing data in '{db_table}'")
@@ -56,9 +78,11 @@ def read_via_pyspark(config: str = "fs") -> None:
     Args:
         config: which configuration to use, ["fs", "s3"]
     """
-    catalog_name = "local"
-    catalog_name = metadata.CATALOG_NAME
-    # path_storage = "/home/iceberg/warehouse"
+    if config == "fs":
+        catalog_name = "local"
+        # path_storage = "/home/iceberg/warehouse"
+    else:
+        catalog_name = metadata.CATALOG_NAME
 
     db_namespace = "db_demo"
     table_name = "sample"
