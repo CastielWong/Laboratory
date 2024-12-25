@@ -125,6 +125,37 @@ def run_with_spark(spark: SparkSession, db_table: str, choice: str) -> None:
 
 
 @util.enclose_info
+def check_data(spark: SparkSession, namespace: str, table_name: str) -> None:
+    """Check data in the table.
+
+    Args:
+        spark: spark session
+        namespace: namespace to access
+        table_name: name of the table
+    """
+    print("Show existing databases")
+    spark.sql("SHOW DATABASES").show()
+
+    if not spark.catalog.databaseExists(namespace):
+        print(f"The database {namespace} doesn't exist yet")
+        return
+
+    print(f"List tables inside '{namespace}'")
+    spark.sql(f"SHOW TABLES IN {namespace}").show()
+
+    db_table = f"{namespace}.{table_name}"
+    print(f"Displaying data in '{db_table}'")
+    spark.sql(
+        f"""
+        SELECT  *
+        FROM    {db_table}
+    """
+    ).show()
+
+    return
+
+
+@util.enclose_info
 def main(spark: SparkSession, choice: str = "dataframe") -> None:
     """Run the main.
 
@@ -136,8 +167,6 @@ def main(spark: SparkSession, choice: str = "dataframe") -> None:
     """
     db_table = f"{metadata.DB_NAMESPACE}.{metadata.TABLE_NAME}"
 
-    print("Show existing databases")
-    spark.sql("SHOW DATABASES").show()
     print(f"Create database '{metadata.DB_NAMESPACE}' if not existed")
     spark.sql(f"CREATE DATABASE IF NOT EXISTS {metadata.DB_NAMESPACE}")
 
@@ -150,10 +179,14 @@ if __name__ == "__main__":
     # spark = init_spark_session(config="fs")
     spark = init_spark_session(config="s3")
 
-    print("=" * 100)
+    print("*" * 100)
     print("Displaying the version of Iceberg:")
     spark.sql("SELECT iceberg_version()").show()
 
-    main(spark=spark, choice="sql")
+    # main(spark=spark, choice="sql")
+
+    check_data(
+        spark=spark, namespace=metadata.DB_NAMESPACE, table_name=metadata.TABLE_NAME
+    )
 
     # clean_up(spark=spark)

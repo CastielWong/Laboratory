@@ -1,3 +1,4 @@
+.PHONY: run clean
 
 CONTAINER_NAME := lab-iceberg-spark
 

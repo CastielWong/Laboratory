@@ -8,6 +8,7 @@ huge analytic tables.
   - [PyIceberg](#pyiceberg)
   - [PySpark](#pyspark)
 - [Usage](#usage)
+  - [MinIO](#minio)
 - [Reference](#reference)
 
 
@@ -41,8 +42,8 @@ Mapping the concept from database to Iceberg:
 
 ### PyIceberg
 There are several ways to configure PyIceberg for Catalog:
-- SQLite
-- S3
+- local file system: SQLite
+- cloud object storage: S3
 
 ### PySpark
 To configure PySpark for Catalog:
@@ -64,9 +65,17 @@ For instance:
 1. Run `make run` to access to the primary container
 2. Explore to see how it interacts with Iceberg:
    a. try the Python scripts under "/home/workspace/"
-   b. check files created inside "warehouse/"
+   b. check files generated inside
+      - for local file system: "warehouse_fs/"
+      - for cloud object storage: "warehouse_s3/"
    c. access to "localhost:9001" for MinIO web UI
 3. Explore the "warehouse/" mapped to MinIO to gain better understanding
+
+### MinIO
+MinIO Client would be used for the interaction, common commands useful in debugging:
+```sh
+mc alias ls
+```
 
 
 ## Reference
