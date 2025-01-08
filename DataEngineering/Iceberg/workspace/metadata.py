@@ -2,25 +2,38 @@
 # -*- coding: utf-8 -*-
 """Metadata for both demo."""
 
+import configparser
 import os
 
 import pyarrow as pa
 import pyiceberg.schema as pi_type
 import pyspark.sql.types as ps_type
 
-FS_LOCAL_PATH = "/home/iceberg/warehouse"
+_FILE_CONFIG = "config.ini"
+CONFIG = configparser.ConfigParser()
+CONFIG.read(_FILE_CONFIG)
+
 # CATALOG_NAME = "local"
 CATALOG_NAME = "remote"
-DB_NAMESPACE = "db_demo"
-TABLE_NAME = "sample"
+
+APPROACH = CONFIG.get("General", "approach")
+MODE = CONFIG.get("General", "mode")
+TO_CLEAN = CONFIG.getboolean("General", "clean")
+_IP_REST = CONFIG.get("General", "ip_rest")
+REST_URL = f"http://{_IP_REST}:8181"
+
+# Database
+DB_NAMESPACE = CONFIG.get("Database", "namespace")
+TABLE_NAME = CONFIG.get("Database", "table_name")
+
+# FS
+FS_LOCAL_PATH = CONFIG.get("FS", "local_path")
 
 # S3
-IP_REST = "181.4.11.11"
-REST_URL = f"http://{IP_REST}:8181"
-S3_BUCKET = "warehouse"
-S3_DIR_NAME = "temporary"
+S3_BUCKET = CONFIG.get("S3", "bucket")
+S3_DIR_NAME = CONFIG.get("S3", "dir_name")
 S3_CONFIG = {
-    "endpoint": "http://minio:9000",
+    "endpoint": CONFIG.get("S3", "endpoint"),
     "admin_username": os.getenv("AWS_ACCESS_KEY_ID", "Not Supplied"),
     "admin_password": os.getenv("AWS_SECRET_ACCESS_KEY", "Not Supplied"),
     "read_access_id": os.getenv("S3_READ_ACCESS_ID", "Not Set"),
@@ -84,10 +97,23 @@ _CONF_S3 = {
     # "spark.sql.session.timeZone": "HongKong",
 }
 
-
-SPARK_CONFIG = {
+PYSPARK_CONFIG = {
     "fs": _CONF_FILESYSTEM,
     "s3": _CONF_S3,
+}
+
+PYICEBERG_CONFIG = {
+    "fs": {  # store metadata in SQLite
+        "uri": f"sqlite:///{FS_LOCAL_PATH}/pyiceberg_catalog_sqlite.db",
+        "warehouse": f"file://{FS_LOCAL_PATH}",
+    },
+    "s3": {
+        "uri": REST_URL,
+        "s3.endpoint": S3_CONFIG["endpoint"],
+        # "s3.access-key-id": S3_CONFIG["read_access_id"],
+        # "s3.secret-access-key": S3_CONFIG["read_secret_key"],
+        "hive.hive2-compatible": True,
+    },
 }
 
 

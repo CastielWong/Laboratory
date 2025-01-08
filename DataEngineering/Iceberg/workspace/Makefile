@@ -4,6 +4,7 @@ ENV_FILE := /home/.env
 gen_token:
 	bash script/generate_access_token.sh
 
+# pyiceberg doesn't require access token
 pyiceberg:
 	python run_with_pyiceberg.py
 

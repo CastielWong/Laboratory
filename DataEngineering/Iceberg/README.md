@@ -12,6 +12,11 @@ huge analytic tables.
 - [Reference](#reference)
 
 
+| Service | Endpoint | Note |
+| --- | --- | --- |
+| MinIO | localhost:9001 | docker-compose.yaml |
+
+
 ## Recipe
 | Command    | Description                              |
 |------------|------------------------------------------|

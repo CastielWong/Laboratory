@@ -37,24 +37,26 @@ def print_sql_then_run(spark: SparkSession, query: str):
     return
 
 
-def init_spark_session(config: str = "fs") -> SparkSession:
+def init_spark_session(config_mode: str = "fs") -> SparkSession:
     """Initialize the Spark session.
 
     Args:
-        config: which configuration to use, ["fs", "s3"]
+        config_mode: which configuration to use, ["fs", "s3"]
 
     Returns:
         A new Spark session
     """
-    if config not in metadata.SPARK_CONFIG.keys():
-        raise ValueError(f"Configuration for '{config}' is not supported.")
+    if config_mode not in metadata.PYSPARK_CONFIG.keys():
+        raise ValueError(f"Configuration for '{config_mode}' is not supported.")
 
+    # fmt: off
     spark = (
         SparkSession.builder.appName(_SPARK_APP)
-        .config(map=metadata.SPARK_CONFIG[config])
+        .config(map=metadata.PYSPARK_CONFIG[config_mode])
         # # enable Hive support
         # .enableHiveSupport()
         .getOrCreate()
     )
+    # fmt: on
 
     return spark

@@ -44,6 +44,10 @@ def clean_up(spark: SparkSession) -> None:
     Args:
         spark: spark session
     """
+    if not metadata.TO_CLEAN:
+        print(Fore.YELLOW + "Note that clean up process is not activated.")
+        return
+
     drop_db(spark=spark, namespace=metadata.DB_NAMESPACE)
 
     shutil.rmtree(
@@ -69,15 +73,14 @@ def run_with_spark(spark: SparkSession, db_table: str, choice: str) -> None:
         df = spark.createDataFrame([], metadata.PYSPARK_DATA_SCHEMA)
         df.writeTo(db_table).create()
     else:
-        spark.sql(
-            f"""
+        query = f"""
             CREATE TABLE IF NOT EXISTS {db_table} (
                 identifier INT
                 , fruit STRING
                 , price DOUBLE
             ) USING iceberg
-            """
-        )
+        """  # noqa: S608
+        util.print_sql_then_run(spark, query)
 
     spark.sql(f"SHOW TABLES IN {metadata.CATALOG_NAME}.{metadata.DB_NAMESPACE}").show()
     spark.table(db_table).show()
@@ -126,10 +129,9 @@ def main(spark: SparkSession, choice: str = "dataframe") -> None:
 if __name__ == "__main__":
     colorama.init(autoreset=True)
 
-    # config = "fs"
-    config = "s3"
+    config_mode = metadata.MODE
 
-    spark = util.init_spark_session(config=config)
+    spark = util.init_spark_session(config_mode=config_mode)
 
     print(Fore.BLUE + "*" * 100)
     print("Displaying the version of Iceberg:")
@@ -141,5 +143,5 @@ if __name__ == "__main__":
 
     main(spark=spark, choice="sql")
 
-    if config == "fs":
+    if config_mode == "fs":
         clean_up(spark=spark)

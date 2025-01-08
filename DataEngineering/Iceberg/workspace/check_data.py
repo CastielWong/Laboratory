@@ -12,14 +12,14 @@ import util
 _SUPPORT_WAYS = ("pyiceberg", "pyspark")
 
 
-def read_via_pyiceberg(config: str = "s3") -> None:
+def read_via_pyiceberg(config_mode: str = "s3") -> None:
     """Retrieve data via `pyicerberg`.
 
     Args:
-        config: which configuration to use, ["fs", "s3"]
+        config_mode: which configuration to use, ["fs", "s3"]
     """
-    if config not in metadata.SPARK_CONFIG.keys():
-        print(Fore.RED + f"Configuration for '{config}' is not supported.")
+    if config_mode not in metadata.PYICEBERG_CONFIG.keys():
+        print(Fore.RED + f"Configuration for '{config_mode}' is not supported.")
         return
 
     catalog_name = "optional"  # not mandatory
@@ -27,7 +27,7 @@ def read_via_pyiceberg(config: str = "s3") -> None:
     db_namespace = metadata.DB_NAMESPACE
     table_name = metadata.TABLE_NAME
 
-    if config == "fs":
+    if config_mode == "fs":
         path_storage = "/home/iceberg/warehouse"
         db_fs_name = "pyiceberg_catalog_sqlite.db"
         catalog = SqlCatalog(
@@ -72,13 +72,13 @@ def read_via_pyiceberg(config: str = "s3") -> None:
     return
 
 
-def read_via_pyspark(config: str = "fs") -> None:
+def read_via_pyspark(config_mode: str = "fs") -> None:
     """Retrieve data via `pyspark`.
 
     Args:
-        config: which configuration to use, ["fs", "s3"]
+        config_mode: which configuration to use, ["fs", "s3"]
     """
-    if config == "fs":
+    if config_mode == "fs":
         catalog_name = "local"
         # path_storage = "/home/iceberg/warehouse"
     else:
@@ -90,7 +90,7 @@ def read_via_pyspark(config: str = "fs") -> None:
     db_table = f"{db_namespace}.{table_name}"
 
     print(Fore.BLUE + "*" * 100)
-    spark = util.init_spark_session(config)
+    spark = util.init_spark_session(config_mode)
 
     print(Fore.BLUE + "Configuration - Spark")
     print(Fore.BLUE + "List catalogs:")
@@ -129,8 +129,8 @@ def main(way: str = "pyiceberg") -> None:
     if way == "pyiceberg":
         read_via_pyiceberg()
     elif way == "pyspark":
-        # read_via_pyspark(config="fs")
-        read_via_pyspark(config="s3")
+        # read_via_pyspark(config_mode="fs")
+        read_via_pyspark(config_mode="s3")
 
     return
 
@@ -138,6 +138,5 @@ def main(way: str = "pyiceberg") -> None:
 if __name__ == "__main__":
     colorama.init(autoreset=True)
 
-    # main(way="pyiceberg")
-
-    main(way="pyspark")
+    print(Fore.BLUE + f"Approach: {metadata.APPROACH}\nMode: {metadata.MODE}")
+    main(way=metadata.APPROACH)

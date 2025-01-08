@@ -12,48 +12,28 @@ import metadata
 import util
 
 CATALOG_NAME = "default"
-WH_SQLITE = metadata.FS_LOCAL_PATH
 DIR_NAMESPACE = "ns_sqlite"
 DIR_NAME = "pyiceberg"
 
 
-def init_catalog(config: str = "s3") -> Catalog:
+def init_catalog(config_mode: str = "s3") -> Catalog:
     """Initialize catalog.
 
     Args:
-        config: which configuration to use, ["fs", "s3"]
+        config_mode: which configuration to use, ["fs", "s3"]
 
     Returns:
         Catalog for PyIceberg
     """
-    if config not in metadata.SPARK_CONFIG.keys():
-        raise ValueError(f"Configuration for '{config}' is not supported.")
+    if config_mode not in metadata.PYICEBERG_CONFIG.keys():
+        raise ValueError(f"Configuration for '{config_mode}' is not supported.")
 
-    if config == "fs":
-        # store metadata in SQLite
-        catalog = load_catalog(
-            CATALOG_NAME,
-            **{
-                "uri": f"sqlite:///{WH_SQLITE}/pyiceberg_catalog_sqlite.db",
-                "warehouse": f"file://{WH_SQLITE}",
-            },
-        )
-    else:
-        catalog = load_catalog(
-            CATALOG_NAME,
-            **{
-                "uri": metadata.REST_URL,
-                "s3.endpoint": metadata.S3_CONFIG["endpoint"],
-                # "s3.access-key-id": metadata.S3_CONFIG["read_access_id"],
-                # "s3.secret-access-key": metadata.S3_CONFIG["read_secret_key"],
-                "hive.hive2-compatible": True,
-            },
-        )
+    catalog = load_catalog(CATALOG_NAME, **metadata.PYICEBERG_CONFIG[config_mode])
 
     return catalog
 
 
-def delete_data_in_s3(s3_client, bucket_name: str, dir_name: str) -> None:
+def delete_data_in_s3(s3_client, bucket_name: str, dir_name: str) -> None:  # noqa: C901
     """Clean up the bucket within the scope of S3.
 
     Args:
@@ -63,29 +43,31 @@ def delete_data_in_s3(s3_client, bucket_name: str, dir_name: str) -> None:
     """
     try:
         response = s3_client.list_buckets()
-        print("Connected to MinIO successfully!\nBuckets are:")
+        print(Fore.BLUE + "Connected to MinIO successfully!\nBuckets are:")
         for bucket in response["Buckets"]:
-            print(f"--- {bucket['Name']}")
+            print(Fore.BLUE + f"\t- '{bucket['Name']}'")
     except NoCredentialsError:
-        print("Error: No AWS credentials found.")
+        print(Fore.RED + "Error: No AWS credentials found.")
     except ClientError as exc:
-        print(f"Error: {exc.response['Error']['Message']}")
+        print(Fore.RED + f"Error: {exc.response['Error']['Message']}")
     except Exception as exc:
-        print(f"An unexpected error occurred: {exc}")
+        print(Fore.RED + f"An unexpected error occurred: {exc}")
 
     # list all objects in the directory then delete
     response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=f"{dir_name}/")
 
     if "Contents" not in response:
-        print(f"The '{dir_name}/' in bucket '{bucket_name}' is empty")
+        print(
+            Fore.LIGHTRED_EX + f"The '{dir_name}/' in bucket '{bucket_name}' is empty"
+        )
 
         return
 
     for obj in response["Contents"]:
-        print(f"Deleting: {obj['Key']}")
+        print(Fore.RED + f"Deleting: '{obj['Key']}'")
         s3_client.delete_object(Bucket=bucket_name, Key=obj["Key"])
 
-    print(f"Files in '{dir_name}' are deleted")
+    print(Fore.BLUE + f"Directory '{dir_name}' is pruned")
 
     return
 
@@ -98,15 +80,15 @@ def drop_metadata(catalog) -> None:
     """
     db_table = f"{metadata.DB_NAMESPACE}.{metadata.TABLE_NAME}"
 
-    print(f"Dropping table '{db_table}'")
+    print(Fore.LIGHTRED_EX + f"Dropping table '{db_table}'")
     catalog.purge_table(identifier=db_table)
 
-    print(f"Dropping namespace '{db_table}'")
+    print(Fore.LIGHTRED_EX + f"Dropping namespace '{db_table}'")
     catalog.drop_namespace(namespace=metadata.DB_NAMESPACE)
     return
 
 
-def clean_up(catalog, s3_client, bucket_name: str, dir_name: str):
+def clean_up(catalog, s3_client, bucket_name: str, dir_name: str) -> None:
     """Clean up by deleting database.
 
     Args:
@@ -115,6 +97,10 @@ def clean_up(catalog, s3_client, bucket_name: str, dir_name: str):
         bucket_name: bucket name where data is stored
         dir_name: directory where the data is stored
     """
+    if not metadata.TO_CLEAN:
+        print(Fore.YELLOW + "Note that clean up process is not activated.")
+        return
+
     drop_metadata(catalog)
 
     delete_data_in_s3(s3_client=s3_client, bucket_name=bucket_name, dir_name=dir_name)
@@ -144,7 +130,7 @@ def run_with_pyiceberg(catalog, namespace: str, table_name: str) -> None:
         catalog.create_table(
             db_table,
             schema=metadata.PYICEBERG_DATA_SCHEMA,
-            # location=f"{WH_SQLITE}/{DIR_NAMESPACE}",
+            # location=f"{metadata.FS_LOCAL_PATH}/{DIR_NAMESPACE}",
             location=f"s3a://{metadata.S3_BUCKET}/{metadata.S3_DIR_NAME}",
         )
 
@@ -178,24 +164,24 @@ def main(catalog) -> None:
 if __name__ == "__main__":
     colorama.init(autoreset=True)
 
-    # config = "fs"
-    config = "s3"
+    config_mode = metadata.MODE
 
-    catalog = init_catalog(config=config)
-
-    s3_client = boto3.client(
-        "s3",
-        endpoint_url=metadata.S3_CONFIG["endpoint"],
-        # aws_access_key_id=metadata.S3_CONFIG["read_access_id"],
-        # aws_secret_access_key=metadata.S3_CONFIG["read_secret_key"],
-        use_ssl=False,
-    )
+    catalog = init_catalog(config_mode=config_mode)
 
     main(catalog=catalog)
 
-    # clean_up(
-    #     catalog=catalog,
-    #     s3_client=s3_client,
-    #     bucket_name=metadata.S3_BUCKET,
-    #     dir_name=metadata.S3_DIR_NAME,
-    # )
+    if config_mode == "s3":
+        s3_client = boto3.client(
+            "s3",
+            endpoint_url=metadata.S3_CONFIG["endpoint"],
+            # aws_access_key_id=metadata.S3_CONFIG["read_access_id"],
+            # aws_secret_access_key=metadata.S3_CONFIG["read_secret_key"],
+            use_ssl=False,
+        )
+
+        clean_up(
+            catalog=catalog,
+            s3_client=s3_client,
+            bucket_name=metadata.S3_BUCKET,
+            dir_name=metadata.S3_DIR_NAME,
+        )
