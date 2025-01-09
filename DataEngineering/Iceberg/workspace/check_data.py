@@ -3,8 +3,6 @@
 """Read data for verification."""
 
 from colorama import Fore
-from pyiceberg.catalog import load_catalog
-from pyiceberg.catalog.sql import SqlCatalog
 import colorama
 import metadata
 import util
@@ -12,43 +10,17 @@ import util
 _SUPPORT_WAYS = ("pyiceberg", "pyspark")
 
 
-def read_via_pyiceberg(config_mode: str = "s3") -> None:
+def read_via_pyiceberg(data_source: str) -> None:
     """Retrieve data via `pyicerberg`.
 
     Args:
-        config_mode: which configuration to use, ["fs", "s3"]
+        data_source: the data source to read, ["fs", "s3"]
     """
-    if config_mode not in metadata.PYICEBERG_CONFIG.keys():
-        print(Fore.RED + f"Configuration for '{config_mode}' is not supported.")
+    if data_source not in metadata.PYICEBERG_CONFIG.keys():
+        print(Fore.RED + f"Data source '{data_source}' is not supported.")
         return
 
-    catalog_name = "optional"  # not mandatory
-
-    db_namespace = metadata.DB_NAMESPACE
-    table_name = metadata.TABLE_NAME
-
-    if config_mode == "fs":
-        path_storage = "/home/iceberg/warehouse"
-        db_fs_name = "pyiceberg_catalog_sqlite.db"
-        catalog = SqlCatalog(
-            catalog_name,
-            **{
-                "uri": f"sqlite:///{path_storage}/{db_fs_name}",
-                "warehouse": f"file://{path_storage}",
-            },
-        )
-    else:
-        catalog = load_catalog(
-            catalog_name,
-            **{
-                "uri": metadata.REST_URL,
-                "s3.endpoint": metadata.S3_CONFIG["endpoint"],
-                # "s3.access-key-id": metadata.S3_CONFIG["read_access_id"],
-                # "s3.secret-access-key": metadata.S3_CONFIG["read_secret_key"],
-                "hive.hive2-compatible": True,
-            },
-        )
-    db_table = f"{db_namespace}.{table_name}"
+    catalog = util.init_pyiceberg_catalog(storage=data_source)
 
     print(Fore.BLUE + "*" * 100)
     print(Fore.BLUE + "Configuration - PyIceberg")
@@ -65,6 +37,7 @@ def read_via_pyiceberg(config_mode: str = "s3") -> None:
             + ")"
         )
 
+    db_table = f"{metadata.DB_NAMESPACE}.{metadata.TABLE_NAME}"
     table = catalog.load_table(db_table)
     print(f"Showing data in '{db_table}'")
     print(table.scan().to_pandas())
@@ -72,13 +45,17 @@ def read_via_pyiceberg(config_mode: str = "s3") -> None:
     return
 
 
-def read_via_pyspark(config_mode: str = "fs") -> None:
+def read_via_pyspark(data_source: str) -> None:
     """Retrieve data via `pyspark`.
 
     Args:
-        config_mode: which configuration to use, ["fs", "s3"]
+        data_source: the data source to read, ["fs", "s3"]
     """
-    if config_mode == "fs":
+    if data_source not in metadata.PYSPARK_CONFIG.keys():
+        print(Fore.RED + f"Data source '{data_source}' is not supported.")
+        return
+
+    if data_source == "fs":
         catalog_name = "local"
         # path_storage = "/home/iceberg/warehouse"
     else:
@@ -90,7 +67,7 @@ def read_via_pyspark(config_mode: str = "fs") -> None:
     db_table = f"{db_namespace}.{table_name}"
 
     print(Fore.BLUE + "*" * 100)
-    spark = util.init_spark_session(config_mode)
+    spark = util.init_spark_session(storage=data_source)
 
     print(Fore.BLUE + "Configuration - Spark")
     print(Fore.BLUE + "List catalogs:")
@@ -114,11 +91,12 @@ def read_via_pyspark(config_mode: str = "fs") -> None:
     return
 
 
-def main(way: str = "pyiceberg") -> None:
+def main(way: str, data_source: str) -> None:
     """Run the main.
 
     Args:
         way: the way to retrieve the data, support 'pyiceberg' and 'pyspark' only
+        data_source: the data source, ["fs", "s3"]
 
     Raises:
         ValueError: when it's an unsupported value
@@ -127,16 +105,17 @@ def main(way: str = "pyiceberg") -> None:
         raise ValueError(f"{way} is not supported, please go with {_SUPPORT_WAYS}")
 
     if way == "pyiceberg":
-        read_via_pyiceberg()
+        read_via_pyiceberg(data_source=data_source)
     elif way == "pyspark":
-        # read_via_pyspark(config_mode="fs")
-        read_via_pyspark(config_mode="s3")
+        read_via_pyspark(data_source=data_source)
 
     return
 
 
 if __name__ == "__main__":
+    approach = metadata.APPROACH
+
     colorama.init(autoreset=True)
 
-    print(Fore.BLUE + f"Approach: {metadata.APPROACH}\nMode: {metadata.MODE}")
-    main(way=metadata.APPROACH)
+    print(Fore.BLUE + f"Approach: {metadata.APPROACH}\nMode: {metadata.STORAGE}")
+    main(way=approach, data_source=metadata.STORAGE)

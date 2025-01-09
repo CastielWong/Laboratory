@@ -17,7 +17,7 @@ CONFIG.read(_FILE_CONFIG)
 CATALOG_NAME = "remote"
 
 APPROACH = CONFIG.get("General", "approach")
-MODE = CONFIG.get("General", "mode")
+STORAGE = CONFIG.get("General", "storage")
 TO_CLEAN = CONFIG.getboolean("General", "clean")
 _IP_REST = CONFIG.get("General", "ip_rest")
 REST_URL = f"http://{_IP_REST}:8181"
@@ -113,6 +113,7 @@ PYICEBERG_CONFIG = {
         # "s3.access-key-id": S3_CONFIG["read_access_id"],
         # "s3.secret-access-key": S3_CONFIG["read_secret_key"],
         "hive.hive2-compatible": True,
+        # "io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
     },
 }
 

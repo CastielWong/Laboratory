@@ -6,7 +6,7 @@ start:
 	docker-compose up -d
 
 run:
-	docker exec -it -w /home/workspace $(CONTAINER_NAME) bash
+	docker exec -it --workdir /home/workspace $(CONTAINER_NAME) bash
 
 end:
 	docker-compose down

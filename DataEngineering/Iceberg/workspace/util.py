@@ -3,10 +3,12 @@
 """Utility module."""
 
 from colorama import Fore
+from pyiceberg.catalog import Catalog, load_catalog
 from pyspark.sql import SparkSession
 import metadata
 
-_SPARK_APP = "demo_spark_iceberg"
+_PYSPARK_APP = "demo_spark_iceberg"
+_PYICEBERG_CATALOG = "optional"  # not mandatory
 
 
 def enclose_info(func):
@@ -37,22 +39,22 @@ def print_sql_then_run(spark: SparkSession, query: str):
     return
 
 
-def init_spark_session(config_mode: str = "fs") -> SparkSession:
+def init_spark_session(storage: str = "fs") -> SparkSession:
     """Initialize the Spark session.
 
     Args:
-        config_mode: which configuration to use, ["fs", "s3"]
+        storage: where data is to store, ["fs", "s3"]
 
     Returns:
         A new Spark session
     """
-    if config_mode not in metadata.PYSPARK_CONFIG.keys():
-        raise ValueError(f"Configuration for '{config_mode}' is not supported.")
+    if storage not in metadata.PYSPARK_CONFIG.keys():
+        raise ValueError(f"Configuration for '{storage}' is not supported.")
 
     # fmt: off
     spark = (
-        SparkSession.builder.appName(_SPARK_APP)
-        .config(map=metadata.PYSPARK_CONFIG[config_mode])
+        SparkSession.builder.appName(_PYSPARK_APP)
+        .config(map=metadata.PYSPARK_CONFIG[storage])
         # # enable Hive support
         # .enableHiveSupport()
         .getOrCreate()
@@ -60,3 +62,20 @@ def init_spark_session(config_mode: str = "fs") -> SparkSession:
     # fmt: on
 
     return spark
+
+
+def init_pyiceberg_catalog(storage: str) -> Catalog:
+    """Initialize catalog.
+
+    Args:
+        storage: where data is to store, ["fs", "s3"]
+
+    Returns:
+        Catalog for PyIceberg
+    """
+    if storage not in metadata.PYICEBERG_CONFIG.keys():
+        raise ValueError(f"Configuration for '{storage}' is not supported.")
+
+    catalog = load_catalog(_PYICEBERG_CATALOG, **metadata.PYICEBERG_CONFIG[storage])
+
+    return catalog

@@ -5,32 +5,13 @@
 # from pyiceberg.catalog.hive import HiveCatalog
 from botocore.exceptions import ClientError, NoCredentialsError
 from colorama import Fore
-from pyiceberg.catalog import Catalog, load_catalog
 import boto3
 import colorama
 import metadata
 import util
 
-CATALOG_NAME = "default"
 DIR_NAMESPACE = "ns_sqlite"
 DIR_NAME = "pyiceberg"
-
-
-def init_catalog(config_mode: str = "s3") -> Catalog:
-    """Initialize catalog.
-
-    Args:
-        config_mode: which configuration to use, ["fs", "s3"]
-
-    Returns:
-        Catalog for PyIceberg
-    """
-    if config_mode not in metadata.PYICEBERG_CONFIG.keys():
-        raise ValueError(f"Configuration for '{config_mode}' is not supported.")
-
-    catalog = load_catalog(CATALOG_NAME, **metadata.PYICEBERG_CONFIG[config_mode])
-
-    return catalog
 
 
 def delete_data_in_s3(s3_client, bucket_name: str, dir_name: str) -> None:  # noqa: C901
@@ -108,11 +89,12 @@ def clean_up(catalog, s3_client, bucket_name: str, dir_name: str) -> None:
     return
 
 
-def run_with_pyiceberg(catalog, namespace: str, table_name: str) -> None:
+def run_with_pyiceberg(catalog, location: str, namespace: str, table_name: str) -> None:
     """Run basic operations using pyiceberg.
 
     Args:
         catalog: the catalog
+        location: where data is to store
         namespace: name of database
         table_name: name of table
     """
@@ -120,18 +102,17 @@ def run_with_pyiceberg(catalog, namespace: str, table_name: str) -> None:
 
     # create namespace
     if namespace not in (x[0] for x in catalog.list_namespaces()):
-        print(Fore.BLUE + f"Creating namespace '{namespace}'")
+        print(Fore.GREEN + f"Creating namespace '{namespace}'")
         catalog.create_namespace(namespace)
 
     # create table
     print(Fore.BLUE + f"Tables in '{namespace}' are: {catalog.list_tables(namespace)}")
     if table_name not in (x[1] for x in catalog.list_tables(namespace)):
-        print(f"Creating table '{table_name}'")
+        print(Fore.GREEN + f"Creating table '{table_name}'")
         catalog.create_table(
             db_table,
             schema=metadata.PYICEBERG_DATA_SCHEMA,
-            # location=f"{metadata.FS_LOCAL_PATH}/{DIR_NAMESPACE}",
-            location=f"s3a://{metadata.S3_BUCKET}/{metadata.S3_DIR_NAME}",
+            location=location,
         )
 
     # append data
@@ -144,33 +125,42 @@ def run_with_pyiceberg(catalog, namespace: str, table_name: str) -> None:
 
 
 @util.enclose_info
-def main(catalog) -> None:
+def main(catalog, storage: str) -> None:
     """Run the main.
 
     Args:
         catalog: the catalog
+        storage: source of data is stored
     """
     print(Fore.BLUE + "List existing namespaces:")
     for ns in catalog.list_namespaces():
         print(ns)
 
+    if storage == "fs":
+        location = f"{metadata.FS_LOCAL_PATH}/{DIR_NAMESPACE}"
+    elif storage == "s3":
+        location = f"s3a://{metadata.S3_BUCKET}/{metadata.S3_DIR_NAME}"
+
     run_with_pyiceberg(
-        catalog=catalog, namespace=metadata.DB_NAMESPACE, table_name=metadata.TABLE_NAME
+        catalog=catalog,
+        location=location,
+        namespace=metadata.DB_NAMESPACE,
+        table_name=metadata.TABLE_NAME,
     )
 
     return
 
 
 if __name__ == "__main__":
+    storage = metadata.STORAGE
+
     colorama.init(autoreset=True)
 
-    config_mode = metadata.MODE
+    catalog = util.init_pyiceberg_catalog(storage=storage)
 
-    catalog = init_catalog(config_mode=config_mode)
+    main(catalog=catalog, storage=storage)
 
-    main(catalog=catalog)
-
-    if config_mode == "s3":
+    if storage == "s3":
         s3_client = boto3.client(
             "s3",
             endpoint_url=metadata.S3_CONFIG["endpoint"],

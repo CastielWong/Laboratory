@@ -29,7 +29,7 @@ def drop_db(spark: SparkSession, namespace: str) -> None:
     tables = spark.sql(list_tables).collect()
     for table in tables:
         table_name = f"{namespace}.{table.tableName}"
-        print(f"dropping table: {table_name}")
+        print(Fore.RED + f"dropping table: {table_name}")
         spark.sql(f"DROP TABLE IF EXISTS {table_name}")
 
     print("After the database is dropped")
@@ -127,11 +127,11 @@ def main(spark: SparkSession, choice: str = "dataframe") -> None:
 
 
 if __name__ == "__main__":
+    storage = metadata.STORAGE
+
     colorama.init(autoreset=True)
 
-    config_mode = metadata.MODE
-
-    spark = util.init_spark_session(config_mode=config_mode)
+    spark = util.init_spark_session(storage=storage)
 
     print(Fore.BLUE + "*" * 100)
     print("Displaying the version of Iceberg:")
@@ -143,5 +143,5 @@ if __name__ == "__main__":
 
     main(spark=spark, choice="sql")
 
-    if config_mode == "fs":
+    if storage == "fs":
         clean_up(spark=spark)
