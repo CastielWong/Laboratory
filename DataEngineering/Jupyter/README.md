@@ -27,7 +27,6 @@ Core stacks available are:
 
 
 ## Running
-
 Run `docker-compose up -d` to start the Jupyter Notebook in detached mode.
 
 By default, token is set, access "http://localhost:8888/?token=demo" to use Jupyter directly.
@@ -36,7 +35,6 @@ If the token is not set and random token is preferred, then run `docker-compose 
 
 
 ## Virtual Environment
-
 The way to manage virtual environment via `virtualenv` in Jupyter is a bit different.
 
 Firstly, run `python -m venv {venv}` to create the virtual environment. After the virtual environment is created, there would be a folder called "{venv}" under current directory.
@@ -70,7 +68,6 @@ Run `jupyter kernelspec list` to confirm all listed kernel are expected.
 
 
 ## Reference
-
 - Jupyter password and Docker: https://stackoverflow.com/questions/48875436/jupyter-password-and-docker
 - Using Virtual Environments in Jupyter Notebook and Python: https://janakiev.com/blog/jupyter-virtual-envs/
 - Top 10 Magic Commands in Python to Boost your Productivity: https://towardsdatascience.com/top-10-magic-commands-in-python-to-boost-your-productivity-1acac061c7a9

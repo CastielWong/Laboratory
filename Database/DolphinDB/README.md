@@ -34,7 +34,7 @@ Replace the license with a new one if applicable.
 
 
 ## Caution
-As some docker engine may not support volume binding to a file, binding like `./cfg/controller.cfg:/data/ddb/server/config/controller.cfg` sometimes might not work.
+As some docker engine may not support volume binding to a file, binding like `./cfg/controller.cfg:/data/ddb/server/config/controller.cfg` could sometimes not work.
 
 
 ## Reference
