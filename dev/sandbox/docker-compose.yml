@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile
     working_dir: /sandbox
     volumes:
-      - ./sandbox_vol:/sandbox
+    - ./sandbox_vol:/sandbox
     tty: true   # keep container up and running
     networks:
       lab-sandbox:
@@ -20,4 +20,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 180.1.0.0/16
+      - subnet: 180.1.0.0/16

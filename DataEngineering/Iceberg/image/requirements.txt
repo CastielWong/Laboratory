@@ -1,0 +1,9 @@
+--index-url https://pypi.org/simple
+boto3~=1.35.76
+colorama~=0.4.6
+pyiceberg[hive]~=0.6.0
+
+# # for image "tabulario/spark-iceberg:3.3.1_1.1.0"
+# pyarrow~=18.1.0
+# pyspark~=3.3.0
+# sqlalchemy~=2.0.36
