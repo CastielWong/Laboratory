@@ -1,0 +1,95 @@
+services:
+  keycloak:
+    container_name: lab-keycloak
+    image: lab-keycloak:demo
+    build:
+      context: $PWD
+      dockerfile: dockerfiles/keycloak
+    environment:
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      # KC_LOG_LEVEL: info
+      KC_HOSTNAME: keycloak.lab
+      KC_HOSTNAME_PORT: 8443
+      # KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+    - ./script/init_keycloak.sh:/tmp/init_keycloak.sh
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://localhost:9000/health/ready"]
+      interval: 15s
+      timeout: 2s
+      retries: 15
+    command: [
+      "--verbose",
+      "start-dev",
+      "--https-certificate-file=/opt/keycloak/conf/tls.pem",
+      "--https-certificate-key-file=/opt/keycloak/conf/tls.key",
+    ]
+    ports:
+      - 8080:8080
+      - 8443:8443
+      - 9000:9000
+    networks:
+      lab-keycloak:
+        ipv4_address: 181.3.11.1
+
+  gitlab:
+    container_name: lab-kc-gitlab
+    image: lab-kc-gitlab:demo
+    build:
+      context: $PWD
+      dockerfile: dockerfiles/gitlab
+    restart: always
+    hostname: gitlab.example.com
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Add any other gitlab.rb configuration here, each on its own line
+        external_url "https://gitlab.example.com"
+        # https://docs.gitlab.com/ee/administration/auth/oidc.html
+        gitlab_rails["omniauth_enabled"] = true
+        gitlab_rails["omniauth_allow_single_sign_on"] = ["openid_connect"]
+        # disable SSL verification
+        gitlab_rails["omniauth_ssl_verify"] = false
+        gitlab_rails["omniauth_providers"] = [
+          {
+            name: "openid_connect",
+            label: "OpenID Connect - KeyCloak",
+            args: {
+              issuer: "https://keycloak:8443/auth/realms/demo",
+              name: "openid_connect",
+              scope: ["openid", "profile", "email", "groups"],
+              response_type: "code",
+              client_auth_method: "query",
+              discovery: true,
+              uid_field: "preferred_username",
+              pkce: false,
+              # ssl_verify: false,
+              client_options: {
+                identifier: "gitlab",
+                secret: "gitlab_secret",
+                refirect_uri: "https://.../users/auth/openid_connect/callback"
+              }
+            }
+          }
+        ]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "22:22"
+    volumes:
+      - ./gitlab/logs:/var/log/gitlab
+      - ./gitlab/data:/var/opt/gitlab
+    shm_size: "256m"
+    networks:
+      lab-keycloak:
+        ipv4_address: 181.3.12.1
+
+networks:
+  lab-keycloak:
+    name: lab_keycloak
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 181.3.0.0/16
