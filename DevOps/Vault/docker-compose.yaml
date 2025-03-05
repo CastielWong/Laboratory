@@ -1,18 +1,18 @@
 ---
 services:
   core:
-    container_name: lab-vault
-    image: vault:demo
+    container_name: demo-vault
+    image: lab-vault:demo
     build:
       context: $PWD
       dockerfile: Dockerfile
-    # ports:
-    #   - "<host_port>:<container_port>"
+    ports:
+    - 8200:8200
     deploy:
       restart_policy:
         condition: on-failure
     volumes:
-      - ./data:/data
+    - ./data:/data
     networks:
       lab-vault:
         ipv4_address: 181.6.11.2

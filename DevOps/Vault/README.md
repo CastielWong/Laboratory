@@ -19,7 +19,11 @@ This is the demo project for HashiCorp Vault.
 
 
 ## Usage
-<specify the usage of the technology>
+The Vault server is up by default, for which can be accessed via "127.0.0.1:8200".
+
+Check container log for its "Root Token" and "Unseal Key".
 
 
 ## Reference
+- Get Started: https://developer.hashicorp.com/vault/tutorials/get-started
+- Docker Image: https://hub.docker.com/r/hashicorp/vault
