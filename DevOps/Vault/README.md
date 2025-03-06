@@ -6,6 +6,8 @@ This is the demo project for HashiCorp Vault.
 
 - [Recipe](#recipe)
 - [Usage](#usage)
+- [Command](#command)
+- [Concept](#concept)
 - [Reference](#reference)
 
 
@@ -23,7 +25,61 @@ The Vault server is up by default, for which can be accessed via "127.0.0.1:8200
 
 Check container log for its "Root Token" and "Unseal Key".
 
+Note that there are environment variables to set if not already:
+```sh
+# address the Vault server
+export VAULT_ADDR=http://127.0.0.1:8200
+# for Vault CLI to authenticate with the Vault server
+export VAULT_TOKEN=
+```
+
+## Command
+```sh
+vault status
+
+# check current token using
+vault token lookup
+
+vault login
+
+# check which auth methods are enabled
+vault auth list
+# list existing roles
+vault list auth/approle/role
+# read the role for its settings
+vault read auth/approle/role/{role_name}
+# retrieve RoleID/SecretID of a role through its name
+vault read auth/approle/role/{role_name}/role-id
+vault list auth/approle/role/{role_name}/secret-id
+# generate SecretID for the role
+vault write -force auth/approle/role/{role_name}/secret-id
+
+vault secrets list
+vault policy list
+
+vault token capabilities secret/{path}
+
+vault read identity/entity-alias/id/{id}
+```
+
+
+## Concept
+- Authentication: the process of confirming identity, often abbreviated to _AuthN_
+- Authorization: the process of verifying what an entity has access to and at what level, often abbreviated to _AuthZ_
+- Entity
+- Alias
+- AppRole role: the role configured in Vault that contains the authorization and usage parameters for the authentication
+  - RoleID: the semi-secret identifier for the role that will authenticate to Vault, like the _username_ portion of an authentication pair
+  - SecretID: the secret identifier for the role that will authenticate to Vault, like the _password_ portion of an authentication pair
+
+
+Attributes:
+- secret_id: a sensitive piece of information used to authenticate to Vault when using an AppRole
+- secret_id_accessor: a unique identifier for a specific secret_id
+
 
 ## Reference
-- Get Started: https://developer.hashicorp.com/vault/tutorials/get-started
 - Docker Image: https://hub.docker.com/r/hashicorp/vault
+- Get Started: https://developer.hashicorp.com/vault/tutorials/get-started
+- Implement identity entities and groups: https://developer.hashicorp.com/vault/tutorials/operations/identity
+- Generate tokens for machine authentication with AppRole: https://developer.hashicorp.com/vault/tutorials/auth-methods/approle

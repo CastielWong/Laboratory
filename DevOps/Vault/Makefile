@@ -9,10 +9,10 @@ start:
 run:
 	docker exec -it $(CONTAINER_NAME) bash
 
-stop:
+end:
 	docker-compose down
 
-clean: stop
+clean: end
 	echo y | docker system prune
 	echo y | docker volume prune
 	# docker volume rm $(VOLUME_NAME)
