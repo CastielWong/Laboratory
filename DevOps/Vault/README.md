@@ -1,7 +1,4 @@
 
-
-
-
 This is the demo project for HashiCorp Vault.
 
 - [Recipe](#recipe)
@@ -43,23 +40,62 @@ vault token lookup
 vault login
 
 # check which auth methods are enabled
-vault auth list
+vault auth list -detailed
+# get the accessor of the specified userpass through `jq`
+vault auth list -format=json | jq -r '.["userpass-{name}/"].accessor'
+
 # list existing roles
 vault list auth/approle/role
-# read the role for its settings
-vault read auth/approle/role/{role_name}
-# retrieve RoleID/SecretID of a role through its name
-vault read auth/approle/role/{role_name}/role-id
-vault list auth/approle/role/{role_name}/secret-id
-# generate SecretID for the role
-vault write -force auth/approle/role/{role_name}/secret-id
 
+vault list identity/entity/id
 vault secrets list
 vault policy list
 
-vault token capabilities secret/{path}
+# ============policy============
+# create a new policy
+vault policy write {policy_name} -<<EOF
+# comment
+path "secret/data/*" {
+    capabilities = [ "read" ]
+}
+EOF
 
-vault read identity/entity-alias/id/{id}
+# ============role============
+# create a new role
+vault write auth/approle/role/{role_name} \
+    token_policies="{policy_name}" \
+    token_ttl=1h token_max_ttl=4h
+
+# read the role for its settings
+vault read auth/approle/role/{role_name}
+
+# retrieve RoleID/SecretID of a role through its name
+vault read auth/approle/role/{role_name}/role-id
+vault list auth/approle/role/{role_name}/secret-id
+
+# generate SecretID for the role
+vault write -force auth/approle/role/{role_name}/secret-id
+
+# ============entity============
+# corresponding entity would be created automatically
+vault write auth/approle/login role_id="" secret_id=""
+
+vault write identity/entity name="{entity-name}" \
+    policies="{policy-name}" \
+    metadata=description="readable entity"
+
+vault read -format=json identity/entity/id/{entity_id}
+vault read identity/entity-alias/id/{alias_id}
+
+# ============secret============
+vault auth enable approle
+
+vault auth enable -path="userpass-{name}" userpass
+
+vault kv get secret/{path}
+
+# ============other============
+vault token capabilities secret/{path}
 ```
 
 
@@ -72,8 +108,8 @@ vault read identity/entity-alias/id/{id}
   - RoleID: the semi-secret identifier for the role that will authenticate to Vault, like the _username_ portion of an authentication pair
   - SecretID: the secret identifier for the role that will authenticate to Vault, like the _password_ portion of an authentication pair
 
-
 Attributes:
+- accessor: ID of specific item, like token, secret etc.
 - secret_id: a sensitive piece of information used to authenticate to Vault when using an AppRole
 - secret_id_accessor: a unique identifier for a specific secret_id
 
