@@ -1,18 +1,18 @@
 ---
 services:
   frontend:
-    container_name: lab-<tech>
-    image: <image>:demo
+    container_name: demo-<tech>
+    image: lab-<tech>:demo
     build:
       context: $PWD
       dockerfile: Dockerfile
     ports:
-      - "<host_port>:<container_port>"
+    - <host_port>:<container_port>
     deploy:
       restart_policy:
         condition: on-failure
     volumes:
-      - ./<dir_host>:<dir_container>
+    - ./<dir_host>:<dir_container>
     networks:
       lab-<tech>:
         ipv4_address: <ip>
@@ -34,7 +34,7 @@ services:
 
 volumes:
   <tech>-data:
-    name: lab_<tech>
+    name: lab-<tech>-vol
 
 networks:
   lab-<tech>:

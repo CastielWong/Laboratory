@@ -1,5 +1,6 @@
 
-CONTAINER_NAME := lab-<tech>
+IMAGE_NAME := lab-<tem>:demo
+CONTAINER_NAME := demo-<tech>
 VOLUME_NAME := lab-<tech>-vol
 
 start:
@@ -8,9 +9,13 @@ start:
 run:
 	docker exec -it $(CONTAINER_NAME) bash
 
-stop:
+end:
 	docker-compose down
 
-clean:
+clean: end
 	echo y | docker system prune
-	docker volume rm $(VOLUME_NAME)
+	echo y | docker volume prune
+	# docker volume rm $(VOLUME_NAME)
+
+dismantle: clean
+	docker rmi $(IMAGE_NAME)
