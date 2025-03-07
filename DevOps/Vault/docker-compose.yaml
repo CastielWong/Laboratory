@@ -1,0 +1,33 @@
+---
+services:
+  core:
+    container_name: demo-vault
+    image: lab-vault:demo
+    build:
+      context: $PWD
+      dockerfile: Dockerfile
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root_token
+      VAULT_ADDR: http://127.0.0.1:8200   # avoid HTTPS response error
+    ports:
+    - 8200:8200
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+    - ./data:/data
+    networks:
+      lab-vault:
+        ipv4_address: 181.6.11.2
+
+# volumes:
+#   vault-data:
+#     name: lab-vault-data
+
+networks:
+  lab-vault:
+    name: lab_vault
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 181.6.0.0/16
