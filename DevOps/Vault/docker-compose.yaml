@@ -7,15 +7,18 @@ services:
       context: $PWD
       dockerfile: Dockerfile
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: root_token
-      VAULT_ADDR: http://127.0.0.1:8200   # avoid HTTPS response error
+      # VAULT_DEV_ROOT_TOKEN_ID: root_token
+      VAULT_ADDR: http://181.6.11.2:8200   # avoid HTTPS response error
     ports:
     - 8200:8200
+    command: ["vault", "server", "-config=/etc/vault/config.hcl"]
     deploy:
       restart_policy:
         condition: on-failure
     volumes:
-    - ./data:/data
+    - ./entry:/entry
+    - ./entry/config.hcl:/etc/vault/config.hcl
+    - ./tmp_data:/vault/data
     networks:
       lab-vault:
         ipv4_address: 181.6.11.2
