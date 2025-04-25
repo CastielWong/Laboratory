@@ -3,6 +3,9 @@ This is the demo project for HashiCorp Vault.
 
 - [Recipe](#recipe)
 - [Usage](#usage)
+  - [Initialization](#initialization)
+    - [Development](#development)
+    - [Non-Development](#non-development)
 - [Concept](#concept)
 - [Command](#command)
 - [Reference](#reference)
@@ -34,13 +37,31 @@ export VAULT_TOKEN=
 export VAULT_CACERT='/var/.../vault-ca.pem'
 ```
 
+### Initialization
+#### Development
+To get to the development mode, make configuration in "docker-compose.yaml":
+- set `VAULT_DEV_ROOT_TOKEN_ID`
+- avoid lauching up Vault server with configuration file
+
+#### Non-Development
+For non-development setup, run commands below:
+```sh
+# note down "Unseal Key" and the "Initial Root Token"
+vault operator init
+
+# run multiple times until the threshold of Sharmir's key shares is reached
+vault operator unseal
+```
+
+
 
 ## Concept
 - Authentication: the process of confirming identity, often abbreviated to _AuthN_
 - Authorization: the process of verifying what an entity has access to and at what level, often abbreviated to _AuthZ_
-- Entity
-- Alias
-- AppRole role: the role configured in Vault that contains the authorization and usage parameters for the authentication
+- Entity: represents a logical user, service, or application, which is a container
+for identities from different authentication methods (e.g., AppRole, LDAP)
+- Alias: an Alias links an authentication method's identity
+- AppRole: the role configured in Vault that contains the authorization and usage parameters for the authentication
   - RoleID: the semi-secret identifier for the role that will authenticate to Vault, like the _username_ portion of an authentication pair
   - SecretID: the secret identifier for the role that will authenticate to Vault, like the _password_ portion of an authentication pair
 

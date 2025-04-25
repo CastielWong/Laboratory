@@ -1,6 +1,12 @@
 #!/bin/bash
 set -eo pipefail
 
+###############################################################################
+: ${VAULT_TOKEN:=}
+: ${VAULT_ADDR:=}
+: ${DUMP_FILE:=}
+###############################################################################
+
 if [[ -z ${VAULT_ADDR} || -z ${VAULT_TOKEN} ]]; then
     echo "ERROR: Please set 'VAULT_ADDR' and 'VAULT_TOKEN'."
     exit 1
@@ -34,13 +40,12 @@ function traverse_secrets() {
         if [[ $entry == */ ]]; then
             traverse_secrets "${mount_path}" "${subpath}${entry}"
         else
-            secret_path="${mount_path}/data/${subpath}${entry}"
             secret_data=$(
-                curl -s -H "X-Vault-Token: ${VAULT_TOKEN}" "${VAULT_ADDR}/v1/${secret_path}" |
+                curl -s -H "X-Vault-Token: ${VAULT_TOKEN}" "${VAULT_ADDR}/v1/${mount_path}/data/${subpath}${entry}" |
                 jq '.data.data'
             )
 
-            echo "Secret Path: ${secret_path}"
+            echo "Secret Path: ${mount_path}/${subpath}${entry}"
             echo "${secret_data}"
         fi
     done

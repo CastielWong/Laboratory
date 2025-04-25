@@ -1,6 +1,12 @@
 #!/bin/bash
 set -eo pipefail
 
+###############################################################################
+: ${VAULT_TOKEN:=}
+: ${VAULT_ADDR:=}
+###############################################################################
+DUMP_FILE=$1
+
 # Validate environment variables for the NEW Vault server
 if [[ -z "${VAULT_ADDR}" || -z "${VAULT_TOKEN}" || -z "${DUMP_FILE}" ]]; then
     echo "ERROR: Set 'VAULT_ADDR' and 'VAULT_TOKEN' for the NEW Vault server."
