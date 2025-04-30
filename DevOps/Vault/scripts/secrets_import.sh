@@ -4,6 +4,7 @@ set -eo pipefail
 ###############################################################################
 : ${VAULT_TOKEN:=}
 : ${VAULT_ADDR:=}
+: ${DIR_OUTPUT:=}
 ###############################################################################
 DUMP_FILE=$1
 
@@ -19,7 +20,7 @@ if [[ ! -f "${DUMP_FILE}" ]]; then
 fi
 
 # Extract all KV mounts from the dump file
-MOUNTS_TO_CREATE=$(grep "Processing mount: " "$DUMP_FILE" | awk '{print $3}' | sort -u)
+MOUNTS_TO_CREATE=$(grep "Processing mount: " "${DUMP_FILE}" | awk '{print $3}' | sort -u)
 
 # Mount KV v2 engines if they don't exist
 echo "Mounting KV v2 engines..."
@@ -65,7 +66,7 @@ while IFS= read -r line; do
             fi
             ;;
     esac
-done < "$DUMP_FILE"
+done < "${DUMP_FILE}"
 
 # Import the last secret
 if [[ -s "$TMP_DATA" ]]; then

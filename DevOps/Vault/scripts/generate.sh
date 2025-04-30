@@ -1,12 +1,20 @@
 #!/bin/bash
-: ${VAULT_TOKEN:=}
+set -uo pipefail
+
+###############################################################################
+: ${VAULT_TOKEN:=root_token}
+: ${VAULT_ADDR:=}
+: ${DIR_OUTPUT:=tmp_output}
+###############################################################################
 
 dashline() {
     printf "%.0s${1}" {1..80}
     echo
 }
 
+mkdir -p ${DIR_OUTPUT}
 dashline "="
+
 # ###############################################################################
 SECRET_KV_DEMO=demo
 SECRET_KV_FRUIT=fruit
@@ -33,19 +41,21 @@ dashline "="
 
 # ###############################################################################
 POLICY_NAME="demo-policy"
-POLICY_FILE="tmp_${POLICY_NAME}.hcl"
+POLICY_FILE="${POLICY_NAME}.hcl"
+PATH_POLICY="${DIR_OUTPUT}/${POLICY_FILE}"
 
 if vault policy read ${POLICY_NAME} >/dev/null 2>&1; then
     echo "Policy '${SECRET_KV_FRUIT}' is existed"
 else
     echo "Creating Policy '${SECRET_KV_FRUIT}'..."
-    cat <<-EOF > ${POLICY_FILE}
+    cat <<-EOF > ${PATH_POLICY}
         path "${SECRET_KV_FRUIT}/data/*" {
             capabilities = ["create", "read", "update", "delete", "list"]
         }
 EOF
-vault policy write ${POLICY_NAME} ${POLICY_FILE}
 fi
+
+vault policy write ${POLICY_NAME} ${PATH_POLICY}
 
 dashline "="
 # ###############################################################################
@@ -144,7 +154,7 @@ vault write identity/entity-alias \
     mount_accessor="${APPRLE_ACCESSOR}"
 
 echo "Check Entity '${ENTITY_NAME}'"
-vault read identity/entity/name/${ENTITY_NAME} | jq -r '.[""]'
+vault read identity/entity/name/${ENTITY_NAME}
 dashline "="
 # ###############################################################################
 
