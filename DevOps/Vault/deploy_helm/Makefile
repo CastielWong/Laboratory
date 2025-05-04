@@ -62,5 +62,11 @@ set-env:
 	echo "export VAULT_ADDR='http://127.0.0.1:8200'" > $(ENV_FILE)
 	echo "export VAULT_TOKEN=$$(kubectl logs -n demo-vault vault-0 | grep 'Root Token:' | awk '{print $$3}')" >> $(ENV_FILE)
 
-generate-items: set-env
+generate-items:
 	source $(ENV_FILE) && bash ../scripts/generate.sh
+
+retrieve-items:
+	source $(ENV_FILE) && bash ../scripts/exporting.sh
+
+import-items:
+	source $(ENV_FILE) && bash ../scripts/importing.sh

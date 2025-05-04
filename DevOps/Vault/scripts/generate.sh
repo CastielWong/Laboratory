@@ -52,12 +52,11 @@ else
 path "${SECRET_KV_FRUIT}/data/*" {
     capabilities = ["create", "read", "update", "delete", "list"]
 }
+    vault policy write ${POLICY_NAME} ${PATH_POLICY}
 EOF
 
     vault policy write ${POLICY_NAME} ${PATH_POLICY}
 fi
-
-vault policy write ${POLICY_NAME} ${PATH_POLICY}
 
 dashline "="
 # ###############################################################################
@@ -96,11 +95,6 @@ vault token create -policy="${POLICY_NAME}" -orphan
 
 # create a wrapped token (for secure handoff)
 vault token create -policy="${POLICY_NAME}" -wrap-ttl="5m"
-
-ACCESSORS=$(vault list -format=json auth/token/accessors | jq -r '.[]')
-for accessor in ${ACCESSORS}; do
-    vault token lookup -format=json -accessor "${accessor}" | jq '.data'
-done
 
 dashline "="
 # ###############################################################################
@@ -178,6 +172,16 @@ dashline "*"
 
 echo "List Tokens:"
 vault list -format=json auth/token/accessors
+
+echo "Token details"
+ACCESSORS=$(vault list -format=json auth/token/accessors | jq -r '.[]')
+for accessor in ${ACCESSORS}; do
+    vault token lookup -format=json -accessor "${accessor}" | \
+        jq '.data | {accessor, expire_time, orphan, path, policies, ttl, type}'
+    dashline "-"
+done
+# WqXenL29rTcN81trnqET41Vn
+
 dashline "*"
 
 echo "List UserPass:"
