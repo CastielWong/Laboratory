@@ -25,7 +25,7 @@ And each time it is installed, a new release is created.
 
 
 ## Common Command
-
+Note that Helm would follow the same context as Kubernetes:
 ```sh
 # repo
 helm repo list
@@ -53,13 +53,14 @@ helm template {release} -f {values}.yaml --dry-run=client .
 
 
 # release
-helm list --all
+helm list --all -n {namespace}
 helm status {release}
 helm history {release}
 helm get values {release}
 
-helm upgrade -f {config}.yaml {release} {chart}
-helm rollback {RELEASE} {REVISION}
+helm upgrade {release} {chart} -f {config}.yaml
+# roll back to previous release
+helm rollback {release} {revision}
 
 # uninstall a release
 helm uninstall {release}

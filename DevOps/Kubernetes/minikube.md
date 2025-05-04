@@ -7,22 +7,25 @@
   - [MacOS](#macos)
     - [Homebrew](#homebrew)
 - [CRI-O](#cri-o)
+  - [HyperKit](#hyperkit)
 - [Reference](#reference)
 
 
 Minikube CLI is used for start/delete the cluster; while Kubectl CLI is used for configuring the Minikube cluster.
 
 ## Common Command
-To run Minikube with "hyperkit", Docker is needed to up and running.
+Minikube uses Docker as its default container runtime.
 
 ```sh
 minikube addons list
 
 minikube addons enable {addon}
 
-minikube start
+# docker daemon like Docker Desktop should be up and running when the driver is docker
+minikube start --driver=docker
 
 minikube status
+minikube config view
 
 # get into minikube to install tool needed
 minikube ssh
@@ -122,13 +125,10 @@ brew install minikube
 
 # remove existing cluster in case conflict
 # minikube delete
-minikube start --vm-driver=hyperkit
+
+minikube start --driver=hyperkit
 
 kubectl get nodes
-
-minikube status
-
-minikube addons list
 ```
 
 
@@ -144,6 +144,12 @@ NOTE: While docker is the default runtime, minikube Kubernetes also supports `cr
 By describing a running Kubernetes pod, it's feasible to extract the Container ID field of the pod that includes the name of the runtime:
 `kubectl -n kube-system describe pod kube-scheduler-minikube | grep "Container ID"`
 
+### HyperKit
+Minikube would uses the HyperKit hypervisor to create a virtual machine that runs the K8S cluster,
+which means minikube can work without external Docker like Docker Desktop at all.
+
+When HyperKit is the VM driver, run `eval $(minikube docker-env)` to point the shell to minikube's
+docker-daemon to check through images/containers.
 
 
 ## Reference

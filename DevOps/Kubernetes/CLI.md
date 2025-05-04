@@ -25,6 +25,7 @@ export do="--dry-run=client -o yaml"
 ```sh
 kubectl version
 
+# check current context like namespace, cluster etc.
 kubectl config view --minify
 kubectl config get-contexts
 kubectl config current-contexts
@@ -33,7 +34,15 @@ kubectl config set-contexts --current --namespace=<namespace>
 kubectl describe nodes {node}
 
 kubectl get namespaces
+kubectl get cm
+# core: pods, services, deployments, replicasets, statufulsets, daemonsets, jobs, cronjobs
 kubectl get all
+# storage-related
+kubectl get pvc,pc,sc
+# sensitive
+kubectl get secrets,serviceaccounts
+# networking
+kubectl get ingress,networkpolicies
 kubectl get quota
 kubectl get events --all-namespaces
 
@@ -44,6 +53,7 @@ kubectl get deployments,svc,rs,po -l {label_key}={label_value}
 
 kubectl edit deployment {name}
 
+# check available resources types
 kubectl api-resources
 
 kubectl create -f {template}
