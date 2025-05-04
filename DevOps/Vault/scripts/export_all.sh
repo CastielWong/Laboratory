@@ -2,8 +2,8 @@
 set -uo pipefail
 
 ###############################################################################
-: ${VAULT_TOKEN:=root_token}
 : ${VAULT_ADDR:=}
+: ${VAULT_TOKEN:=root_token}
 ###############################################################################
 
 dir_output=tmp_migration
@@ -22,7 +22,7 @@ for directory in "${directories[@]}"; do
     mkdir -p "${dir_output}/${directory}"
 done
 
-# Export all KV v2 secrets, but not all kinds
+# export all KV v2 secrets, but not all kinds
 echo "Export secrets..."
 
 dir_secret="${dir_output}/secrets"

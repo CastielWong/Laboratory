@@ -47,12 +47,14 @@ PATH_POLICY="${DIR_OUTPUT}/${POLICY_FILE}"
 if vault policy read ${POLICY_NAME} >/dev/null 2>&1; then
     echo "Policy '${SECRET_KV_FRUIT}' is existed"
 else
-    echo "Creating Policy '${SECRET_KV_FRUIT}'..."
-    cat <<-EOF > ${PATH_POLICY}
-        path "${SECRET_KV_FRUIT}/data/*" {
-            capabilities = ["create", "read", "update", "delete", "list"]
-        }
+    echo "Creating Policy '${POLICY_NAME}'..."
+    cat <<-EOF  | sed 's/^[ ]{4}//' > ${PATH_POLICY}
+path "${SECRET_KV_FRUIT}/data/*" {
+    capabilities = ["create", "read", "update", "delete", "list"]
+}
 EOF
+
+    vault policy write ${POLICY_NAME} ${PATH_POLICY}
 fi
 
 vault policy write ${POLICY_NAME} ${PATH_POLICY}
@@ -185,3 +187,7 @@ dashline "*"
 echo "List Entity:"
 vault list identity/entity/name
 dashline "*"
+
+# ###############################################################################
+echo "Cleaning up..."
+rm -rf ${DIR_OUTPUT}

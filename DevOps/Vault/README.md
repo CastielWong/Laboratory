@@ -3,6 +3,7 @@ This is the demo project for HashiCorp Vault.
 
 - [Recipe](#recipe)
 - [Usage](#usage)
+  - [Prerequisite](#prerequisite)
   - [Initialization](#initialization)
     - [Development](#development)
     - [Non-Development](#non-development)
@@ -36,6 +37,18 @@ export VAULT_TOKEN=
 # TLS
 export VAULT_CACERT='/var/.../vault-ca.pem'
 ```
+
+### Prerequisite
+Install Vault CLI so as to interact with the Vault server set up.
+
+For instance, below is the to install it and jQuery in MacOS via HomeBrew:
+```sh
+brew tap hashicorp/tap
+brew install hashicorp/tap/vault
+
+brew install jq
+```
+
 
 ### Initialization
 #### Development
