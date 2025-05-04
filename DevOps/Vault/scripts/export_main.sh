@@ -11,7 +11,6 @@ directories=(
     secrets
     policies
     entities
-    identity
 )
 dashline() {
     printf "%.0s${1}" {1..80}
@@ -75,23 +74,13 @@ dashline "="
 echo "Export policies..."
 
 dir_policy="${dir_output}/policies"
-vault policy list | while read policy; do
+vault policy list | grep -v '^root$' | while read -r policy; do
     if [ "${policy}" = "root" ]; then
         continue
     fi
     echo "Running: vault policy read '${policy}' > '${dir_policy}/${policy}.hcl'"
     vault policy read "${policy}" > "${dir_policy}/${policy}.hcl"
 done
-
-dashline "="
-
-
-# Export auth methods
-echo "Export authentication method..."
-
-file_auth="${dir_output}/auth_methods.txt"
-echo "Collecting all available authentication method"
-vault auth list -format=json | jq -r 'keys[] | sub("/$"; "")' > ${file_auth}
 
 dashline "="
 
