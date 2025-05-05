@@ -1,11 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo-dpl
+  name: cas-check
+  namespace: cas-checking
   labels:
     demo: check
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       demo: check
@@ -19,5 +20,12 @@ spec:
         image: nginx:latest
         imagePullPolicy: Always
         command: ["tail", "-f", "/dev/null"]
+        volumeMounts:
+        - name: cas-vol
+          mountPath: /script-volume
         ports:
         - containerPort: 80
+      volumes:
+      - name: cas-vol
+        configMap:
+          name: cas-cm

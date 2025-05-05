@@ -28,13 +28,17 @@ And each time it is installed, a new release is created.
 Note that Helm would follow the same context as Kubernetes:
 ```sh
 # repo
+# list repository installed
 helm repo list
+# search hub to find charts across all repo in Helm entire ecosystem
 helm search hub {chart}
+# search for charts within configured local repo
+helm search repo {chart}
+
 helm repo add {name} {repo}
 helm repo update
 helm repo remove {name}
 
-helm search repo {chart}
 
 
 # chart

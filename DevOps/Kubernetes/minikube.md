@@ -27,6 +27,10 @@ minikube start --driver=docker
 minikube status
 minikube config view
 
+minikube addons list
+
+minikube addons enable {addon}
+
 # get into minikube to install tool needed
 minikube ssh
 
@@ -103,7 +107,7 @@ sudo rpm -Uvh minikube-latest.x86_64.rpm
 Verify the virtualization support on the macOS (VMX in the output indicates enabled virtualization):
 `sysctl -a | grep -E --color 'machdep.cpu.features|VMX'`
 
-Although VirtualBox is the default hypervisor for Minikube, on Mac OS X we can configure Minikube at startup to use another hypervisor (downloaded separately), with the `--driver=parallels` or `--driver=hyperkit `start option.
+Although VirtualBox is the default hypervisor for Minikube, on Mac OS X we can configure Minikube at startup to use another hypervisor (downloaded separately), with the `--driver=parallels` or `--driver=hyperkit` start option.
 
 Download VirtualBox from its website then have it installed.
 
