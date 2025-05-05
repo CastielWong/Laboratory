@@ -1,6 +1,6 @@
 
 VAULT_NS := demo-vault
-VAULT_RELEASE_VERSION := 0.28.1
+VAULT_RELEASE_VERSION := 0.30.0
 SCRIPTS = generate.sh export_all.sh
 ENV_FILE = tmp.env
 
@@ -61,6 +61,7 @@ retrieve-root-token:
 set-env:
 	echo "export VAULT_ADDR='http://127.0.0.1:8200'" > $(ENV_FILE)
 	echo "export VAULT_TOKEN=$$(kubectl logs -n demo-vault vault-0 | grep 'Root Token:' | awk '{print $$3}')" >> $(ENV_FILE)
+	echo "export VAULT_DIR_MIGRATION='tmp_migration'" >> $(ENV_FILE)
 
 generate-items:
 	source $(ENV_FILE) && bash ../scripts/generate.sh

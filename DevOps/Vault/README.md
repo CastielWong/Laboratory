@@ -61,11 +61,11 @@ For non-development setup, run commands below:
 ```sh
 # note down "Unseal Key" and the "Initial Root Token"
 vault operator init
+# vault operator init -key-shares=3 -key-threshold=2
 
 # run multiple times until the threshold of Sharmir's key shares is reached
 vault operator unseal
 ```
-
 
 
 ## Concept

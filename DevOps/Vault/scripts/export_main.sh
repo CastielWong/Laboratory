@@ -3,10 +3,12 @@ set -uo pipefail
 
 ###############################################################################
 : ${VAULT_ADDR:=}
-: ${VAULT_TOKEN:=root_token}
+: ${VAULT_TOKEN:=}
+
+: ${VAULT_DIR_MIGRATION:=}
+DIR_OUTPUT=${VAULT_DIR_MIGRATION}
 ###############################################################################
 
-dir_output=tmp_migration
 directories=(
     secrets
     policies
@@ -18,13 +20,13 @@ dashline() {
 }
 
 for directory in "${directories[@]}"; do
-    mkdir -p "${dir_output}/${directory}"
+    mkdir -p "${DIR_OUTPUT}/${directory}"
 done
 
 # export all KV v2 secrets, but not all kinds
 echo "Export secrets..."
 
-dir_secret="${dir_output}/secrets"
+dir_secret="${DIR_OUTPUT}/secrets"
 
 list_secrets() {
     local mount="$1"
@@ -73,7 +75,7 @@ dashline "="
 # Export policies
 echo "Export policies..."
 
-dir_policy="${dir_output}/policies"
+dir_policy="${DIR_OUTPUT}/policies"
 vault policy list | grep -v '^root$' | while read -r policy; do
     if [ "${policy}" = "root" ]; then
         continue
@@ -88,7 +90,7 @@ dashline "="
 # Export entities/aliases (if using identity system)
 echo "Export entities..."
 
-dir_entity="${dir_output}/entities"
+dir_entity="${DIR_OUTPUT}/entities"
 vault list identity/entity/name | \
     tail -n +3 | \
     while read entity; do

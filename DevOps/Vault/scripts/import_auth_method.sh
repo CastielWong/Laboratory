@@ -1,7 +1,14 @@
 #!/bin/bash
 set -eo pipefail
 
-DIR_INPUT=tmp_migration/auth_methods
+###############################################################################
+: ${VAULT_ADDR:=}
+: ${VAULT_TOKEN:=}
+
+: ${VAULT_DIR_MIGRATION:=}
+DIR_INPUT="${VAULT_DIR_MIGRATION}/auth_methods"
+###############################################################################
+
 
 dashline() {
     printf "%.0s${1}" {1..80}; echo

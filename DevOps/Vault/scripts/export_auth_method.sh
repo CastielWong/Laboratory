@@ -1,7 +1,13 @@
 #!/bin/bash
 set -uo pipefail
 
-DIR_OUTPUT=tmp_migration
+###############################################################################
+: ${VAULT_ADDR:=}
+: ${VAULT_TOKEN:=}
+
+: ${VAULT_DIR_MIGRATION:=}
+DIR_OUTPUT=${VAULT_DIR_MIGRATION}
+###############################################################################
 
 dashline() {
     printf "%.0s${1}" {1..80}; echo

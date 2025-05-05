@@ -2,17 +2,18 @@
 set -uo pipefail
 
 ###############################################################################
-: ${VAULT_TOKEN:=root_token}
 : ${VAULT_ADDR:=}
-: ${DIR_OUTPUT:=tmp_output}
+: ${VAULT_TOKEN:=}
+
+DIR_INTERMEDIATE=tmp_vault
 ###############################################################################
 
 dashline() {
     printf "%.0s${1}" {1..80}
-    echo
+    echo d
 }
 
-mkdir -p ${DIR_OUTPUT}
+mkdir -p ${DIR_INTERMEDIATE}
 dashline "="
 
 # ###############################################################################
@@ -42,7 +43,7 @@ dashline "="
 # ###############################################################################
 POLICY_NAME="demo-policy"
 POLICY_FILE="${POLICY_NAME}.hcl"
-PATH_POLICY="${DIR_OUTPUT}/${POLICY_FILE}"
+PATH_POLICY="${DIR_INTERMEDIATE}/${POLICY_FILE}"
 
 if vault policy read ${POLICY_NAME} >/dev/null 2>&1; then
     echo "Policy '${SECRET_KV_FRUIT}' is existed"
@@ -193,4 +194,4 @@ dashline "*"
 
 # ###############################################################################
 echo "Cleaning up..."
-rm -rf ${DIR_OUTPUT}
+rm -rf ${DIR_INTERMEDIATE}

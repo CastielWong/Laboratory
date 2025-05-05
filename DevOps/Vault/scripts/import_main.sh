@@ -3,10 +3,12 @@ set -uo pipefail
 
 ###############################################################################
 : ${VAULT_ADDR:=}
-: ${VAULT_TOKEN:=root_token}
+: ${VAULT_TOKEN:=}
+
+: ${VAULT_DIR_MIGRATION:=}
+DIR_INPUT="${VAULT_DIR_MIGRATION}"
 ###############################################################################
 
-dir_input=tmp_migration  # Must match export directory
 directories=(
     secrets
     policies
@@ -20,13 +22,13 @@ dashline() {
 }
 
 validate_input() {
-    if [ ! -d "${dir_input}" ]; then
-        echo "Error: Input directory '${dir_input}' not found"
+    if [ ! -d "${DIR_INPUT}" ]; then
+        echo "Error: Input directory '${DIR_INPUT}' not found"
         exit 1
     fi
     for dir in "${directories[@]}"; do
-        if [ ! -d "${dir_input}/${dir}" ]; then
-            echo "Warning: Missing subdirectory ${dir_input}/${dir}"
+        if [ ! -d "${DIR_INPUT}/${dir}" ]; then
+            echo "Warning: Missing subdirectory ${DIR_INPUT}/${dir}"
         fi
     done
 }
@@ -43,7 +45,7 @@ import_secrets() {
         echo "Warning: Mount '${v_mount_path}/' may already exist"
     }
 
-    dir_secret="${dir_input}/secrets/${v_dir_secret}"
+    dir_secret="${DIR_INPUT}/secrets/${v_dir_secret}"
     find "${dir_secret}" -name "*.json" | \
     while read -r rel_secret_path; do
         local secret_file=$(basename ${rel_secret_path})
@@ -62,7 +64,7 @@ validate_input
 
 dashline "="
 echo "Importing KV-v2 Secrets..."
-find "${dir_input}/secrets" -mindepth 1 -maxdepth 1 -type d | \
+find "${DIR_INPUT}/secrets" -mindepth 1 -maxdepth 1 -type d | \
     while read -r mount_dir; do
         mount_name=$(basename "${mount_dir}")
 
@@ -76,7 +78,7 @@ find "${dir_input}/secrets" -mindepth 1 -maxdepth 1 -type d | \
 
 dashline "="
 echo "Importing Policies..."
-find "${dir_input}/policies" -name "*.hcl" | \
+find "${DIR_INPUT}/policies" -name "*.hcl" | \
     while read -r policy_file; do
         policy_name=$(basename "${policy_file}" .hcl)
 
