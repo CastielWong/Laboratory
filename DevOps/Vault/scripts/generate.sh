@@ -52,7 +52,6 @@ else
 path "${SECRET_KV_FRUIT}/data/*" {
     capabilities = ["create", "read", "update", "delete", "list"]
 }
-    vault policy write ${POLICY_NAME} ${PATH_POLICY}
 EOF
 
     vault policy write ${POLICY_NAME} ${PATH_POLICY}
@@ -126,7 +125,7 @@ else
     echo "Creating Entity '${ENTITY_NAME}'..."
     vault write identity/entity \
         name="${ENTITY_NAME}" \
-        metadata-team="engineering" \
+        metadata=team="sample" \
         policies="${POLICY_NAME}"
 fi
 

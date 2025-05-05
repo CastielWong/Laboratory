@@ -92,36 +92,4 @@ find "${dir_input}/policies" -name "*.hcl" | \
     done
 
 dashline "="
-echo "Configuring Auth Methods..."
-if [ -f "${dir_input}/auth_methods.txt" ]; then
-    while read -r auth_method; do
-        if [ "${auth_method}" = "token" ]; then
-            echo "Skip '${auth_method}' Access"
-            continue
-        fi
-
-        echo "Enabling auth method: ${auth_method}"
-        vault auth enable "${auth_method}" || {
-            echo "Warning: Auth method ${auth_method} may already exist"
-        }
-    done < "${dir_input}/auth_methods.txt"
-else
-    echo "No auth methods file found"
-fi
-
-dashline "="
-echo "Importing Entities..."
-find "${dir_input}/entities" -name "*.json" | \
-    while read -r entity_file; do
-        entity_name=$(basename "${entity_file}" .json)
-        echo "Processing entity: ${entity_name}"
-
-        # Extract entity data and create
-        jq '.data' "${entity_file}" | \
-            vault write "identity/entity/name/${entity_name}" - || {
-                echo "Error importing entity ${entity_name}"
-            }
-    done
-
-dashline "="
 echo "Migration completed with warnings (if any)"

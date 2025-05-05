@@ -65,8 +65,10 @@ set-env:
 generate-items:
 	source $(ENV_FILE) && bash ../scripts/generate.sh
 
-retrieve-items:
-	source $(ENV_FILE) && bash ../scripts/exporting.sh
+export-items:
+	source $(ENV_FILE) && bash ../scripts/export_main.sh
+	source $(ENV_FILE) && bash ../scripts/export_auth_method.sh
 
 import-items:
-	source $(ENV_FILE) && bash ../scripts/importing.sh
+	source $(ENV_FILE) && bash ../scripts/import_main.sh
+	# source $(ENV_FILE) && bash ../scripts/import_auth_method.sh

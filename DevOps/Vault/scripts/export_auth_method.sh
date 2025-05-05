@@ -1,14 +1,7 @@
 #!/bin/bash
 set -uo pipefail
 
-###############################################################################
-# Configuration
-: ${VAULT_ADDR:=}
-: ${VAULT_TOKEN:=root_token}
-: ${OUTPUT_DIR:="vault_auth_export_$(date +%Y%m%d%H%M%S)"}
-###############################################################################
-
-dir_output=tmp_migration
+DIR_OUTPUT=tmp_migration
 
 dashline() {
     printf "%.0s${1}" {1..80}; echo
@@ -19,7 +12,7 @@ log() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
 }
 
-DIR_AUTH_METHOD="${dir_output}/auth_methods"
+DIR_AUTH_METHOD="${DIR_OUTPUT}/auth_methods"
 mkdir -p ${DIR_AUTH_METHOD}
 
 # Export auth methods
