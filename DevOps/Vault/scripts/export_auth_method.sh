@@ -9,10 +9,9 @@ set -uo pipefail
 DIR_OUTPUT=${VAULT_DIR_MIGRATION}
 ###############################################################################
 
-dashline() {
+separator() {
     printf "%.0s${1}" {1..80}; echo
 }
-
 
 log() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
@@ -131,13 +130,13 @@ export_tuning_params() {
 # Export all auth methods
 vault auth list -format=json | jq -r 'keys[]' | while read -r v_mount_path; do
     export_auth_method "${v_mount_path}"
-    dashline "="
+    separator "="
 done
 
 # Export tuning parameters
 export_tuning_params
 
-dashline "="
+separator "="
 log "Export completed. Security note:"
 echo "1. Secret IDs for AppRole were NOT exported (security best practice)"
 echo "2. Actual token values were NOT exported (security best practice)"

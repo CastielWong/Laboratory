@@ -8,13 +8,13 @@ set -uo pipefail
 DIR_INTERMEDIATE=tmp_vault
 ###############################################################################
 
-dashline() {
+separator() {
     printf "%.0s${1}" {1..80}
     echo d
 }
 
 mkdir -p ${DIR_INTERMEDIATE}
-dashline "="
+separator "="
 
 # ###############################################################################
 SECRET_KV_DEMO=demo
@@ -35,10 +35,10 @@ else
     echo "Creating secret - KV '${SECRET_KV_FRUIT}'..."
     vault secrets enable -path=${SECRET_KV_FRUIT} kv-v2
     vault kv put ${SECRET_KV_FRUIT}/info/apple weight="1kg" price="5"
-    vault kv put ${SECRET_KV_FRUIT}/info/berry weight="250g" price="30"
+    vault kv put ${SECRET_KV_FRUIT}/info/banana weight="500g" price="10"
 fi
 
-dashline "="
+separator "="
 
 # ###############################################################################
 POLICY_NAME="demo-policy"
@@ -58,7 +58,7 @@ EOF
     vault policy write ${POLICY_NAME} ${PATH_POLICY}
 fi
 
-dashline "="
+separator "="
 # ###############################################################################
 APPROLE_NAME="demo-role"
 
@@ -81,7 +81,7 @@ fi
 # # login with AppRole
 # vault write auth/app/login role_id="${ROLE_ID}" secret_id="${SECRET_ID}"
 
-dashline "="
+separator "="
 ###############################################################################
 vault list auth/token/accessors
 
@@ -96,7 +96,7 @@ vault token create -policy="${POLICY_NAME}" -orphan
 # create a wrapped token (for secure handoff)
 vault token create -policy="${POLICY_NAME}" -wrap-ttl="5m"
 
-dashline "="
+separator "="
 # ###############################################################################
 USERPASS_NAME="demo-user"
 USERPASS_PASS="qwe123"
@@ -116,7 +116,7 @@ fi
 # # login with UserPass
 # vault login -method=userpass username=${USERPASS_NAME} password=${USERPASS_PASS}
 
-dashline "="
+separator "="
 # ###############################################################################
 ENTITY_NAME="demo-entity"
 
@@ -151,24 +151,24 @@ vault write identity/entity-alias \
 
 echo "Check Entity '${ENTITY_NAME}'"
 vault read identity/entity/name/${ENTITY_NAME}
-dashline "="
+separator "="
 # ###############################################################################
 
 echo "List Secrets:"
 echo "Secrets in ${SECRET_KV_DEMO}"
 vault kv list ${SECRET_KV_DEMO}/
-dashline "-"
+separator "-"
 echo "Secrets in ${SECRET_KV_FRUIT}"
 vault kv list ${SECRET_KV_FRUIT}/info/
-dashline "*"
+separator "*"
 
 echo "List Policies:"
 vault policy list
-dashline "*"
+separator "*"
 
 echo "List AppRoles:"
 vault list auth/approle/role
-dashline "*"
+separator "*"
 
 echo "List Tokens:"
 vault list -format=json auth/token/accessors
@@ -178,19 +178,19 @@ ACCESSORS=$(vault list -format=json auth/token/accessors | jq -r '.[]')
 for accessor in ${ACCESSORS}; do
     vault token lookup -format=json -accessor "${accessor}" | \
         jq '.data | {accessor, expire_time, orphan, path, policies, ttl, type}'
-    dashline "-"
+    separator "-"
 done
 # WqXenL29rTcN81trnqET41Vn
 
-dashline "*"
+separator "*"
 
 echo "List UserPass:"
 vault list auth/userpass/users
-dashline "*"
+separator "*"
 
 echo "List Entity:"
 vault list identity/entity/name
-dashline "*"
+separator "*"
 
 # ###############################################################################
 echo "Cleaning up..."

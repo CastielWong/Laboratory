@@ -9,15 +9,16 @@ set -uo pipefail
 DIR_OUTPUT=${VAULT_DIR_MIGRATION}
 ###############################################################################
 
+separator() {
+    printf "%.0s${1}" {1..80}
+    echo
+}
+
 directories=(
     secrets
     policies
     entities
 )
-dashline() {
-    printf "%.0s${1}" {1..80}
-    echo
-}
 
 for directory in "${directories[@]}"; do
     mkdir -p "${DIR_OUTPUT}/${directory}"
@@ -61,7 +62,7 @@ list_secrets() {
             fi
         done
 
-    dashline "-"
+    separator "-"
 }
 
 vault secrets list -format=json | \
@@ -70,7 +71,7 @@ vault secrets list -format=json | \
         list_secrets ${mount} ""
     done
 
-dashline "="
+separator "="
 
 # Export policies
 echo "Export policies..."
@@ -84,7 +85,7 @@ vault policy list | grep -v '^root$' | while read -r policy; do
     vault policy read "${policy}" > "${dir_policy}/${policy}.hcl"
 done
 
-dashline "="
+separator "="
 
 
 # Export entities/aliases (if using identity system)
@@ -100,4 +101,4 @@ vault list identity/entity/name | \
         vault read -format=json "identity/entity/name/${entity}" > "${dir_entity}/${entity}.json"
 done
 
-dashline "="
+separator "="

@@ -9,17 +9,17 @@ set -uo pipefail
 DIR_INPUT="${VAULT_DIR_MIGRATION}"
 ###############################################################################
 
+separator() {
+    printf "%.0s${1}" {1..80}
+    echo
+}
+
 directories=(
     secrets
     policies
     entities
     identity
 )
-
-dashline() {
-    printf "%.0s${1}" {1..80}
-    echo
-}
 
 validate_input() {
     if [ ! -d "${DIR_INPUT}" ]; then
@@ -62,7 +62,7 @@ import_secrets() {
 # Main Import Process
 validate_input
 
-dashline "="
+separator "="
 echo "Importing KV-v2 Secrets..."
 find "${DIR_INPUT}/secrets" -mindepth 1 -maxdepth 1 -type d | \
     while read -r mount_dir; do
@@ -76,7 +76,7 @@ find "${DIR_INPUT}/secrets" -mindepth 1 -maxdepth 1 -type d | \
         import_secrets "${mount_name}" ""
     done
 
-dashline "="
+separator "="
 echo "Importing Policies..."
 find "${DIR_INPUT}/policies" -name "*.hcl" | \
     while read -r policy_file; do
@@ -93,5 +93,5 @@ find "${DIR_INPUT}/policies" -name "*.hcl" | \
         }
     done
 
-dashline "="
+separator "="
 echo "Migration completed with warnings (if any)"

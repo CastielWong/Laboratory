@@ -1,6 +1,7 @@
 
 VAULT_NS := demo-vault
 VAULT_RELEASE_VERSION := 0.30.0
+DIR_SCRIPT := ../scripts
 SCRIPTS = generate.sh export_all.sh
 ENV_FILE = tmp.env
 
@@ -64,12 +65,13 @@ set-env:
 	echo "export VAULT_DIR_MIGRATION='tmp_migration'" >> $(ENV_FILE)
 
 generate-items:
-	source $(ENV_FILE) && bash ../scripts/generate.sh
+	# source $(ENV_FILE) && bash $(DIR_SCRIPT)/generate.sh
+	source $(ENV_FILE) && bash $(DIR_SCRIPT)/generate_policy.sh
 
 export-items:
-	source $(ENV_FILE) && bash ../scripts/export_main.sh
-	source $(ENV_FILE) && bash ../scripts/export_auth_method.sh
+	source $(ENV_FILE) && bash $(DIR_SCRIPT)/export_main.sh
+	source $(ENV_FILE) && bash $(DIR_SCRIPT)/export_auth_method.sh
 
 import-items:
-	source $(ENV_FILE) && bash ../scripts/import_main.sh
-	# source $(ENV_FILE) && bash ../scripts/import_auth_method.sh
+	source $(ENV_FILE) && bash $(DIR_SCRIPT)/import_main.sh
+	# source $(ENV_FILE) && bash $(DIR_SCRIPT)/import_auth_method.sh

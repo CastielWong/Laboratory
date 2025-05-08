@@ -36,6 +36,7 @@ Receipt for use case:
 - `make export-items`
 - `make import-items`
 
+To clean up, simply run `make destroy` should do.
 
 
 ### Common Command

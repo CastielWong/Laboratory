@@ -9,8 +9,7 @@ set -eo pipefail
 DIR_INPUT="${VAULT_DIR_MIGRATION}/auth_methods"
 ###############################################################################
 
-
-dashline() {
+separator() {
     printf "%.0s${1}" {1..80}; echo
 }
 
@@ -146,7 +145,7 @@ import_approle_config() {
 ### Main Execution ###
 log "Starting Vault auth method import to ${VAULT_ADDR}"
 log "Input directory: ${DIR_INPUT}"
-dashline
+separator
 
 [ ! -d "${DIR_INPUT}" ] && {
     log "Error: Input directory ${DIR_INPUT} not found"
@@ -158,7 +157,7 @@ find "${DIR_INPUT}" -mindepth 1 -maxdepth 1 -type d | \
     while read -r method_dir; do
         mount_path=$(basename "${method_dir}")
         import_auth_method "${mount_path}"
-        dashline
+        separator
     done
 
 log "Auth method import completed"
@@ -167,7 +166,7 @@ echo "      Some methods may require manual configuration post-import"
 
 
 
-dashline "="
+separator "="
 echo "Importing Entities..."
 find "${dir_input}/entities" -name "*.json" | \
     while read -r entity_file; do
