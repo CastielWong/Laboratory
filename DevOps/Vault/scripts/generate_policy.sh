@@ -38,13 +38,14 @@ post_policy() {
         ${VAULT_ADDR}/v1/sys/policy/${policy_name}
 }
 
-
+# option 1: Vault CLI
 for name in "${!fruits_1[@]}"; do
     separator "-"
     echo "Creating policy '${name}'"
     vault policy write "${name}" "${DIR_SCRIPT_ABS}/policy/${fruits_1[${name}]}"
 done
 
+# option 2: REST API
 for name in "${!fruits_2[@]}"; do
     separator "-"
     echo "Creating policy '${name}'"

@@ -1,0 +1,8 @@
+{
+    "type": "file",
+    "description": "log customization",
+    "options": {
+        "file_path": "/tmp/demoing-audit.log",
+        "prefix": "DEMO -- "
+    }
+}

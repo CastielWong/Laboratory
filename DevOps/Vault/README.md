@@ -152,6 +152,12 @@ vault kv put -mount=<path> {name} {key}={value}
 vault kv get -mount=<path> {name}
 vault kv list {path}
 
+# ============audit============
+vault audit list -detailed
+curl -s --header "X-Vault-Token: ${VAULT_TOKEN}" ${VAULT_ADDR}/v1/sys/audit | jq
+
+vault audit disable {path-name}
+
 # ============other============
 vault token capabilities secret/{path}
 ```

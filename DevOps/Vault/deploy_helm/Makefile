@@ -64,6 +64,12 @@ set-env:
 	echo "export VAULT_TOKEN=$$(kubectl logs -n demo-vault vault-0 | grep 'Root Token:' | awk '{print $$3}')" >> $(ENV_FILE)
 	echo "export VAULT_DIR_MIGRATION='tmp_migration'" >> $(ENV_FILE)
 
+setup-audit:
+	source $(ENV_FILE) && bash $(DIR_SCRIPT)/setup_audit.sh
+
+generate-secret-kv:
+	source $(ENV_FILE) && bash $(DIR_SCRIPT)/generate_secret.sh
+
 generate-items:
 	# source $(ENV_FILE) && bash $(DIR_SCRIPT)/generate.sh
 	source $(ENV_FILE) && bash $(DIR_SCRIPT)/generate_policy.sh
