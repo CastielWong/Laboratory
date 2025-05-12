@@ -91,14 +91,14 @@ vault status
 # check current token using
 vault token lookup
 
-vault login -method=<type> ...
+vault login -method=${type} ...
 
 # check which auth methods are enabled
 vault auth list -detailed
 # get the accessor of the specified userpass through `jq`
-vault auth list -format=json | jq -r '.["userpass-{name}/"].accessor'
+vault auth list -format=json | jq -r '.["userpass-${name}/"].accessor'
 
-vault auth enable -path='<name>' {type}
+vault auth enable -path='${name}' ${type}
 
 # list existing roles
 vault list auth/approle/role
@@ -109,57 +109,65 @@ vault policy list
 
 # ============policy============
 # create a new policy
-vault policy write {policy_name} -<<EOF
+vault policy write ${policy_name} -<<EOF
 # comment
 path "secret/data/*" {
     capabilities = [ "read" ]
 }
 EOF
 
-# ============role============
+# read a policy
+vault policy read ${policy_name}
+
+# ============approle============
+vault auth enable approle
+
 # create a new role
-vault write auth/approle/role/{role_name} \
-    token_policies="{policy_name}" \
+vault write auth/approle/role/${role_name} \
+    token_policies="${policy_name}" \
     token_ttl=1h token_max_ttl=4h
 
 # read the role for its settings
-vault read auth/approle/role/{role_name}
-
-# retrieve RoleID/SecretID of a role through its name
-vault read auth/approle/role/{role_name}/role-id
-vault list auth/approle/role/{role_name}/secret-id
+vault read auth/approle/role/${role_name}
 
 # generate SecretID for the role
-vault write -force auth/approle/role/{role_name}/secret-id
+vault write -force auth/approle/role/${role_name}/secret-id
 
+# retrieve RoleID/SecretID of a role through its name
+vault read auth/approle/role/${role_name}/role-id
+# list available secrets with their accessor
+vault list auth/approle/role/${role_name}/secret-id
+
+vault delete auth/approle/role/${role_name}
 # ============entity============
 # corresponding entity would be created automatically
 vault write auth/approle/login role_id="" secret_id=""
 
-vault write identity/entity name="{entity-name}" \
-    policies="{policy-name}" \
+vault write identity/entity name="${entity_name}" \
+    policies="${policy-name}" \
     metadata=description="readable entity"
 
-vault read -format=json identity/entity/id/{entity_id}
-vault read identity/entity-alias/id/{alias_id}
+vault read -format=json identity/entity/id/${entity_id}
+vault read identity/entity-alias/id/${alias_id}
 
 # ============secret============
-vault auth enable approle
+vault auth enable -path="userpass-${name}" userpass
 
-vault auth enable -path="userpass-{name}" userpass
+vault kv list ${mount_path}
 
-vault kv put -mount=<path> {name} {key}={value}
-vault kv get -mount=<path> {name}
-vault kv list {path}
+vault kv put -mount=${mount_path} ${item_name} ${key}=${value}
+vault kv get -mount=${mount_path} ${item_name}
 
 # ============audit============
 vault audit list -detailed
 curl -s --header "X-Vault-Token: ${VAULT_TOKEN}" ${VAULT_ADDR}/v1/sys/audit | jq
 
-vault audit disable {path-name}
+vault audit disable ${path_name}
 
 # ============other============
-vault token capabilities secret/{path}
+vault auth disable ${auth}
+
+vault token capabilities secret/${path}
 ```
 
 

@@ -67,12 +67,17 @@ set-env:
 setup-audit:
 	source $(ENV_FILE) && bash $(DIR_SCRIPT)/setup_audit.sh
 
+setup-approle: generate-policy
+	source $(ENV_FILE) && bash $(DIR_SCRIPT)/setup_approle.sh
+
+generate-policy:
+	source $(ENV_FILE) && bash $(DIR_SCRIPT)/generate_policy.sh
+
 generate-secret-kv:
 	source $(ENV_FILE) && bash $(DIR_SCRIPT)/generate_secret.sh
 
 generate-items:
-	# source $(ENV_FILE) && bash $(DIR_SCRIPT)/generate.sh
-	source $(ENV_FILE) && bash $(DIR_SCRIPT)/generate_policy.sh
+	source $(ENV_FILE) && bash $(DIR_SCRIPT)/generate.sh
 
 export-items:
 	source $(ENV_FILE) && bash $(DIR_SCRIPT)/export_main.sh

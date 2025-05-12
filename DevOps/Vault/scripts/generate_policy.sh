@@ -52,3 +52,10 @@ for name in "${!fruits_2[@]}"; do
     post_policy "${name}" "${DIR_SCRIPT_ABS}/policy/${fruits_2[${name}]}"
     echo "Policy '${name}' is created"
 done
+
+######################################################################
+# commands to verify
+
+# vault policy list
+
+# vault policy read ${policy_name}

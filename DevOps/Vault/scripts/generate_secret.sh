@@ -39,6 +39,7 @@ post_secret_kv() {
         return 1
     fi
 
+    # file setting is supported by REST API only
     curl -k -L -sS \
         --header "X-Vault-Token: ${VAULT_TOKEN}" \
         --request POST \
@@ -58,9 +59,17 @@ fi
 # option 2: REST API
 echo "Enabling secret - kv '${KV_VIA_REST}'"
 enable_secret_kv "${KV_VIA_REST}" "${DIR_SCRIPT_ABS}/config/${SECRET_MOUNT}"
-# # -----------------------------------------------------------------------------
-# # create secrets
-# for secret_path in "${!secrets[@]}"; do
-#     echo "Creating secrect in '${secret_path}/'"
-#     post_secret_kv "${secret_path}" "${DIR_SCRIPT_ABS}/secret/${secrets[${secret_path}]}" || exit 1
-# done
+
+# -----------------------------------------------------------------------------
+# create secrets
+for secret_path in "${!secrets[@]}"; do
+    echo "Creating secrect in '${secret_path}/'"
+    post_secret_kv "${secret_path}" "${DIR_SCRIPT_ABS}/secret/${secrets[${secret_path}]}" || exit 1
+done
+
+######################################################################
+# commands to verify
+
+# vault kv list ${mount_path}
+
+# vault kv get -mount=${mount_path} ${item_name}
