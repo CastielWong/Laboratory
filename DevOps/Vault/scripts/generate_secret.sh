@@ -15,7 +15,7 @@ KV_VIA_REST="demo-rest-api"
 
 declare -A secrets=(
     ["${KV_VIA_VAULT}/data/cherry"]="cherry.json"
-    ["${KV_VIA_REST}/data/durian"]="durian.json"
+    ["${KV_VIA_REST}/data/checking/durian"]="durian.json"
     ["${KV_VIA_REST}/data/eggplant"]="eggplant.json"
 )
 

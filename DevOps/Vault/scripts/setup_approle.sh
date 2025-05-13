@@ -11,7 +11,12 @@ separator() {
     echo
 }
 
+APPROLE_PATH="demo-approle"
 DIR_SCRIPT_ABS=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+_DIR_APPROLE="${DIR_SCRIPT_ABS}/tmp_approle"
+mkdir ${_DIR_APPROLE}
+
 
 declare -A approles=(
     ["apple"]="apple"
@@ -56,16 +61,16 @@ post_approle() {
 
 # -----------------------------------------------------------------------------
 # enable AppRole
-if vault auth list | grep -q '^approle/'; then
+if vault auth list | grep -q '^${APPROLE_PATH}/'; then
     echo "AppRole is already enabled."
 else
-    vault auth enable approle
+    vault auth enable -path=${APPROLE_PATH} approle
 
     # curl -k -sSL \
     #     --header "X-Vault-Token: ${VAULT_TOKEN}" \
     #     --request POST \
     #     --data '{"type": "approle"}' \
-    #     ${VAULT_ADDR}/v1/sys/auth/approle
+    #     ${VAULT_ADDR}/v1/sys/auth/${APPROLE_PATH}
 fi
 
 # -----------------------------------------------------------------------------
@@ -73,27 +78,46 @@ fi
 for role_name in "${!approles[@]}"; do
     echo "Creating AppRole '${role_name}'"
 
+    payload_file="${_DIR_APPROLE}/${role_name}.txt"
+
     # option 1: Vault CLI - policy created
     # policies should be existed
-    vault write auth/approle/role/${role_name} \
+    vault write auth/${APPROLE_PATH}/role/${role_name} \
         token_policies="${approles[${role_name}]}"
 
-    vault read auth/approle/role/${role_name}/role-id
-
+    vault read auth/${APPROLE_PATH}/role/${role_name}/role-id > ${payload_file}
+    echo "" >> ${payload_file}
     # generate SecretID for the role
-    vault write -force auth/approle/role/${role_name}/secret-id
+    vault write -force auth/${APPROLE_PATH}/role/${role_name}/secret-id >> ${payload_file}
 
     # # option 2: REST API - inline policy
     # post_approle ${role_name} ${approles[${role_name}]}
 done
 
+# -----------------------------------------------------------------------------
+# create Entity and link AppRole with alias
+for role_name in "${!approles[@]}"; do
+    entity_alias="${role_name}_approle"
+
+    echo "Creating Entity '${role_name}'"
+    vault write identity/entity name="${role_name}"
+
+    echo "Alias AppRole to the Entity - '${role_name}'"
+    vault write identity/entity-alias \
+        name="${entity_alias}" \
+        canonical_id=$(vault read -field=id identity/entity/name/${role_name}) \
+        mount_accessor=$(
+            vault auth list -format=json |
+            jq -r --arg path "${APPROLE_PATH}/" '.[$path].accessor'
+        )
+done
 ######################################################################
 # commands to verify
 
-# vault list auth/approle/role
+# vault list auth/${APPROLE_PATH}/role
 
-# vault read auth/approle/role/${role_name}
+# vault read auth/${APPROLE_PATH}/role/${role_name}
 
-# vault list auth/approle/role/${role_name}/secret-id
+# vault list auth/${APPROLE_PATH}/role/${role_name}/secret-id
 
-# vault delete auth/approle/role/${role_name}
+# vault delete auth/${APPROLE_PATH}/role/${role_name}

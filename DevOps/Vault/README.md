@@ -104,6 +104,11 @@ vault auth enable -path='${name}' ${type}
 vault list auth/approle/role
 
 vault list identity/entity/id
+# list entities with readable names
+vault list -format=json identity/entity/id | jq -r '.[]' | while read id; do
+  vault read -format=json identity/entity/id/${id} | jq -r '.data.name'
+done
+
 vault secrets list
 vault policy list
 
