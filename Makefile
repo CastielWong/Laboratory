@@ -1,4 +1,6 @@
 
+SHELL := /bin/bash
+
 dir_script = ./dev/script
 
 

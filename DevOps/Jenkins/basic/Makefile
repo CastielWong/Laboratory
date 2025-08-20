@@ -1,4 +1,6 @@
 
+SHELL := /bin/bash
+
 CONTAINER_JENKINS := lab-jenkins
 
 start:

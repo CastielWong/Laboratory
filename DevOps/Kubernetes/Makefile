@@ -1,4 +1,6 @@
 
+SHELL := /bin/bash
+
 start:
 	# minikube start --driver=docker
 	minikube start --driver=hyperkit

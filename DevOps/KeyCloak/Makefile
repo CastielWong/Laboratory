@@ -1,4 +1,6 @@
 
+SHELL := /bin/bash
+
 CONTAINER_KEYCLOAK := lab-keycloak
 CONTAINER_GITLAB := lab-kc-gitlab
 

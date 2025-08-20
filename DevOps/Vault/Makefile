@@ -1,4 +1,6 @@
 
+SHELL := /bin/bash
+
 IMAGE_NAME := lab-vault:demo
 CONTAINER_NAME := demo-vault
 VOLUME_NAME := lab-vault-data

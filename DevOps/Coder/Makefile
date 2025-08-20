@@ -1,4 +1,6 @@
 
+SHELL := /bin/bash
+
 CONTAINER_CODER := lab-coder
 VOLUME_CODER := lab_coder_db
 

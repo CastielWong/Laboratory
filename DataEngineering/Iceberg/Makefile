@@ -1,3 +1,6 @@
+
+SHELL := /bin/bash
+
 .PHONY: run clean
 
 CONTAINER_NAME := lab-iceberg-spark

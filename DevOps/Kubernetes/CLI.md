@@ -28,7 +28,7 @@ kubectl version
 # check current context like namespace, cluster etc.
 kubectl config view --minify
 kubectl config get-contexts
-kubectl config current-contexts
+kubectl config current-context
 kubectl config set-contexts --current --namespace=<namespace>
 
 kubectl describe nodes {node}
@@ -125,10 +125,10 @@ TOKEN=$(kubectl describe secret -n kube-system $(kubectl get secrets -n kube-sys
 
 APISERVER=$(kubectl config view | grep https | cut -f 2- -d ":" | tr -d " ")
 
-echo $TOKEN
-echo $APISERVER
+echo ${TOKEN}
+echo ${APISERVER}
 
-curl $APISERVER --header "Authorization: Bearer $TOKEN" --insecure
+curl ${APISERVER} --header "Authorization: Bearer ${TOKEN}" --insecure
 
-curl $APISERVER --cert encoded-cert --key encoded-key --cacert encoded-ca
+curl ${APISERVER} --cert encoded-cert --key encoded-key --cacert encoded-ca
 ```

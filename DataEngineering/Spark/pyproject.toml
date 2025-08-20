@@ -1,0 +1,6 @@
+
+[tool.poe]
+include = ["${POE_ROOT}/tasks.toml"]
+
+[tool.poe.executor]
+type = "auto"

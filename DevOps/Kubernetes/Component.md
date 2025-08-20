@@ -70,6 +70,7 @@ Object Models:
   - ConfigMap: store non-sensitive configuration as key-value pairs
   - Secret: similar to __ConfigMap__ but for sensitive data, stored encoded
   - Volume: provide ephemeral storage to __Pods__
+  - StorageClass:
   - PersistentVolume (PV): cluster-wide storage resource
   - PersistentVolumeClaim (PVC): __Pod__'s request for storage from a __PV__
 - Cluster Management
@@ -87,6 +88,7 @@ Logical Hierarchy:
 - Service -> Endpoint -> Pod
 - Ingress -> Routes to Service -> Pods
 - StatefulSet -> Pods + PersistentVolumeClaims
+- StorageClass -> PersistentVolumes -> PersistentVolumeClaims
 
 
 

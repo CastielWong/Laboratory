@@ -2,8 +2,10 @@
 - [Development](#development)
 - [Setup](#setup)
   - [Virtual Environment](#virtual-environment)
-    - [Mac](#mac)
-    - [Linux](#linux)
+    - [Installation](#installation)
+      - [Mac](#mac)
+      - [Linux](#linux)
+    - [Usage](#usage)
   - [Code Quality](#code-quality)
 - [Git](#git)
   - [Worktree](#worktree)
@@ -15,29 +17,36 @@
   - [Submodule](#submodule)
   - [Revert](#revert)
   - [Common Command](#common-command)
-- [Usage](#usage)
+- [Tool](#tool)
   - [Docker](#docker)
   - [Makefile](#makefile)
+  - [Poe The Poet](#poe-the-poet)
 - [Reference](#reference)
 
 
 This repo is for experiments of any greenfield technologies or some quick catch-ups.
 
 ## Development
-After complete a feature branch (after merged), run `bash ./dev/script/tag_feature.sh '{name}' '{tag description}'` to tag current commit then synchronize for remote.
-
+After complete a feature branch (after merged),
+run `bash ./dev/script/tag_feature.sh '{name}' '{tag description}'`
+to tag current commit then synchronize for remote.
 
 
 ## Setup
 
 ### Virtual Environment
-Since most of the scripts involved would be in Python, to make the environment clean and easy to manage, [pyenv](https://github.com/pyenv/pyenv) is used to manage Python version and libraries.
+Since most of the scripts involved would be in Python, to make the environment
+clean and easy to manage, [pyenv](https://github.com/pyenv/pyenv) is used to manage
+Python version and libraries.
 
-#### Mac
+#### Installation
+##### Mac
 For Mac user, it's suggested to install [Homebrew](https://brew.sh/) to get "pyenv":
 ```sh
 # update Homebrew
 brew update
+brew upgrade
+
 brew install pyenv
 # install the needed library for pyenv
 brew install pyenv-virtualenv
@@ -58,7 +67,7 @@ eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 ```
 
-#### Linux
+##### Linux
 For Linux user, follow steps below for the installation:
 ```sh
 # install pyenv
@@ -92,6 +101,7 @@ apt-get install build-essential \
     -y
 ```
 
+#### Usage
 Then apply `pyenv` to create and use the virtual environment. Below is those commonly used commands:
 ```sh
 # install python with specified version, run `pyenv install --list` to check what version is available
@@ -273,7 +283,7 @@ git worktree prune
 ```
 
 
-## Usage
+## Tool
 If a new account, for admin or normal user, is needed to create, follow the suggested below:
 - username: demo, admin, root
 - password: admin, try4Lab, try4Laboratory
@@ -289,6 +299,14 @@ Most of labs are done in Docker. For convenience, common Docker commands are lis
 ### Makefile
 `make` is available to formalize and unify the way for development.
 
+### Poe The Poet
+[Poe The Poet](https://poethepoet.natn.io/) is used as task runner for the
+convenience of triggering.
+
+```sh
+brew tap nat-n/poethepoet
+brew install nat-n/poethepoet/poethepoet
+```
 
 
 ## Reference
